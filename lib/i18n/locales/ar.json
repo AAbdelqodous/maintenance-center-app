@@ -1,0 +1,112 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "back": "رجوع",
+    "yes": "نعم",
+    "no": "لا",
+    "submit": "إرسال",
+    "retry": "إعادة المحاولة",
+    "noData": "لا توجد بيانات"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "loginButton": "دخول",
+    "loginError": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "logout": "تسجيل الخروج"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "welcome": "مرحباً، {{name}}",
+    "todayBookings": "حجوزات اليوم",
+    "pendingBookings": "قيد الانتظار",
+    "confirmedBookings": "مؤكد",
+    "totalReviews": "إجمالي التقييمات",
+    "averageRating": "متوسط التقييم",
+    "recentBookings": "أحدث الحجوزات",
+    "quickActions": "إجراءات سريعة"
+  },
+  "bookings": {
+    "title": "الحجوزات",
+    "all": "الكل",
+    "pending": "قيد الانتظار",
+    "confirmed": "مؤكد",
+    "inProgress": "جاري العمل",
+    "completed": "مكتمل",
+    "cancelled": "ملغي",
+    "noBookings": "لا توجد حجوزات",
+    "bookingId": "حجز #{{id}}",
+    "customer": "العميل",
+    "service": "الخدمة",
+    "date": "التاريخ",
+    "time": "الوقت",
+    "status": "الحالة",
+    "notes": "ملاحظات",
+    "updateStatus": "تحديث الحالة",
+    "confirmBooking": "تأكيد",
+    "startService": "بدء الخدمة",
+    "completeService": "إكمال",
+    "cancelBooking": "إلغاء",
+    "statusUpdated": "تم تحديث الحالة بنجاح",
+    "serviceType": {
+      "car": "سيارات",
+      "electronics": "إلكترونيات",
+      "homeAppliance": "أجهزة منزلية"
+    }
+  },
+  "chat": {
+    "title": "الرسائل",
+    "noConversations": "لا توجد محادثات",
+    "typeMessage": "اكتب رسالة...",
+    "send": "إرسال",
+    "customer": "العميل"
+  },
+  "reviews": {
+    "title": "التقييمات",
+    "noReviews": "لا توجد تقييمات",
+    "reply": "رد",
+    "replyPlaceholder": "اكتب رداً...",
+    "submitReply": "إرسال الرد",
+    "rating": "التقييم"
+  },
+  "profile": {
+    "title": "ملف المركز",
+    "centerName": "اسم المركز",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "address": "العنوان",
+    "city": "المدينة",
+    "area": "المنطقة",
+    "description": "الوصف",
+    "openingHours": "ساعات العمل",
+    "updateProfile": "تحديث الملف",
+    "profileUpdated": "تم تحديث الملف بنجاح",
+    "photos": "صور المركز",
+    "addPhoto": "إضافة صورة",
+    "isOpen": "مفتوح الآن",
+    "isClosed": "مغلق"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "noNotifications": "لا توجد إشعارات",
+    "markAllRead": "تحديد الكل كمقروء",
+    "newBooking": "حجز جديد",
+    "bookingCancelled": "إلغاء الحجز",
+    "newReview": "تقييم جديد",
+    "newMessage": "رسالة جديدة"
+  },
+  "complaints": {
+    "title": "الشكاوى",
+    "noComplaints": "لا توجد شكاوى",
+    "status": "الحالة",
+    "priority": "الأولوية",
+    "respondButton": "رد"
+  }
+}

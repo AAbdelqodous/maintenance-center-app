@@ -1,0 +1,3 @@
+export const API_BASE_URL = 'http://10.0.2.2:8080/api/v1';
+export const SERVER_URL = API_BASE_URL.replace('/api/v1', '');
+export const WS_URL = API_BASE_URL.replace('/api/v1', '') + '/ws';

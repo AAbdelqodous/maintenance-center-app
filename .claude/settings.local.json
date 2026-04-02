@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv tool:*)",
+      "Bash(python -m specify --help)",
+      "Bash(specify --version)",
+      "WebFetch(domain:github.com)",
+      "Bash(python3 -c \"import json,sys; data=json.load\\(sys.stdin\\); print\\(data[0][''''text'''']\\)\")",
+      "Bash(xargs grep:*)",
+      "Read(//c/Users/ahmed.elsayed/MaintenanceCenters/life-experience-app/service-center/src/main/java/com/maintainance/service_center/center/**)"
+    ]
+  }
+}

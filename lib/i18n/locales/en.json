@@ -1,0 +1,112 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "yes": "Yes",
+    "no": "No",
+    "submit": "Submit",
+    "retry": "Retry",
+    "noData": "No data available"
+  },
+  "auth": {
+    "login": "Login",
+    "email": "Email",
+    "password": "Password",
+    "loginButton": "Sign In",
+    "loginError": "Invalid email or password",
+    "logout": "Logout"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {{name}}",
+    "todayBookings": "Today's Bookings",
+    "pendingBookings": "Pending",
+    "confirmedBookings": "Confirmed",
+    "totalReviews": "Total Reviews",
+    "averageRating": "Avg. Rating",
+    "recentBookings": "Recent Bookings",
+    "quickActions": "Quick Actions"
+  },
+  "bookings": {
+    "title": "Bookings",
+    "all": "All",
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "noBookings": "No bookings found",
+    "bookingId": "Booking #{{id}}",
+    "customer": "Customer",
+    "service": "Service",
+    "date": "Date",
+    "time": "Time",
+    "status": "Status",
+    "notes": "Notes",
+    "updateStatus": "Update Status",
+    "confirmBooking": "Confirm",
+    "startService": "Start Service",
+    "completeService": "Mark Complete",
+    "cancelBooking": "Cancel",
+    "statusUpdated": "Status updated successfully",
+    "serviceType": {
+      "car": "Car",
+      "electronics": "Electronics",
+      "homeAppliance": "Home Appliance"
+    }
+  },
+  "chat": {
+    "title": "Messages",
+    "noConversations": "No conversations yet",
+    "typeMessage": "Type a message...",
+    "send": "Send",
+    "customer": "Customer"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "noReviews": "No reviews yet",
+    "reply": "Reply",
+    "replyPlaceholder": "Write a reply...",
+    "submitReply": "Submit Reply",
+    "rating": "Rating"
+  },
+  "profile": {
+    "title": "Center Profile",
+    "centerName": "Center Name",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "city": "City",
+    "area": "Area",
+    "description": "Description",
+    "openingHours": "Opening Hours",
+    "updateProfile": "Update Profile",
+    "profileUpdated": "Profile updated successfully",
+    "photos": "Center Photos",
+    "addPhoto": "Add Photo",
+    "isOpen": "Open Now",
+    "isClosed": "Closed"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "noNotifications": "No notifications",
+    "markAllRead": "Mark All as Read",
+    "newBooking": "New Booking",
+    "bookingCancelled": "Booking Cancelled",
+    "newReview": "New Review",
+    "newMessage": "New Message"
+  },
+  "complaints": {
+    "title": "Complaints",
+    "noComplaints": "No complaints",
+    "status": "Status",
+    "priority": "Priority",
+    "respondButton": "Respond"
+  }
+}
