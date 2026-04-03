@@ -12,7 +12,10 @@
     "no": "لا",
     "submit": "إرسال",
     "retry": "إعادة المحاولة",
-    "noData": "لا توجد بيانات"
+    "noData": "لا توجد بيانات",
+    "contact": "التواصل",
+    "justNow": "الآن",
+    "fillRequired": "يرجى ملء جميع الحقول المطلوبة"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -20,12 +23,14 @@
     "password": "كلمة المرور",
     "loginButton": "دخول",
     "loginError": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "logoutConfirm": "هل أنت متأكد من تسجيل الخروج؟"
   },
   "dashboard": {
     "title": "لوحة التحكم",
     "welcome": "مرحباً، {{name}}",
     "todayBookings": "حجوزات اليوم",
+    "totalBookings": "إجمالي الحجوزات",
     "pendingBookings": "قيد الانتظار",
     "confirmedBookings": "مؤكد",
     "totalReviews": "إجمالي التقييمات",
@@ -91,7 +96,8 @@
     "photos": "صور المركز",
     "addPhoto": "إضافة صورة",
     "isOpen": "مفتوح الآن",
-    "isClosed": "مغلق"
+    "isClosed": "مغلق",
+    "categories": "فئات الخدمة"
   },
   "notifications": {
     "title": "الإشعارات",

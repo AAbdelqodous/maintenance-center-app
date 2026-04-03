@@ -2,32 +2,23 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_BASE_URL } from '../../lib/constants/config';
 import { RootState } from '../index';
 
-export enum NotificationType {
-  BOOKING_CREATED = 'BOOKING_CREATED',
-  BOOKING_UPDATED = 'BOOKING_UPDATED',
-  BOOKING_CANCELLED = 'BOOKING_CANCELLED',
-  NEW_REVIEW = 'NEW_REVIEW',
-  NEW_MESSAGE = 'NEW_MESSAGE',
-  COMPLAINT_SUBMITTED = 'COMPLAINT_SUBMITTED',
-  SYSTEM = 'SYSTEM',
-}
-
-export enum NotificationPriority {
-  LOW = 'LOW', NORMAL = 'NORMAL', HIGH = 'HIGH', URGENT = 'URGENT',
-}
-
 export interface Notification {
   id: number;
-  type: NotificationType; priority: NotificationPriority;
-  titleAr: string; titleEn: string;
-  bodyAr: string; bodyEn: string;
-  read: boolean; actionUrl?: string;
+  titleAr: string;
+  titleEn: string;
+  bodyAr: string;
+  bodyEn: string;
+  notificationType: string;
+  notificationPriority: string;
+  isRead: boolean;
+  actionUrl?: string;
   createdAt: string;
 }
 
 export interface NotificationsResponse {
   content: Notification[];
-  totalElements: number; unreadCount: number;
+  totalElements: number;
+  unreadCount: number;
 }
 
 export const notificationsApi = createApi({
@@ -45,6 +36,11 @@ export const notificationsApi = createApi({
     getNotifications: builder.query<NotificationsResponse, { page?: number; size?: number }>({
       query: (params) => ({ url: '/notifications', params }),
       providesTags: ['Notification'],
+      transformResponse: (response: any) => ({
+        content: response.content ?? [],
+        totalElements: response.totalElements ?? 0,
+        unreadCount: response.unreadCount ?? 0,
+      }),
     }),
     markNotificationAsRead: builder.mutation<void, number>({
       query: (id) => ({ url: `/notifications/${id}/read`, method: 'PUT' }),

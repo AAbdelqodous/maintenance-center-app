@@ -45,7 +45,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
     <View style={styles.container}>
       <View style={[styles.header, isRTL && styles.rowRtl]}>
         <View>
-          <Text style={styles.customerName}>{review.customerName}</Text>
+          <Text style={styles.customerName}>{review.userFirstname} {review.userLastname}</Text>
           <Text style={styles.date}>{formatDate(review.createdAt)}</Text>
         </View>
         <RatingStars rating={review.rating} />

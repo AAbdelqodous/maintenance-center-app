@@ -1,6 +1,6 @@
 import { Provider } from 'react-redux';
-import { store } from '../store';
 import { Stack } from 'expo-router';
+import { store } from '../store';
 import '../lib/i18n';
 
 export default function RootLayout() {

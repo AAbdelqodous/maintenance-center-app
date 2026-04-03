@@ -12,7 +12,10 @@
     "no": "No",
     "submit": "Submit",
     "retry": "Retry",
-    "noData": "No data available"
+    "noData": "No data available",
+    "contact": "Contact",
+    "justNow": "Just now",
+    "fillRequired": "Please fill in all required fields"
   },
   "auth": {
     "login": "Login",
@@ -20,12 +23,14 @@
     "password": "Password",
     "loginButton": "Sign In",
     "loginError": "Invalid email or password",
-    "logout": "Logout"
+    "logout": "Logout",
+    "logoutConfirm": "Are you sure you want to logout?"
   },
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome, {{name}}",
     "todayBookings": "Today's Bookings",
+    "totalBookings": "Total Bookings",
     "pendingBookings": "Pending",
     "confirmedBookings": "Confirmed",
     "totalReviews": "Total Reviews",
@@ -91,7 +96,8 @@
     "photos": "Center Photos",
     "addPhoto": "Add Photo",
     "isOpen": "Open Now",
-    "isClosed": "Closed"
+    "isClosed": "Closed",
+    "categories": "Service Categories"
   },
   "notifications": {
     "title": "Notifications",

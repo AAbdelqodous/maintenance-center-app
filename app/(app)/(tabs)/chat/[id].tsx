@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { useGetMessagesQuery, useSendMessageMutation, useMarkConversationAsReadMutation, Message, SenderType } from '../../../store/api/chatApi';
-import { MessageBubble } from '../../../components/chat/MessageBubble';
-import { useAppSelector } from '../../../store';
+import { useGetMessagesQuery, useSendMessageMutation, useMarkConversationAsReadMutation, Message, SenderType } from '@/store/api/chatApi';
+import { MessageBubble } from '@/components/chat/MessageBubble';
+import { useAppSelector } from '@/store';
 import { Client } from '@stomp/stompjs';
-import { WS_URL } from '../../../lib/constants/config';
+import { WS_URL } from '@/lib/constants/config';
 
 export default function ChatDetailScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const isRTL = i18n.dir() === 'rtl';
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, centerId } = useLocalSearchParams<{ id: string; centerId: string }>();
   const session = useAppSelector((state) => state.auth.session);
 
   const [messageText, setMessageText] = useState('');
@@ -37,7 +37,7 @@ export default function ChatDetailScreen() {
   useEffect(() => {
     if (session) {
       const stompClient = new Client({
-        brokerURL: WS_URL.replace('http', 'ws'),
+        brokerURL: WS_URL,
         connectHeaders: {
           Authorization: `Bearer ${session.token}`,
         },
@@ -98,7 +98,7 @@ export default function ChatDetailScreen() {
 
     try {
       await sendMessage({
-        centerId: 0,
+        centerId: Number(centerId),
         content: textToSend,
       }).unwrap();
     } catch (error) {

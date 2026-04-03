@@ -3,10 +3,10 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { useGetBookingStatsQuery, useGetBookingsQuery } from '../../store/api/bookingsApi';
-import { useGetMyCenterQuery } from '../../store/api/centerApi';
-import { BookingCard } from '../../components/bookings/BookingCard';
-import { RatingStars } from '../../components/ui/RatingStars';
+import { useGetBookingStatsQuery, useGetBookingsQuery } from '@/store/api/bookingsApi';
+import { useGetMyCenterQuery } from '@/store/api/centerApi';
+import { BookingCard } from '@/components/bookings/BookingCard';
+import { RatingStars } from '@/components/ui/RatingStars';
 
 export default function DashboardScreen() {
   const { t, i18n } = useTranslation();
@@ -54,7 +54,7 @@ export default function DashboardScreen() {
       <Text style={styles.welcome}>{t('dashboard.welcome', { name: centerData?.nameEn || 'Owner' })}</Text>
 
       <View style={styles.statsGrid}>
-        <StatCard title={t('dashboard.todayBookings')} value={stats?.today ?? 0} icon="calendar" color="#2196F3" />
+        <StatCard title={t('dashboard.totalBookings')} value={stats?.total ?? 0} icon="calendar" color="#2196F3" />
         <StatCard title={t('dashboard.pendingBookings')} value={stats?.pending ?? 0} icon="time" color="#FF9800" />
         <StatCard title={t('dashboard.confirmedBookings')} value={stats?.confirmed ?? 0} icon="checkmark-circle" color="#4CAF50" />
         <View style={[styles.statCard, isRTL && styles.cardRtl, styles.ratingCard]}>
@@ -63,7 +63,7 @@ export default function DashboardScreen() {
           </View>
           <View style={styles.statContent}>
             <RatingStars rating={centerData?.averageRating ?? 0} />
-            <Text style={styles.statTitle}>{centerData?.reviewCount ?? 0} {t('dashboard.totalReviews')}</Text>
+            <Text style={styles.statTitle}>{centerData?.totalReviews ?? 0} {t('dashboard.totalReviews')}</Text>
           </View>
         </View>
       </View>

@@ -9,21 +9,31 @@ export enum SenderType {
 }
 
 export interface Message {
-  id: number; conversationId: number;
-  senderId: number; senderType: SenderType; senderName: string;
-  content: string; read: boolean; createdAt: string;
+  id: number;
+  conversationId: number;
+  senderId: number;
+  senderType: SenderType;
+  senderName: string;
+  content: string;
+  read: boolean;
+  createdAt: string;
 }
 
 export interface Conversation {
-  id: number; centerId: number;
-  centerNameAr: string; centerNameEn: string;
-  customerId: number; customerName: string;
-  lastMessage?: string; lastMessageAt?: string;
+  id: number;
+  centerId: number;
+  centerNameAr: string;
+  centerNameEn: string;
+  customerId: number;
+  customerName: string;
+  lastMessage?: string;
+  lastMessageAt?: string;
   unreadCount: number;
 }
 
 export interface SendMessageRequest {
-  centerId: number; content: string;
+  centerId: number;
+  content: string;
 }
 
 export const chatApi = createApi({
@@ -41,10 +51,20 @@ export const chatApi = createApi({
     getConversations: builder.query<Conversation[], void>({
       query: () => '/conversations/center',
       providesTags: ['Conversation'],
+      transformResponse: (response: any) => {
+        if (Array.isArray(response)) return response;
+        if (response?.content) return response.content;
+        return [];
+      },
     }),
     getMessages: builder.query<Message[], number>({
       query: (conversationId) => `/conversations/${conversationId}/messages`,
       providesTags: (result, error, id) => [{ type: 'Message', id }],
+      transformResponse: (response: any) => {
+        if (Array.isArray(response)) return response;
+        if (response?.content) return response.content;
+        return [];
+      },
     }),
     sendMessage: builder.mutation<Message, SendMessageRequest>({
       query: (body) => ({ url: '/conversations/messages', method: 'POST', body }),

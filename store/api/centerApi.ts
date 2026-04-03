@@ -3,35 +3,65 @@ import { API_BASE_URL } from '../../lib/constants/config';
 import { RootState } from '../index';
 
 export interface Address {
-  street: string; city: string; area: string;
-  postalCode?: string; buildingNumber?: string;
+  street?: string;
+  streetAr?: string;
+  streetEn?: string;
+  city?: string;
+  cityAr?: string;
+  cityEn?: string;
+  area?: string;
+  districtAr?: string;
+  districtEn?: string;
+  postalCode?: string;
+  buildingNumber?: string;
 }
 
 export interface ServiceCategory {
-  id: number; nameAr: string; nameEn: string; icon?: string;
+  id: number;
+  nameAr: string;
+  nameEn: string;
+  code?: string;
+  icon?: string;
 }
 
 export interface CenterProfile {
   id: number;
-  nameAr: string; nameEn: string;
-  descriptionAr?: string; descriptionEn?: string;
+  nameAr: string;
+  nameEn: string;
+  descriptionAr?: string;
+  descriptionEn?: string;
   address: Address;
-  phone: string; email?: string; website?: string;
-  averageRating: number; reviewCount: number;
-  isVerified: boolean; isOpen: boolean;
-  openingHours?: string;
-  latitude?: number; longitude?: number;
+  phone: string;
+  email?: string;
+  website?: string;
+  averageRating: number;
+  totalReviews: number;
+  isVerified: boolean;
+  isActive: boolean;
+  openingTime?: string;
+  closingTime?: string;
+  latitude?: number;
+  longitude?: number;
   categories: ServiceCategory[];
   imageUrls?: string[];
-  createdAt: string; updatedAt: string;
+  logoUrl?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UpdateCenterRequest {
-  nameAr?: string; nameEn?: string;
-  descriptionAr?: string; descriptionEn?: string;
-  phone?: string; email?: string; website?: string;
-  openingHours?: string; isOpen?: boolean;
+  nameAr?: string;
+  nameEn?: string;
+  descriptionAr?: string;
+  descriptionEn?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  openingTime?: string;
+  closingTime?: string;
+  isActive?: boolean;
   address?: Partial<Address>;
+  categoryIds?: number[];
 }
 
 export const centerApi = createApi({
@@ -49,6 +79,11 @@ export const centerApi = createApi({
     getMyCenter: builder.query<CenterProfile, void>({
       query: () => '/centers/my',
       providesTags: ['Center'],
+      transformResponse: (response: any) => {
+        // Backend returns a Page or a single object — handle both
+        if (response?.content) return response.content[0];
+        return response;
+      },
     }),
     updateCenter: builder.mutation<CenterProfile, UpdateCenterRequest>({
       query: (body) => ({ url: '/centers/my', method: 'PUT', body }),
@@ -68,6 +103,11 @@ export const centerApi = createApi({
     }),
     getCategories: builder.query<ServiceCategory[], void>({
       query: () => '/categories',
+      transformResponse: (response: any) => {
+        if (Array.isArray(response)) return response;
+        if (response?.content) return response.content;
+        return [];
+      },
     }),
   }),
 });

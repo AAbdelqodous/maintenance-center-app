@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useGetReviewsQuery } from '../../../store/api/reviewsApi';
-import { useGetMyCenterQuery } from '../../../store/api/centerApi';
-import { ReviewCard } from '../../../components/reviews/ReviewCard';
-import { RatingStars } from '../../../components/ui/RatingStars';
+import { useGetReviewsQuery } from '@/store/api/reviewsApi';
+import { useGetMyCenterQuery } from '@/store/api/centerApi';
+import { ReviewCard } from '@/components/reviews/ReviewCard';
+import { RatingStars } from '@/components/ui/RatingStars';
 
 export default function ReviewsScreen() {
   const { t } = useTranslation();
@@ -27,7 +27,7 @@ export default function ReviewsScreen() {
   };
 
   const averageRating = centerData?.averageRating ?? calculateAverageRating();
-  const totalReviews = centerData?.reviewCount ?? reviewsData?.content.length ?? 0;
+  const totalReviews = centerData?.totalReviews ?? reviewsData?.content.length ?? 0;
 
   if (isLoading) {
     return (

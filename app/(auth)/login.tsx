@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch } from '../../store';
-import { setSession } from '../../store/authSlice';
-import { useLoginMutation } from '../../store/api/authApi';
+import { useAppDispatch } from '@/store';
+import { setSession } from '@/store/authSlice';
+import { useLoginMutation } from '@/store/api/authApi';
+import { storage } from '@/lib/storage';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -23,6 +24,7 @@ export default function LoginScreen() {
 
     try {
       const result = await login({ email, password }).unwrap();
+      await storage.saveSession(result.token, email);
       dispatch(setSession({ token: result.token, email }));
       router.replace('/(app)/(tabs)/');
     } catch (error) {

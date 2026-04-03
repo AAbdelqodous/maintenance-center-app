@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useGetNotificationsQuery, useMarkNotificationAsReadMutation, useMarkAllNotificationsAsReadMutation } from '../../../store/api/notificationsApi';
+import { useGetNotificationsQuery, useMarkNotificationAsReadMutation, useMarkAllNotificationsAsReadMutation } from '@/store/api/notificationsApi';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
@@ -32,7 +32,7 @@ export default function NotificationsScreen() {
   };
 
   const handleNotificationPress = async (notification: any) => {
-    if (!notification.read) {
+    if (!notification.isRead) {
       try {
         await markAsRead(notification.id).unwrap();
         refetch();
@@ -54,7 +54,7 @@ export default function NotificationsScreen() {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return t('common.loading') || 'Just now';
+    if (diffMins < 1) return t('common.justNow');
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
@@ -94,7 +94,7 @@ export default function NotificationsScreen() {
     <View style={styles.container}>
       <View style={[styles.header, isRTL && styles.headerRtl]}>
         <Text style={styles.headerTitle}>{t('notifications.title')}</Text>
-        {notificationsData?.content && notificationsData.content.some((n) => !n.read) && (
+        {notificationsData?.content && notificationsData.content.some((n) => !n.isRead) && (
           <TouchableOpacity onPress={handleMarkAllAsRead}>
             <Text style={styles.markAllRead}>{t('notifications.markAllRead')}</Text>
           </TouchableOpacity>
@@ -107,12 +107,12 @@ export default function NotificationsScreen() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={[styles.notificationItem, !item.read && styles.unreadItem, isRTL && styles.itemRtl]}
+              style={[styles.notificationItem, !item.isRead && styles.unreadItem, isRTL && styles.itemRtl]}
               onPress={() => handleNotificationPress(item)}
             >
-              {!item.read && <View style={styles.unreadIndicator} />}
+              {!item.isRead && <View style={styles.unreadIndicator} />}
               <View style={styles.iconContainer}>
-                <Ionicons name={getNotificationIcon(item.type) as any} size={24} color="#2196F3" />
+                <Ionicons name={getNotificationIcon(item.notificationType) as any} size={24} color="#2196F3" />
               </View>
               <View style={styles.notificationContent}>
                 <Text style={styles.notificationTitle}>

@@ -22,8 +22,14 @@ export function BookingCard({ booking, onPress }: BookingCardProps) {
     });
   };
 
+  const SERVICE_TYPE_KEY_MAP: Record<string, string> = {
+    CAR: 'car',
+    ELECTRONICS: 'electronics',
+    HOME_APPLIANCE: 'homeAppliance',
+  };
+
   const getServiceTypeTranslation = (serviceType: string) => {
-    const key = `bookings.serviceType.${serviceType.toLowerCase()}`;
+    const key = `bookings.serviceType.${SERVICE_TYPE_KEY_MAP[serviceType] ?? serviceType.toLowerCase()}`;
     return t(key) || serviceType;
   };
 
@@ -31,7 +37,7 @@ export function BookingCard({ booking, onPress }: BookingCardProps) {
     <TouchableOpacity style={styles.container} onPress={onPress}>
       <View style={[styles.header, isRTL && styles.rowRtl]}>
         <Text style={styles.customerName}>{booking.customerName}</Text>
-        <StatusBadge status={booking.status} />
+        <StatusBadge status={booking.bookingStatus} />
       </View>
       <View style={[styles.row, isRTL && styles.rowRtl]}>
         <Text style={styles.label}>{t('bookings.service')}:</Text>
@@ -39,11 +45,11 @@ export function BookingCard({ booking, onPress }: BookingCardProps) {
       </View>
       <View style={[styles.row, isRTL && styles.rowRtl]}>
         <Text style={styles.label}>{t('bookings.date')}:</Text>
-        <Text style={styles.value}>{formatDate(booking.scheduledDate)}</Text>
+        <Text style={styles.value}>{formatDate(booking.bookingDate)}</Text>
       </View>
       <View style={[styles.row, isRTL && styles.rowRtl]}>
         <Text style={styles.label}>{t('bookings.time')}:</Text>
-        <Text style={styles.value}>{booking.scheduledTime}</Text>
+        <Text style={styles.value}>{booking.bookingTime}</Text>
       </View>
       {booking.notes && (
         <View style={[styles.row, isRTL && styles.rowRtl, styles.notesRow]}>
