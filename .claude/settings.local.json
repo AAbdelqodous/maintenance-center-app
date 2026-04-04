@@ -11,7 +11,9 @@
       "Bash(npx expo:*)",
       "Bash(docker exec -it le-postgres psql -U abdelqodous -d experience -c ':*)",
       "Bash(docker exec:*)",
-      "Bash(grep -E \"private |public \" echo \"---\")"
+      "Bash(grep -E \"private |public \" echo \"---\")",
+      "Bash(xargs cat:*)",
+      "Bash(xargs ls:*)"
     ]
   }
 }

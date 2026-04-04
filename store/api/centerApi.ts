@@ -3,17 +3,18 @@ import { API_BASE_URL } from '../../lib/constants/config';
 import { RootState } from '../index';
 
 export interface Address {
-  street?: string;
   streetAr?: string;
   streetEn?: string;
-  city?: string;
-  cityAr?: string;
-  cityEn?: string;
-  area?: string;
   districtAr?: string;
   districtEn?: string;
+  cityAr?: string;
+  cityEn?: string;
+  governorateAr?: string;
+  governorateEn?: string;
   postalCode?: string;
   buildingNumber?: string;
+  floor?: string;
+  landMark?: string;
 }
 
 export interface ServiceCategory {
@@ -77,13 +78,8 @@ export const centerApi = createApi({
   tagTypes: ['Center'],
   endpoints: (builder) => ({
     getMyCenter: builder.query<CenterProfile, void>({
-      query: () => '/centers/my',
+      query: () => '/centers/my/profile',
       providesTags: ['Center'],
-      transformResponse: (response: any) => {
-        // Backend returns a Page or a single object — handle both
-        if (response?.content) return response.content[0];
-        return response;
-      },
     }),
     updateCenter: builder.mutation<CenterProfile, UpdateCenterRequest>({
       query: (body) => ({ url: '/centers/my', method: 'PUT', body }),
