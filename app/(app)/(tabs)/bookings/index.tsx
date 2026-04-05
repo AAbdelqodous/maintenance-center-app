@@ -2,9 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, FlatList } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { useGetBookingsQuery } from '../../../store/api/bookingsApi';
-import { BookingStatus } from '../../../store/api/bookingsApi';
-import { BookingCard } from '../../../components/bookings/BookingCard';
+import { useGetBookingsQuery, BookingStatus } from '@/store/api/bookingsApi';
+import { BookingCard } from '@/components/bookings/BookingCard';
 
 export default function BookingsScreen() {
   const { t, i18n } = useTranslation();

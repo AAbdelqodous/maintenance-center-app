@@ -30,14 +30,12 @@ export enum PaymentStatus {
 
 export interface Booking {
   id: number;
-  customerId: number;
   customerName: string;
-  customerPhone: string;
-  centerId: number;
+  customerPhone?: string;
   serviceType: ServiceType;
-  status: BookingStatus;
-  scheduledDate: string;
-  scheduledTime: string;
+  bookingStatus: BookingStatus;
+  bookingDate: string;
+  bookingTime: string;
   notes?: string;
   paymentMethod?: string;
   paymentStatus?: string;
@@ -47,20 +45,28 @@ export interface Booking {
 
 export interface BookingsResponse {
   content: Booking[];
-  totalElements: number; totalPages: number;
-  size: number; number: number;
-  first: boolean; last: boolean;
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
 }
 
 export interface BookingsQueryParams {
-  page?: number; size?: number;
+  page?: number;
+  size?: number;
   status?: BookingStatus;
   date?: string;
 }
 
 export interface BookingStats {
-  today: number; pending: number; confirmed: number;
-  inProgress: number; completed: number; totalThisMonth: number;
+  total: number;
+  pending: number;
+  confirmed: number;
+  inProgress: number;
+  completed: number;
+  cancelled: number;
 }
 
 export const bookingsApi = createApi({
@@ -76,19 +82,23 @@ export const bookingsApi = createApi({
   tagTypes: ['Booking'],
   endpoints: (builder) => ({
     getBookings: builder.query<BookingsResponse, BookingsQueryParams>({
-      query: (params) => ({ url: '/bookings/center', params }),
+      query: (params) => ({ url: '/bookings', params }),
       providesTags: ['Booking'],
     }),
     getBookingById: builder.query<Booking, number>({
       query: (id) => `/bookings/${id}`,
       providesTags: (result, error, id) => [{ type: 'Booking', id }],
     }),
-    updateBookingStatus: builder.mutation<Booking, { id: number; status: BookingStatus; reason?: string }>({
-      query: ({ id, status, reason }) => ({ url: `/bookings/${id}/status`, method: 'PUT', body: { status, reason } }),
+    updateBookingStatus: builder.mutation<Booking, { id: number; status: BookingStatus; reason?: string; notes?: string }>({
+      query: ({ id, status, reason, notes }) => ({
+        url: `/bookings/${id}/status`,
+        method: 'PUT',
+        body: { status, ...(reason && { reason }), ...(notes && { notes }) },
+      }),
       invalidatesTags: (result, error, { id }) => ['Booking', { type: 'Booking', id }],
     }),
     getBookingStats: builder.query<BookingStats, void>({
-      query: () => '/bookings/center/stats',
+      query: () => '/bookings/stats',
     }),
   }),
 });

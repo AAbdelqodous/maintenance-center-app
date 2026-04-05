@@ -11,12 +11,14 @@ export default function AppLayout() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    storage.loadSession()
-      .then((saved) => {
-        if (saved) dispatch(setSession(saved));
-      })
-      .catch((error) => console.error('Failed to load session:', error))
-      .finally(() => setIsLoading(false));
+    // Temporarily disabled - uncomment to restore session persistence
+    // storage.loadSession()
+    //   .then((saved) => {
+    //     if (saved) dispatch(setSession(saved));
+    //   })
+    //   .catch((error) => console.error('Failed to load session:', error))
+    //   .finally(() => setIsLoading(false));
+    setIsLoading(false);
   }, [dispatch]);
 
   if (isLoading) {

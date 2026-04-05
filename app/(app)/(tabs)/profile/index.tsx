@@ -16,11 +16,15 @@ export default function ProfileScreen() {
   const dispatch = useAppDispatch();
   const isRTL = i18n.dir() === 'rtl';
 
-  const { data: center, isLoading, refetch } = useGetMyCenterQuery();
-  const { data: allCategories } = useGetCategoriesQuery();
-  const [updateCenter, { isLoading: isUpdating }] = useUpdateCenterMutation();
+  const { data: center, isLoading, refetch, error: centerError } = useGetMyCenterQuery();
+  const { data: allCategories, error: categoriesError } = useGetCategoriesQuery();
+  const [updateCenter, { isLoading: isUpdating, error: updateError }] = useUpdateCenterMutation();
   const [uploadImage, { isLoading: isUploading }] = useUploadCenterImageMutation();
   const [deleteImage] = useDeleteCenterImageMutation();
+
+  console.log('Debug - Center:', center, 'Error:', centerError);
+  console.log('Debug - Categories:', allCategories, 'Error:', categoriesError);
+  console.log('Debug - Update error:', updateError);
 
   const [nameAr, setNameAr] = useState('');
   const [nameEn, setNameEn] = useState('');
@@ -66,8 +70,10 @@ export default function ProfileScreen() {
       return;
     }
 
+    console.log('Updating center with:', { nameAr, nameEn, phone, categoryIds: selectedCategoryIds });
+
     try {
-      await updateCenter({
+      const result = await updateCenter({
         nameAr,
         nameEn,
         descriptionAr,
@@ -80,10 +86,12 @@ export default function ProfileScreen() {
         address: { cityAr, cityEn, districtAr, districtEn, streetAr, streetEn },
         categoryIds: selectedCategoryIds,
       }).unwrap();
+      console.log('Update successful:', result);
       Alert.alert(t('common.save'), t('profile.profileUpdated'));
       refetch();
     } catch (error) {
-      Alert.alert(t('common.error'), 'Failed to update profile');
+      console.error('Update failed:', error);
+      Alert.alert(t('common.error'), `Failed to update profile: ${JSON.stringify(error)}`);
     }
   };
 

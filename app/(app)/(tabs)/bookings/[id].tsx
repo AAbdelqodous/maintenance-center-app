@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { useGetBookingByIdQuery, useUpdateBookingStatusMutation, BookingStatus, ServiceType } from '../../../store/api/bookingsApi';
+import { useGetBookingByIdQuery, useUpdateBookingStatusMutation, BookingStatus, ServiceType } from '@/store/api/bookingsApi';
 
 export default function BookingDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -272,7 +272,7 @@ export default function BookingDetailScreen() {
               <View style={styles.customReasonContainer}>
                 <Text style={styles.customReasonLabel}>{t('bookings.customReason')}</Text>
                 <TextInput
-                  style={styles.customReasonInput}
+                  style={[styles.customReasonInput, { textAlign: isRTL ? 'right' : 'left' }]}
                   placeholder={t('bookings.customReasonPlaceholder')}
                   value={customReason}
                   onChangeText={setCustomReason}
@@ -479,7 +479,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333333',
     minHeight: 100,
-    textAlign: isRTL ? 'right' : 'left',
   },
   charCount: {
     fontSize: 12,
