@@ -16,6 +16,18 @@ export enum ServiceType {
   HOME_APPLIANCE = 'HOME_APPLIANCE',
 }
 
+export enum PaymentMethod {
+  CASH = 'CASH',
+  KNET = 'KNET',
+  CREDIT_CARD = 'CREDIT_CARD',
+}
+
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  PAID = 'PAID',
+  FAILED = 'FAILED',
+}
+
 export interface Booking {
   id: number;
   customerId: number;
@@ -27,6 +39,8 @@ export interface Booking {
   scheduledDate: string;
   scheduledTime: string;
   notes?: string;
+  paymentMethod?: string;
+  paymentStatus?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -69,8 +83,8 @@ export const bookingsApi = createApi({
       query: (id) => `/bookings/${id}`,
       providesTags: (result, error, id) => [{ type: 'Booking', id }],
     }),
-    updateBookingStatus: builder.mutation<Booking, { id: number; status: BookingStatus }>({
-      query: ({ id, status }) => ({ url: `/bookings/${id}/status`, method: 'PUT', body: { status } }),
+    updateBookingStatus: builder.mutation<Booking, { id: number; status: BookingStatus; reason?: string }>({
+      query: ({ id, status, reason }) => ({ url: `/bookings/${id}/status`, method: 'PUT', body: { status, reason } }),
       invalidatesTags: (result, error, { id }) => ['Booking', { type: 'Booking', id }],
     }),
     getBookingStats: builder.query<BookingStats, void>({

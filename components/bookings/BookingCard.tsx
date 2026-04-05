@@ -3,13 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Booking } from '../../store/api/bookingsApi';
 import { StatusBadge } from './StatusBadge';
+import { Ionicons } from '@expo/vector-icons';
 
 interface BookingCardProps {
   booking: Booking;
   onPress: () => void;
+  isOverdue?: boolean;
 }
 
-export function BookingCard({ booking, onPress }: BookingCardProps) {
+export function BookingCard({ booking, onPress, isOverdue = false }: BookingCardProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
 
@@ -27,10 +29,23 @@ export function BookingCard({ booking, onPress }: BookingCardProps) {
     return t(key) || serviceType;
   };
 
+  const getPaymentMethodTranslation = (method?: string) => {
+    if (!method) return null;
+    const key = `bookings.paymentMethods.${method.toLowerCase()}`;
+    return t(key) || method;
+  };
+
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
       <View style={[styles.header, isRTL && styles.rowRtl]}>
-        <Text style={styles.customerName}>{booking.customerName}</Text>
+        <View>
+          <Text style={styles.customerName}>{booking.customerName}</Text>
+          {isOverdue && (
+            <View style={styles.overdueBadge}>
+              <Text style={styles.overdueText}>{t('bookings.overdue')}</Text>
+            </View>
+          )}
+        </View>
         <StatusBadge status={booking.status} />
       </View>
       <View style={[styles.row, isRTL && styles.rowRtl]}>
@@ -45,6 +60,12 @@ export function BookingCard({ booking, onPress }: BookingCardProps) {
         <Text style={styles.label}>{t('bookings.time')}:</Text>
         <Text style={styles.value}>{booking.scheduledTime}</Text>
       </View>
+      {getPaymentMethodTranslation(booking.paymentMethod) && (
+        <View style={[styles.row, isRTL && styles.rowRtl]}>
+          <Text style={styles.label}>{t('bookings.paymentMethod')}:</Text>
+          <Text style={styles.value}>{getPaymentMethodTranslation(booking.paymentMethod)}</Text>
+        </View>
+      )}
       {booking.notes && (
         <View style={[styles.row, isRTL && styles.rowRtl, styles.notesRow]}>
           <Text style={styles.label}>{t('bookings.notes')}:</Text>
@@ -107,5 +128,18 @@ const styles = StyleSheet.create({
     color: '#666666',
     fontStyle: 'italic',
     flex: 1,
+  },
+  overdueBadge: {
+    backgroundColor: '#FF5722',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  overdueText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '600',
   },
 });

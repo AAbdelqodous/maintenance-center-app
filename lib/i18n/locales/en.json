@@ -12,7 +12,9 @@
     "no": "No",
     "submit": "Submit",
     "retry": "Retry",
-    "noData": "No data available"
+    "noData": "No data available",
+    "success": "Success",
+    "contact": "Contact"
   },
   "auth": {
     "login": "Login",
@@ -20,7 +22,18 @@
     "password": "Password",
     "loginButton": "Sign In",
     "loginError": "Invalid email or password",
-    "logout": "Logout"
+    "logout": "Logout",
+    "verifyOTP": "Verify OTP",
+    "otpSent": "Enter the 6-digit code sent to your email",
+    "verifyButton": "Verify",
+    "resendOTP": "Resend OTP",
+    "resendIn": "Resend in {{seconds}}s",
+    "invalidOTP": "Please enter a valid 6-digit OTP",
+    "tokenRequired": "Activation token is required",
+    "accountActivated": "Account activated successfully! You can now login.",
+    "activationFailed": "Failed to activate account. Please check your OTP and try again.",
+    "otpResent": "New OTP has been sent to your email",
+    "otpResendFailed": "Failed to resend OTP. Please try again later."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -54,11 +67,37 @@
     "startService": "Start Service",
     "completeService": "Mark Complete",
     "cancelBooking": "Cancel",
+    "rejectBooking": "Reject",
     "statusUpdated": "Status updated successfully",
+    "customerCancelled": "Customer cancelled this booking",
+    "overdue": "Overdue",
+    "in_progress": "In Progress",
+    "paymentMethod": "Payment Method",
+    "paymentStatus": "Payment Status",
+    "rejectReason": "Select a reason for rejection",
+    "selectReason": "Please select a reason",
+    "enterReason": "Please enter a reason",
+    "customReason": "Custom Reason",
+    "customReasonPlaceholder": "Please provide details...",
+    "fullyBooked": "Fully Booked",
+    "serviceNotAvailable": "Service Not Available",
+    "outsideServiceArea": "Outside Service Area",
+    "other": "Other",
     "serviceType": {
       "car": "Car",
       "electronics": "Electronics",
-      "homeAppliance": "Home Appliance"
+      "homeAppliance": "Home Appliance",
+      "home_appliance": "Home Appliance"
+    },
+    "paymentMethods": {
+      "cash": "Cash",
+      "knet": "KNET",
+      "credit_card": "Credit Card"
+    },
+    "paymentStatus": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "failed": "Failed"
     }
   },
   "chat": {
@@ -108,5 +147,24 @@
     "status": "Status",
     "priority": "Priority",
     "respondButton": "Respond"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "account": "Account",
+    "support": "Support",
+    "editProfile": "Edit Profile",
+    "editProfileDesc": "Update your center information",
+    "notifications": "Notifications",
+    "notificationsDesc": "Manage notification preferences",
+    "help": "Help Center",
+    "helpDesc": "Get help and support",
+    "terms": "Terms & Privacy",
+    "termsDesc": "Read our terms and privacy policy",
+    "logout": "Logout",
+    "logoutConfirm": "Are you sure you want to logout?",
+    "languageChanged": "Language changed successfully",
+    "languageChangeFailed": "Failed to change language",
+    "version": "Version"
   }
 }

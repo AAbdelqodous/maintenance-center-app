@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image, Switch } from 'react-native';
+import { useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useGetMyCenterQuery, useUpdateCenterMutation, useUploadCenterImageMutation, useDeleteCenterImageMutation } from '../../../store/api/centerApi';
@@ -8,6 +9,7 @@ import { SERVER_URL } from '../../../lib/constants/config';
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const isRTL = i18n.dir() === 'rtl';
 
   const { data: center, isLoading, refetch } = useGetMyCenterQuery();
@@ -148,9 +150,21 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('profile.centerName')}</Text>
+    <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          title: t('profile.title'),
+          headerRight: () => (
+            <TouchableOpacity onPress={() => router.push('/settings')}>
+              <Ionicons name="settings-outline" size={24} color="#333333" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t('profile.centerName')}</Text>
         <InputField
           label={`${t('profile.centerName')} (العربية)`}
           value={nameAr}
@@ -291,7 +305,8 @@ export default function ProfileScreen() {
           <Text style={styles.saveButtonText}>{t('profile.updateProfile')}</Text>
         )}
       </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -302,6 +317,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
+    paddingBottom: 20,
   },
   loadingContainer: {
     flex: 1,

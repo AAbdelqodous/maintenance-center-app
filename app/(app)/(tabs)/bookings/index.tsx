@@ -1,37 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, FlatList } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import { useGetBookingsQuery } from '../../../store/api/bookingsApi';
 import { BookingStatus } from '../../../store/api/bookingsApi';
 import { BookingCard } from '../../../components/bookings/BookingCard';
 
 export default function BookingsScreen() {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const isRTL = i18n.dir() === 'rtl';
 
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus | 'ALL'>('ALL');
+  const [page, setPage] = useState(0);
+  const [allBookings, setAllBookings] = useState<any[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
 
-  const { data: bookingsData, isLoading, refetch } = useGetBookingsQuery({ page: 0, size: 100 });
+  const statusParam = selectedStatus === 'ALL' ? undefined : selectedStatus;
+  const { data: bookingsData, isLoading, isFetching, refetch } = useGetBookingsQuery({ page, size: 20, status: statusParam });
 
   const [refreshing, setRefreshing] = useState(false);
 
+  const isOverdue = useCallback((booking: any) => {
+    if (booking.status !== BookingStatus.PENDING) return false;
+    const scheduledDateTime = new Date(`${booking.scheduledDate}T${booking.scheduledTime}`);
+    return scheduledDateTime < new Date();
+  }, []);
+
+  // Reset pagination when filter changes
+  React.useEffect(() => {
+    setPage(0);
+    setAllBookings([]);
+    setHasMore(true);
+    setIsFetchingMore(false);
+  }, [selectedStatus]);
+
+  React.useEffect(() => {
+    if (bookingsData) {
+      if (page === 0) {
+        setAllBookings(bookingsData.content);
+      } else {
+        setAllBookings(prev => [...prev, ...bookingsData.content]);
+      }
+      setHasMore(!bookingsData.last);
+      setIsFetchingMore(false);
+    }
+  }, [bookingsData]);
+
   const onRefresh = async () => {
     setRefreshing(true);
+    setPage(0);
     await refetch();
     setRefreshing(false);
   };
 
-  const filteredBookings = bookingsData?.content.filter(
-    (booking) => selectedStatus === 'ALL' || booking.status === selectedStatus
-  ) || [];
+  const loadMore = useCallback(() => {
+    if (!isFetchingMore && hasMore && !isFetching) {
+      setIsFetchingMore(true);
+      setPage(prev => prev + 1);
+    }
+  }, [isFetchingMore, hasMore, isFetching]);
 
   const statuses: (BookingStatus | 'ALL')[] = ['ALL', BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS, BookingStatus.COMPLETED, BookingStatus.CANCELLED];
 
   const StatusTab = ({ status }: { status: BookingStatus | 'ALL' }) => {
     const isSelected = selectedStatus === status;
-    const count = status === 'ALL' 
-      ? bookingsData?.content.length ?? 0
-      : bookingsData?.content.filter(b => b.status === status).length ?? 0;
+    const count = isSelected ? (bookingsData?.totalElements ?? allBookings.length) : null;
 
     return (
       <TouchableOpacity
@@ -39,10 +74,15 @@ export default function BookingsScreen() {
         onPress={() => setSelectedStatus(status)}
       >
         <Text style={[styles.tabText, isSelected && styles.selectedTabText]}>
-          {t(`bookings.${status.toLowerCase()}`)} ({count})
+          {t(`bookings.${status.toLowerCase()}`)}
+          {count !== null ? ` (${count})` : ''}
         </Text>
       </TouchableOpacity>
     );
+  };
+
+  const handleBookingPress = (bookingId: number) => {
+    router.push(`/bookings/${bookingId}`);
   };
 
   return (
@@ -57,22 +97,26 @@ export default function BookingsScreen() {
         ))}
       </ScrollView>
 
-      {isLoading ? (
+      {isLoading && page === 0 ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#2196F3" />
         </View>
-      ) : filteredBookings.length > 0 ? (
+      ) : allBookings.length > 0 ? (
         <FlatList
-          data={filteredBookings}
+          data={allBookings}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <BookingCard
               booking={item}
-              onPress={() => {}}
+              isOverdue={isOverdue(item)}
+              onPress={() => handleBookingPress(item.id)}
             />
           )}
           contentContainerStyle={styles.listContent}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={isFetchingMore ? <ActivityIndicator style={{ padding: 16 }} color="#2196F3" /> : null}
         />
       ) : (
         <View style={styles.emptyContainer}>

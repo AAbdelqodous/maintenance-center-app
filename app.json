@@ -4,7 +4,7 @@
     "slug": "maintenance-center-app",
     "scheme": "maintenancecenterapp",
     "version": "1.0.0",
-    "platforms": ["ios", "android"],
+    "platforms": ["ios", "android", "web"],
     "plugins": ["expo-router"]
   }
 }

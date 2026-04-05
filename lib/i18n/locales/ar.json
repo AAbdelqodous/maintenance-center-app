@@ -12,7 +12,9 @@
     "no": "لا",
     "submit": "إرسال",
     "retry": "إعادة المحاولة",
-    "noData": "لا توجد بيانات"
+    "noData": "لا توجد بيانات",
+    "success": "نجح",
+    "contact": "التواصل"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -20,7 +22,18 @@
     "password": "كلمة المرور",
     "loginButton": "دخول",
     "loginError": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "verifyOTP": "تأكيد رمز التحقق",
+    "otpSent": "أدخل الرمز المكون من 6 أرقام المرسل إلى بريدك الإلكتروني",
+    "verifyButton": "تأكيد",
+    "resendOTP": "إعادة إرسال الرمز",
+    "resendIn": "إعادة الإرسال خلال {{seconds}} ثانية",
+    "invalidOTP": "الرجاء إدخال رمز تحقق صحيح مكون من 6 أرقام",
+    "tokenRequired": "رمز التفعيل مطلوب",
+    "accountActivated": "تم تفعيل الحساب بنجاح! يمكنك الآن تسجيل الدخول.",
+    "activationFailed": "فشل في تفعيل الحساب. الرجاء التحقق من الرمز والمحاولة مرة أخرى.",
+    "otpResent": "تم إرسال رمز جديد إلى بريدك الإلكتروني",
+    "otpResendFailed": "فشل في إعادة إرسال الرمز. الرجاء المحاولة لاحقاً."
   },
   "dashboard": {
     "title": "لوحة التحكم",
@@ -54,11 +67,37 @@
     "startService": "بدء الخدمة",
     "completeService": "إكمال",
     "cancelBooking": "إلغاء",
+    "rejectBooking": "رفض",
     "statusUpdated": "تم تحديث الحالة بنجاح",
+    "customerCancelled": "قام العميل بإلغاء هذا الحجز",
+    "overdue": "متأخر",
+    "in_progress": "جاري العمل",
+    "paymentMethod": "طريقة الدفع",
+    "paymentStatus": "حالة الدفع",
+    "rejectReason": "اختر سبب الرفض",
+    "selectReason": "الرجاء اختيار سبب",
+    "enterReason": "الرجاء إدخال سبب",
+    "customReason": "سبب مخصص",
+    "customReasonPlaceholder": "الرجاء تقديم التفاصيل...",
+    "fullyBooked": "ممتلىء بالكامل",
+    "serviceNotAvailable": "الخدمة غير متوفرة",
+    "outsideServiceArea": "خارج منطقة الخدمة",
+    "other": "أخرى",
     "serviceType": {
       "car": "سيارات",
       "electronics": "إلكترونيات",
-      "homeAppliance": "أجهزة منزلية"
+      "homeAppliance": "أجهزة منزلية",
+      "home_appliance": "أجهزة منزلية"
+    },
+    "paymentMethods": {
+      "cash": "نقدي",
+      "knet": "كي نت",
+      "credit_card": "بطاقة ائتمان"
+    },
+    "paymentStatus": {
+      "pending": "قيد الانتظار",
+      "paid": "مدفوع",
+      "failed": "فشل"
     }
   },
   "chat": {
@@ -108,5 +147,24 @@
     "status": "الحالة",
     "priority": "الأولوية",
     "respondButton": "رد"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "language": "اللغة",
+    "account": "الحساب",
+    "support": "الدعم",
+    "editProfile": "تعديل الملف الشخصي",
+    "editProfileDesc": "تحديث معلومات مركزك",
+    "notifications": "الإشعارات",
+    "notificationsDesc": "إدارة تفضيلات الإشعارات",
+    "help": "مركز المساعدة",
+    "helpDesc": "الحصول على المساعدة والدعم",
+    "terms": "الشروط والخصوصية",
+    "termsDesc": "قراءة الشروط وسياسة الخصوصية",
+    "logout": "تسجيل الخروج",
+    "logoutConfirm": "هل أنت متأكد من تسجيل الخروج؟",
+    "languageChanged": "تم تغيير اللغة بنجاح",
+    "languageChangeFailed": "فشل في تغيير اللغة",
+    "version": "الإصدار"
   }
 }
