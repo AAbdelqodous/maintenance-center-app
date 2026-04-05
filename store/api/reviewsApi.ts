@@ -4,18 +4,26 @@ import { RootState } from '../index';
 
 export interface Review {
   id: number;
-  customerId: number; customerName: string;
+  rating: number;
+  comment: string;
   centerId: number;
-  rating: number; comment: string;
+  centerNameAr: string;
+  centerNameEn: string;
+  userFirstname: string;
+  userLastname: string;
   ownerReply?: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface ReviewsResponse {
   content: Review[];
-  totalElements: number; totalPages: number;
-  size: number; number: number;
-  first: boolean; last: boolean;
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
 }
 
 export const reviewsApi = createApi({

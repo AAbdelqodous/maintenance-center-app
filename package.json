@@ -9,7 +9,9 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo/metro-runtime": "~6.1.2",
     "@expo/vector-icons": "^15.1.1",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "@reduxjs/toolkit": "^2.11.2",
     "@stomp/stompjs": "^7.3.0",
     "expo": "~54.0.33",
@@ -17,6 +19,7 @@
     "expo-image-picker": "^55.0.14",
     "expo-linking": "~8.0.11",
     "expo-router": "~6.0.23",
+    "expo-secure-store": "~15.0.8",
     "expo-status-bar": "~3.0.9",
     "i18next": "^26.0.3",
     "react": "19.1.0",

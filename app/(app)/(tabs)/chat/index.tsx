@@ -2,9 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useGetConversationsQuery } from '../../../store/api/chatApi';
+import { useGetConversationsQuery } from '@/store/api/chatApi';
 import { Ionicons } from '@expo/vector-icons';
-import { useAppSelector } from '../../../store';
+import { useAppSelector } from '@/store';
 
 export default function ChatListScreen() {
   const { t, i18n } = useTranslation();
@@ -49,7 +49,7 @@ export default function ChatListScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.conversationItem}
-              onPress={() => router.push(`/chat/${item.id}` as any)}
+              onPress={() => router.push(`/chat/${item.id}?centerId=${item.centerId}` as any)}
             >
               <View style={styles.avatar}>
                 <Ionicons name="person" size={24} color="#FFFFFF" />

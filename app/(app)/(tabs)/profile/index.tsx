@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image, Switch } from 'react-native';
-import { useRouter, Stack } from 'expo-router';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image, Switch, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { useGetMyCenterQuery, useUpdateCenterMutation, useUploadCenterImageMutation, useDeleteCenterImageMutation } from '../../../store/api/centerApi';
+import { useRouter, Stack } from 'expo-router';
+import { useGetMyCenterQuery, useUpdateCenterMutation, useUploadCenterImageMutation, useDeleteCenterImageMutation, useGetCategoriesQuery } from '@/store/api/centerApi';
 import * as ImagePicker from 'expo-image-picker';
-import { SERVER_URL } from '../../../lib/constants/config';
+import { SERVER_URL } from '@/lib/constants/config';
+import { useAppDispatch } from '@/store';
+import { clearSession } from '@/store/authSlice';
+import { storage } from '@/lib/storage';
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const isRTL = i18n.dir() === 'rtl';
 
   const { data: center, isLoading, refetch } = useGetMyCenterQuery();
+  const { data: allCategories } = useGetCategoriesQuery();
   const [updateCenter, { isLoading: isUpdating }] = useUpdateCenterMutation();
   const [uploadImage, { isLoading: isUploading }] = useUploadCenterImageMutation();
   const [deleteImage] = useDeleteCenterImageMutation();
@@ -23,31 +28,41 @@ export default function ProfileScreen() {
   const [descriptionEn, setDescriptionEn] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [openingHours, setOpeningHours] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
-  const [city, setCity] = useState('');
-  const [area, setArea] = useState('');
-  const [street, setStreet] = useState('');
+  const [openingTime, setOpeningTime] = useState('');
+  const [closingTime, setClosingTime] = useState('');
+  const [isActive, setIsActive] = useState(false);
+  const [cityAr, setCityAr] = useState('');
+  const [cityEn, setCityEn] = useState('');
+  const [districtAr, setDistrictAr] = useState('');
+  const [districtEn, setDistrictEn] = useState('');
+  const [streetAr, setStreetAr] = useState('');
+  const [streetEn, setStreetEn] = useState('');
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
 
   React.useEffect(() => {
     if (center) {
-      setNameAr(center.nameAr);
-      setNameEn(center.nameEn);
-      setDescriptionAr(center.descriptionAr || '');
-      setDescriptionEn(center.descriptionEn || '');
-      setPhone(center.phone);
-      setEmail(center.email || '');
-      setOpeningHours(center.openingHours || '');
-      setIsOpen(center.isOpen);
-      setCity(center.address.city);
-      setArea(center.address.area);
-      setStreet(center.address.street);
+      setNameAr(center.nameAr ?? '');
+      setNameEn(center.nameEn ?? '');
+      setDescriptionAr(center.descriptionAr ?? '');
+      setDescriptionEn(center.descriptionEn ?? '');
+      setPhone(center.phone ?? '');
+      setEmail(center.email ?? '');
+      setOpeningTime(center.openingTime ?? '');
+      setClosingTime(center.closingTime ?? '');
+      setIsActive(center.isActive ?? false);
+      setCityAr(center.address?.cityAr ?? '');
+      setCityEn(center.address?.cityEn ?? '');
+      setDistrictAr(center.address?.districtAr ?? '');
+      setDistrictEn(center.address?.districtEn ?? '');
+      setStreetAr(center.address?.streetAr ?? '');
+      setStreetEn(center.address?.streetEn ?? '');
+      setSelectedCategoryIds(center.categories?.map((c) => c.id) ?? []);
     }
   }, [center]);
 
   const handleUpdateProfile = async () => {
-    if (!nameAr || !nameEn || !phone || !city || !area || !street) {
-      Alert.alert(t('common.error'), 'Please fill in all required fields');
+    if (!nameAr || !nameEn || !phone || !cityAr || !cityEn || selectedCategoryIds.length === 0) {
+      Alert.alert(t('common.error'), t('common.fillRequired'));
       return;
     }
 
@@ -59,13 +74,11 @@ export default function ProfileScreen() {
         descriptionEn,
         phone,
         email,
-        openingHours,
-        isOpen,
-        address: {
-          city,
-          area,
-          street,
-        },
+        openingTime: openingTime || undefined,
+        closingTime: closingTime || undefined,
+        isActive,
+        address: { cityAr, cityEn, districtAr, districtEn, streetAr, streetEn },
+        categoryIds: selectedCategoryIds,
       }).unwrap();
       Alert.alert(t('common.save'), t('profile.profileUpdated'));
       refetch();
@@ -124,6 +137,23 @@ export default function ProfileScreen() {
         },
       ]
     );
+  };
+
+  const doLogout = async () => {
+    await storage.clearAll();
+    dispatch(clearSession());
+    router.replace('/(auth)/login');
+  };
+
+  const handleLogout = () => {
+    if (Platform.OS === 'web') {
+      if (window.confirm(t('auth.logoutConfirm'))) doLogout();
+    } else {
+      Alert.alert(t('auth.logout'), t('auth.logoutConfirm'), [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('auth.logout'), onPress: doLogout },
+      ]);
+    }
   };
 
   const InputField = ({ label, value, onChangeText, placeholder, multiline = false }: any) => (
@@ -203,7 +233,7 @@ export default function ProfileScreen() {
           label={t('profile.phone')}
           value={phone}
           onChangeText={setPhone}
-          placeholder="+966 50 123 4567"
+          placeholder="+965 XXXX XXXX"
           keyboardType="phone-pad"
         />
         <InputField
@@ -215,18 +245,24 @@ export default function ProfileScreen() {
           autoCapitalize="none"
         />
         <InputField
-          label={t('profile.openingHours')}
-          value={openingHours}
-          onChangeText={setOpeningHours}
-          placeholder="9:00 AM - 9:00 PM"
+          label={t('profile.openingTime')}
+          value={openingTime}
+          onChangeText={setOpeningTime}
+          placeholder="09:00:00"
+        />
+        <InputField
+          label={t('profile.closingTime')}
+          value={closingTime}
+          onChangeText={setClosingTime}
+          placeholder="21:00:00"
         />
         <View style={[styles.switchRow, isRTL && styles.rowRtl]}>
-          <Text style={styles.switchLabel}>{center?.isOpen ? t('profile.isOpen') : t('profile.isClosed')}</Text>
+          <Text style={styles.switchLabel}>{center?.isActive ? t('profile.isOpen') : t('profile.isClosed')}</Text>
           <Switch
-            value={isOpen}
-            onValueChange={setIsOpen}
+            value={isActive}
+            onValueChange={setIsActive}
             trackColor={{ false: '#E0E0E0', true: '#4CAF50' }}
-            thumbColor={isOpen ? '#FFFFFF' : '#FFFFFF'}
+            thumbColor={isActive ? '#FFFFFF' : '#FFFFFF'}
           />
         </View>
       </View>
@@ -234,23 +270,65 @@ export default function ProfileScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t('profile.address')}</Text>
         <InputField
-          label={t('profile.city')}
-          value={city}
-          onChangeText={setCity}
-          placeholder="Riyadh"
+          label={`${t('profile.city')} (العربية)`}
+          value={cityAr}
+          onChangeText={setCityAr}
+          placeholder="الكويت"
         />
         <InputField
-          label={t('profile.area')}
-          value={area}
-          onChangeText={setArea}
-          placeholder="Al Olaya"
+          label={`${t('profile.city')} (English)`}
+          value={cityEn}
+          onChangeText={setCityEn}
+          placeholder="Kuwait City"
         />
         <InputField
-          label="Street"
-          value={street}
-          onChangeText={setStreet}
-          placeholder="King Fahd Road"
+          label={`${t('profile.area')} (العربية)`}
+          value={districtAr}
+          onChangeText={setDistrictAr}
+          placeholder="الروضة"
         />
+        <InputField
+          label={`${t('profile.area')} (English)`}
+          value={districtEn}
+          onChangeText={setDistrictEn}
+          placeholder="Rumaithiya"
+        />
+        <InputField
+          label={`${t('profile.street')} (العربية)`}
+          value={streetAr}
+          onChangeText={setStreetAr}
+          placeholder="شارع الخليج"
+        />
+        <InputField
+          label={`${t('profile.street')} (English)`}
+          value={streetEn}
+          onChangeText={setStreetEn}
+          placeholder="Gulf Road"
+        />
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{t('profile.categories')}</Text>
+        <View style={styles.categoriesGrid}>
+          {allCategories?.map((cat) => {
+            const isSelected = selectedCategoryIds.includes(cat.id);
+            return (
+              <TouchableOpacity
+                key={cat.id}
+                style={[styles.categoryChip, isSelected && styles.categoryChipSelected]}
+                onPress={() =>
+                  setSelectedCategoryIds((prev) =>
+                    isSelected ? prev.filter((id) => id !== cat.id) : [...prev, cat.id]
+                  )
+                }
+              >
+                <Text style={[styles.categoryChipText, isSelected && styles.categoryChipTextSelected]}>
+                  {i18n.language === 'ar' ? cat.nameAr : cat.nameEn}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
 
       <View style={styles.section}>
@@ -305,8 +383,16 @@ export default function ProfileScreen() {
           <Text style={styles.saveButtonText}>{t('profile.updateProfile')}</Text>
         )}
       </TouchableOpacity>
-      </ScrollView>
-    </View>
+
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={handleLogout}
+      >
+        <Ionicons name="log-out-outline" size={20} color="#F44336" />
+        <Text style={styles.logoutButtonText}>{t('auth.logout')}</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  </View>
   );
 }
 
@@ -420,6 +506,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  categoriesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  categoryChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    backgroundColor: '#FAFAFA',
+  },
+  categoryChipSelected: {
+    backgroundColor: '#2196F3',
+    borderColor: '#2196F3',
+  },
+  categoryChipText: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  categoryChipTextSelected: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
   noPhotos: {
     color: '#999999',
     fontSize: 14,
@@ -436,6 +547,19 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    gap: 8,
+    marginBottom: 40,
+  },
+  logoutButtonText: {
+    color: '#F44336',
     fontSize: 16,
     fontWeight: '600',
   },

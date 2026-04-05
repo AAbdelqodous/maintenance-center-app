@@ -18,12 +18,17 @@ const STATUS_COLORS: Record<string, string> = {
 export function StatusBadge({ status }: StatusBadgeProps) {
   const { t } = useTranslation();
 
+  const STATUS_KEY_MAP: Record<string, string> = {
+    PENDING: 'pending',
+    CONFIRMED: 'confirmed',
+    IN_PROGRESS: 'inProgress',
+    COMPLETED: 'completed',
+    CANCELLED: 'cancelled',
+  };
+
   const getTranslationKey = (status: string): string => {
-    const key = status.toLowerCase();
-    if (['car', 'electronics', 'home_appliance'].includes(key)) {
-      return `bookings.serviceType.${key}`;
-    }
-    return `bookings.${key}`;
+    if (STATUS_KEY_MAP[status]) return `bookings.${STATUS_KEY_MAP[status]}`;
+    return `bookings.${status.toLowerCase()}`;
   };
 
   return (
