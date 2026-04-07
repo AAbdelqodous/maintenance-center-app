@@ -25,6 +25,17 @@ export interface ServiceCategory {
   icon?: string;
 }
 
+export interface CenterSummary {
+  id: number;
+  nameAr: string;
+  nameEn: string;
+  isActive: boolean;
+  logoUrl?: string;
+  averageRating: number;
+  totalReviews: number;
+  address: Address;
+}
+
 export interface CenterProfile {
   id: number;
   nameAr: string;
@@ -77,6 +88,15 @@ export const centerApi = createApi({
   }),
   tagTypes: ['Center'],
   endpoints: (builder) => ({
+    getMyCenters: builder.query<CenterSummary[], void>({
+      query: () => '/centers/my',
+      transformResponse: (response: any) => {
+        if (Array.isArray(response)) return response;
+        if (response?.content) return response.content;
+        return [];
+      },
+      providesTags: ['Center'],
+    }),
     getMyCenter: builder.query<CenterProfile, void>({
       query: () => '/centers/my/profile',
       providesTags: ['Center'],
@@ -108,4 +128,4 @@ export const centerApi = createApi({
   }),
 });
 
-export const { useGetMyCenterQuery, useUpdateCenterMutation, useUploadCenterImageMutation, useDeleteCenterImageMutation, useGetCategoriesQuery } = centerApi;
+export const { useGetMyCentersQuery, useGetMyCenterQuery, useUpdateCenterMutation, useUploadCenterImageMutation, useDeleteCenterImageMutation, useGetCategoriesQuery } = centerApi;

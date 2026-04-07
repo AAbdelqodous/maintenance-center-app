@@ -46,7 +46,7 @@ export function BookingCard({ booking, onPress, isOverdue = false }: BookingCard
             </View>
           )}
         </View>
-        <StatusBadge status={booking.status} />
+        <StatusBadge status={booking.bookingStatus} />
       </View>
       <View style={[styles.row, isRTL && styles.rowRtl]}>
         <Text style={styles.label}>{t('bookings.service')}:</Text>
@@ -54,11 +54,11 @@ export function BookingCard({ booking, onPress, isOverdue = false }: BookingCard
       </View>
       <View style={[styles.row, isRTL && styles.rowRtl]}>
         <Text style={styles.label}>{t('bookings.date')}:</Text>
-        <Text style={styles.value}>{formatDate(booking.scheduledDate)}</Text>
+        <Text style={styles.value}>{formatDate(booking.bookingDate)}</Text>
       </View>
       <View style={[styles.row, isRTL && styles.rowRtl]}>
         <Text style={styles.label}>{t('bookings.time')}:</Text>
-        <Text style={styles.value}>{booking.scheduledTime}</Text>
+        <Text style={styles.value}>{booking.bookingTime}</Text>
       </View>
       {getPaymentMethodTranslation(booking.paymentMethod) && (
         <View style={[styles.row, isRTL && styles.rowRtl]}>

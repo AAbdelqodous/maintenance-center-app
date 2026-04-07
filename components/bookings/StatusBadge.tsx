@@ -27,6 +27,7 @@ export function StatusBadge({ status }: StatusBadgeProps) {
   };
 
   const getTranslationKey = (status: string): string => {
+    if (!status) return 'bookings.unknown';
     if (STATUS_KEY_MAP[status]) return `bookings.${STATUS_KEY_MAP[status]}`;
     return `bookings.${status.toLowerCase()}`;
   };

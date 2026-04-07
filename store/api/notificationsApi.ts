@@ -21,6 +21,10 @@ export interface NotificationsResponse {
   unreadCount: number;
 }
 
+export interface RegisterPushTokenRequest {
+  token: string;
+}
+
 export const notificationsApi = createApi({
   reducerPath: 'notificationsApi',
   baseQuery: fetchBaseQuery({
@@ -50,7 +54,10 @@ export const notificationsApi = createApi({
       query: () => ({ url: '/notifications/read-all', method: 'PUT' }),
       invalidatesTags: ['Notification'],
     }),
+    registerPushToken: builder.mutation<void, RegisterPushTokenRequest>({
+      query: (body) => ({ url: '/users/me/push-token', method: 'PUT', body }),
+    }),
   }),
 });
 
-export const { useGetNotificationsQuery, useMarkNotificationAsReadMutation, useMarkAllNotificationsAsReadMutation } = notificationsApi;
+export const { useGetNotificationsQuery, useMarkNotificationAsReadMutation, useMarkAllNotificationsAsReadMutation, useRegisterPushTokenMutation } = notificationsApi;

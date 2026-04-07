@@ -18,6 +18,7 @@ export default function ChatDetailScreen() {
 
   const [messageText, setMessageText] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isConnected, setIsConnected] = useState(false);
   const stompClientRef = useRef<Client | null>(null);
   const flatListRef = useRef<FlatList>(null);
 
@@ -37,10 +38,8 @@ export default function ChatDetailScreen() {
   useEffect(() => {
     if (session) {
       const stompClient = new Client({
-        brokerURL: WS_URL,
-        connectHeaders: {
-          Authorization: `Bearer ${session.token}`,
-        },
+        brokerURL: `${WS_URL}?token=${session.token}`,
+        connectHeaders: {},
         debug: (str) => console.log(str),
         reconnectDelay: 5000,
         heartbeatIncoming: 4000,
@@ -49,14 +48,26 @@ export default function ChatDetailScreen() {
 
       stompClient.onConnect = () => {
         console.log('Connected to WebSocket');
-        stompClient.subscribe(`/topic/conversation.${id}`, (message) => {
+        setIsConnected(true);
+        stompClient.subscribe(`/topic/conversation/${id}`, (message) => {
           const newMessage = JSON.parse(message.body);
           setMessages((prev) => [...prev, newMessage]);
         });
       };
 
+      stompClient.onDisconnect = () => {
+        console.log('Disconnected from WebSocket');
+        setIsConnected(false);
+      };
+
       stompClient.onStompError = (frame) => {
         console.error('STOMP error', frame);
+        setIsConnected(false);
+      };
+
+      stompClient.onWebSocketClose = () => {
+        console.log('WebSocket closed');
+        setIsConnected(false);
       };
 
       stompClient.activate();
@@ -96,6 +107,17 @@ export default function ChatDetailScreen() {
     const textToSend = messageText;
     setMessageText('');
 
+    const stompClient = stompClientRef.current;
+    if (stompClient && isConnected) {
+      stompClient.publish({
+        destination: `/app/chat/${id}`,
+        body: JSON.stringify({
+          content: textToSend,
+          messageType: 'TEXT',
+        }),
+      });
+    }
+
     try {
       await sendMessage({
         centerId: Number(centerId),
@@ -131,6 +153,14 @@ export default function ChatDetailScreen() {
         options={{
           headerShown: true,
           title: t('chat.customer'),
+          headerRight: () => (
+            !isConnected && (
+              <View style={styles.connectingIndicator}>
+                <ActivityIndicator size="small" color="#2196F3" />
+                <Text style={styles.connectingText}>{t('chat.connecting')}</Text>
+              </View>
+            )
+          ),
         }}
       />
       <FlatList
@@ -215,5 +245,14 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     backgroundColor: '#E0E0E0',
+  },
+  connectingIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  connectingText: {
+    fontSize: 12,
+    color: '#2196F3',
   },
 });

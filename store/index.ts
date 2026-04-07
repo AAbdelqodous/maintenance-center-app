@@ -1,6 +1,7 @@
 import { configureStore, isRejectedWithValue, Middleware } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import authReducer, { clearSession } from './authSlice';
+import centerReducer, { clearActiveCenter } from './centerSlice';
 import { storage } from '../lib/storage';
 import { authApi } from './api/authApi';
 import { bookingsApi } from './api/bookingsApi';
@@ -13,6 +14,7 @@ const unauthenticatedMiddleware: Middleware = ({ dispatch }) => (next) => (actio
   if (isRejectedWithValue(action) && (action.payload as any)?.status === 401) {
     storage.clearAll().catch(() => {});
     dispatch(clearSession());
+    dispatch(clearActiveCenter());
   }
   return next(action);
 };
@@ -20,6 +22,7 @@ const unauthenticatedMiddleware: Middleware = ({ dispatch }) => (next) => (actio
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    center: centerReducer,
     [authApi.reducerPath]: authApi.reducer,
     [bookingsApi.reducerPath]: bookingsApi.reducer,
     [centerApi.reducerPath]: centerApi.reducer,

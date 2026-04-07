@@ -14,7 +14,8 @@
     "retry": "Retry",
     "noData": "No data available",
     "success": "Success",
-    "contact": "Contact"
+    "contact": "Contact",
+    "fillRequired": "Please fill in all required fields"
   },
   "auth": {
     "login": "Login",
@@ -41,6 +42,7 @@
     "todayBookings": "Today's Bookings",
     "pendingBookings": "Pending",
     "confirmedBookings": "Confirmed",
+    "totalBooking": "Total Bookings",
     "totalReviews": "Total Reviews",
     "averageRating": "Avg. Rating",
     "recentBookings": "Recent Bookings",
@@ -73,7 +75,6 @@
     "overdue": "Overdue",
     "in_progress": "In Progress",
     "paymentMethod": "Payment Method",
-    "paymentStatus": "Payment Status",
     "rejectReason": "Select a reason for rejection",
     "selectReason": "Please select a reason",
     "enterReason": "Please enter a reason",
@@ -87,7 +88,10 @@
       "car": "Car",
       "electronics": "Electronics",
       "homeAppliance": "Home Appliance",
-      "home_appliance": "Home Appliance"
+      "home_appliance": "Home Appliance",
+      "emergency": "Emergency",
+      "installation": "Installation",
+      "repair": "Repair"
     },
     "paymentMethods": {
       "cash": "Cash",
@@ -105,7 +109,8 @@
     "noConversations": "No conversations yet",
     "typeMessage": "Type a message...",
     "send": "Send",
-    "customer": "Customer"
+    "customer": "Customer",
+    "connecting": "Connecting..."
   },
   "reviews": {
     "title": "Reviews",
@@ -123,14 +128,20 @@
     "address": "Address",
     "city": "City",
     "area": "Area",
+    "street": "Street",
+    "categories": "Categories",
     "description": "Description",
     "openingHours": "Opening Hours",
+    "openingTime": "Opening Time",
+    "closingTime": "Closing Time",
     "updateProfile": "Update Profile",
     "profileUpdated": "Profile updated successfully",
     "photos": "Center Photos",
     "addPhoto": "Add Photo",
     "isOpen": "Open Now",
-    "isClosed": "Closed"
+    "isClosed": "Closed",
+    "switchBranch": "Switch Branch",
+    "switchBranchDesc": "Switch to another branch"
   },
   "notifications": {
     "title": "Notifications",
@@ -139,7 +150,8 @@
     "newBooking": "New Booking",
     "bookingCancelled": "Booking Cancelled",
     "newReview": "New Review",
-    "newMessage": "New Message"
+    "newMessage": "New Message",
+    "permissionDenied": "Notifications are disabled. Enable in settings to receive updates."
   },
   "complaints": {
     "title": "Complaints",
@@ -166,5 +178,16 @@
     "languageChanged": "Language changed successfully",
     "languageChangeFailed": "Failed to change language",
     "version": "Version"
+  },
+  "branchSelect": {
+    "title": "Select Branch",
+    "subtitle": "Choose the branch you want to manage",
+    "rating": "Rating",
+    "reviews": "Reviews",
+    "active": "Active",
+    "inactive": "Inactive",
+    "logout": "Logout",
+    "logoutConfirm": "Are you sure you want to logout?",
+    "noCenter": "No centers found for your account."
   }
 }

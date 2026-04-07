@@ -192,7 +192,7 @@ export default function ProfileScreen() {
       <Stack.Screen
         options={{
           headerShown: true,
-          title: t('profile.title'),
+          title: center ? (i18n.language === 'ar' ? center.nameAr : center.nameEn) : t('profile.title'),
           headerRight: () => (
             <TouchableOpacity onPress={() => router.push('/settings')}>
               <Ionicons name="settings-outline" size={24} color="#333333" />

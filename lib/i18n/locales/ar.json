@@ -14,7 +14,8 @@
     "retry": "إعادة المحاولة",
     "noData": "لا توجد بيانات",
     "success": "نجح",
-    "contact": "التواصل"
+    "contact": "التواصل",
+    "fillRequired": "الرجاء تعبئة جميع الحقول المطلوبة"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -73,7 +74,6 @@
     "overdue": "متأخر",
     "in_progress": "جاري العمل",
     "paymentMethod": "طريقة الدفع",
-    "paymentStatus": "حالة الدفع",
     "rejectReason": "اختر سبب الرفض",
     "selectReason": "الرجاء اختيار سبب",
     "enterReason": "الرجاء إدخال سبب",
@@ -105,7 +105,8 @@
     "noConversations": "لا توجد محادثات",
     "typeMessage": "اكتب رسالة...",
     "send": "إرسال",
-    "customer": "العميل"
+    "customer": "العميل",
+    "connecting": "جاري الاتصال..."
   },
   "reviews": {
     "title": "التقييمات",
@@ -123,14 +124,20 @@
     "address": "العنوان",
     "city": "المدينة",
     "area": "المنطقة",
+    "street": "الشارع",
+    "categories": "الفئات",
     "description": "الوصف",
     "openingHours": "ساعات العمل",
+    "openingTime": "وقت الافتتاح",
+    "closingTime": "وقت الإغلاق",
     "updateProfile": "تحديث الملف",
     "profileUpdated": "تم تحديث الملف بنجاح",
     "photos": "صور المركز",
     "addPhoto": "إضافة صورة",
     "isOpen": "مفتوح الآن",
-    "isClosed": "مغلق"
+    "isClosed": "مغلق",
+    "switchBranch": "تغيير الفرع",
+    "switchBranchDesc": "التبديل إلى فرع آخر"
   },
   "notifications": {
     "title": "الإشعارات",
@@ -139,7 +146,8 @@
     "newBooking": "حجز جديد",
     "bookingCancelled": "إلغاء الحجز",
     "newReview": "تقييم جديد",
-    "newMessage": "رسالة جديدة"
+    "newMessage": "رسالة جديدة",
+    "permissionDenied": "الإشعارات معطلة. قم بتفعيلها في الإعدادات لتلقي التحديثات."
   },
   "complaints": {
     "title": "الشكاوى",
@@ -166,5 +174,16 @@
     "languageChanged": "تم تغيير اللغة بنجاح",
     "languageChangeFailed": "فشل في تغيير اللغة",
     "version": "الإصدار"
+  },
+  "branchSelect": {
+    "title": "اختر الفرع",
+    "subtitle": "اختر الفرع الذي تريد إدارته",
+    "rating": "التقييم",
+    "reviews": "تقييمات",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "logout": "تسجيل الخروج",
+    "logoutConfirm": "هل أنت متأكد من تسجيل الخروج؟",
+    "noCenter": "لا توجد فروع مرتبطة بحسابك."
   }
 }

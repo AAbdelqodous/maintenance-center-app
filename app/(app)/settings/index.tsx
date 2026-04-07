@@ -4,8 +4,9 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAppDispatch } from '../../../store';
+import { useAppDispatch, useAppSelector } from '../../../store';
 import { clearSession } from '../../../store/authSlice';
+import { useGetMyCentersQuery } from '../../../store/api/centerApi';
 
 const LANGUAGE_KEY = 'app_language';
 
@@ -16,6 +17,10 @@ export default function SettingsScreen() {
   const isRTL = i18n.dir() === 'rtl';
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
   const [isLoading, setIsLoading] = useState(false);
+  const activeCenterId = useAppSelector((state) => state.center.activeCenterId);
+  const { data: centers } = useGetMyCentersQuery();
+
+  const activeCenter = centers?.find((c) => c.id === activeCenterId);
 
   useEffect(() => {
     loadLanguage();
@@ -108,6 +113,14 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>{t('settings.title')}</Text>
+        {activeCenter && (
+          <Text style={styles.headerSubtitle}>
+            {i18n.language === 'ar' ? activeCenter.nameAr : activeCenter.nameEn}
+          </Text>
+        )}
+      </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t('settings.language')}</Text>
         <View style={[styles.languageSelector, isRTL && styles.rowRtl]}>
@@ -155,6 +168,14 @@ export default function SettingsScreen() {
           onPress={() => router.back()}
           showArrow={false}
         />
+        {(centers ?? []).length > 1 && (
+          <SettingItem
+            icon="git-branch-outline"
+            title={t('profile.switchBranch')}
+            subtitle={t('profile.switchBranchDesc')}
+            onPress={() => router.push('/(app)/branch-select')}
+          />
+        )}
         <SettingItem
           icon="notifications-outline"
           title={t('settings.notifications')}
@@ -204,6 +225,27 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
+  },
+  header: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333333',
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#666666',
   },
   section: {
     marginBottom: 24,
