@@ -32,8 +32,9 @@ export interface Conversation {
 }
 
 export interface SendMessageRequest {
-  centerId: number;
+  conversationId: number;
   content: string;
+  messageType: string;
 }
 
 export const chatApi = createApi({
@@ -67,7 +68,11 @@ export const chatApi = createApi({
       },
     }),
     sendMessage: builder.mutation<Message, SendMessageRequest>({
-      query: (body) => ({ url: '/conversations/messages', method: 'POST', body }),
+      query: ({ conversationId, ...body }) => ({
+        url: `/conversations/${conversationId}/messages`,
+        method: 'POST',
+        body,
+      }),
       invalidatesTags: ['Conversation'],
     }),
     markConversationAsRead: builder.mutation<void, number>({

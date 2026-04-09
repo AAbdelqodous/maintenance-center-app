@@ -17,6 +17,7 @@ export default function AppLayout() {
   const [hasCheckedCenters, setHasCheckedCenters] = useState(false);
   const [centersCount, setCentersCount] = useState(0);
   const [noCentersError, setNoCentersError] = useState(false);
+  const [isPendingApproval, setIsPendingApproval] = useState(false);
   const [notificationsInitialized, setNotificationsInitialized] = useState(false);
 
   useEffect(() => {
@@ -32,6 +33,19 @@ export default function AppLayout() {
           }
 
           const token = saved.token;
+
+          // Check approval status before anything else
+          const meResponse = await fetch(`${API_BASE_URL}/users/me`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+          });
+          if (meResponse.ok) {
+            const me = await meResponse.json();
+            if (me.approvalStatus === 'PENDING_APPROVAL') {
+              setIsPendingApproval(true);
+              return;
+            }
+          }
+
           const response = await fetch(`${API_BASE_URL}/centers/my`, {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -96,6 +110,8 @@ export default function AppLayout() {
   }
 
   if (!session) return <Redirect href="/(auth)/login" />;
+
+  if (isPendingApproval) return <Redirect href="/pending-approval" />;
 
   if (hasCheckedCenters && noCentersError) {
     return (

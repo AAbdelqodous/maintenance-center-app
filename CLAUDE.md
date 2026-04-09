@@ -65,7 +65,8 @@ service-center/src/main/java/com/maintainance/service_center/
 ├── role/           # Role entity, RoleRepository
 ├── search/         # SearchHistory entity, SearchSource enum + SearchController
 ├── security/       # JwtService, JwtFilter, SecurityConfig, UserDetailsServiceImpl
-└── user/           # User, Token, TokenRepository, UserRepository, UserType, Language
+├── admin/          # AdminController, AdminService — center owner approval endpoints
+└── user/           # User, Token, TokenRepository, UserRepository, UserType, ApprovalStatus, Language
 ```
 
 ---
@@ -141,9 +142,22 @@ service-center/src/main/java/com/maintainance/service_center/
 ### Working Endpoints
 ```
 POST  /api/v1/auth/register           → 202 Accepted (sends OTP email)
-POST  /api/v1/auth/authenticate       → 200 { "token": "<jwt>" }
+                                         Body: { firstname, lastname, email, password, userType? }
+                                         userType: "CUSTOMER" (default) | "CENTER_OWNER"
+                                         CENTER_OWNER starts with approvalStatus=PENDING_APPROVAL
+
+POST  /api/v1/auth/authenticate       → 200 { "token": "<jwt>", "approvalStatus": "APPROVED|PENDING_APPROVAL" }
+                                         REJECTED owners receive 500 (blocked at login)
+
 GET   /api/v1/auth/activate-account   → ?token=XXXXXX
 ```
+
+### Owner Approval Flow
+- New CENTER_OWNER registers → `approvalStatus = PENDING_APPROVAL`
+- Admin calls `PUT /admin/users/{id}/approve` → `approvalStatus = APPROVED`
+- After login, `approvalStatus` is returned in the auth response
+- `(app)/_layout.tsx` also calls `GET /users/me` on session restore to re-check approval status
+- If `PENDING_APPROVAL` → user is redirected to `app/(app)/pending-approval.tsx`
 
 ### JWT Config (application-dev.yml)
 - Expiry: `8640000` ms = **2.4 hours**
@@ -164,7 +178,22 @@ GET   /api/v1/auth/activate-account   → ?token=XXXXXX
 
 **Auth**
 ```
-POST  /auth/authenticate              → { token }
+POST  /auth/register                  → 202 (CENTER_OWNER self-registration)
+POST  /auth/authenticate              → { token, approvalStatus }
+GET   /auth/activate-account          → ?token=XXXXXX
+```
+
+**Admin** (ROLE_ADMIN only)
+```
+GET   /admin/users/pending            → Page<UserResponse> (pending center owners)
+PUT   /admin/users/{id}/approve       → UserResponse
+PUT   /admin/users/{id}/reject        → UserResponse
+```
+
+**Users**
+```
+GET   /users/me                       → UserResponse (includes approvalStatus)
+PUT   /users/me/push-token            → { token } → void
 ```
 
 **Center**
@@ -243,8 +272,12 @@ maintenance-center-app/
 ├── app/
 │   ├── _layout.tsx                   # Root: Provider + Stack
 │   ├── (auth)/login.tsx              # Login screen
+│   ├── (auth)/register.tsx          # CENTER_OWNER self-registration form
+│   ├── (auth)/verify-otp.tsx        # OTP verification after registration
 │   └── (app)/
-│       ├── _layout.tsx               # Auth guard + session restore
+│       ├── _layout.tsx               # Auth guard + session restore + approval check
+│       ├── pending-approval.tsx      # Shown when approvalStatus=PENDING_APPROVAL
+│       ├── branch-select.tsx         # Shown when owner has >1 center
 │       └── (tabs)/
 │           ├── _layout.tsx           # Bottom tab navigator
 │           ├── index.tsx             # Dashboard
@@ -268,7 +301,7 @@ maintenance-center-app/
 │   ├── index.ts                      # Store + 401 middleware
 │   ├── authSlice.ts                  # session: { token, email }
 │   └── api/
-│       ├── authApi.ts
+│       ├── authApi.ts                # login, registerOwner, activateAccount, resendOtp
 │       ├── bookingsApi.ts
 │       ├── centerApi.ts
 │       ├── chatApi.ts
@@ -282,7 +315,8 @@ maintenance-center-app/
 
 ### Session Persistence
 - Login → `storage.saveSession(token, email)` → Redux `setSession`
-- App launch → `(app)/_layout.tsx` restores session from SecureStore/localStorage
+- If `approvalStatus === 'PENDING_APPROVAL'` → redirect to `pending-approval` screen
+- App launch → `(app)/_layout.tsx` restores session, then calls `GET /users/me` to re-check `approvalStatus`
 - 401 response → Redux middleware clears session → redirect to login
 - Logout → `storage.clearAll()` + `dispatch(clearSession())` + `router.replace`
 
@@ -336,7 +370,7 @@ npx expo start              # native (needs emulator)
 ### Existing Enums (do not redefine)
 `BookingStatus`, `ServiceType`, `PaymentMethod`, `PaymentStatus`, `CancelledBy`,
 `MessageType`, `SenderType`, `ComplaintType`, `ComplaintStatus`, `ComplaintPriority`,
-`NotificationType`, `NotificationPriority`, `UserType`, `Language`, `SearchSource`
+`NotificationType`, `NotificationPriority`, `UserType`, `ApprovalStatus`, `Language`, `SearchSource`
 
 ---
 
@@ -356,7 +390,7 @@ npx expo start              # native (needs emulator)
 - [x] Notification: list, mark read, mark all read
 - [x] Fixed all 7 original bugs from initial audit
 
-### Phase 2 — Center Owner App (IN PROGRESS)
+### Phase 2 — Center Owner App ✅ Complete
 - [x] Expo Router navigation (tabs + nested stacks)
 - [x] Auth guard + session persistence (SecureStore / localStorage)
 - [x] 401 auto-logout middleware
@@ -365,14 +399,32 @@ npx expo start              # native (needs emulator)
 - [x] Bookings list + detail + status update
 - [x] Profile editor (bilingual address, categories, opening time, images)
 - [x] Reviews list + owner reply
-- [x] Chat list + thread
+- [x] Chat list + thread + WebSocket/STOMP real-time
 - [x] Notifications list + mark read
-- [ ] Push notifications (FCM)
-- [ ] Real-time chat (WebSocket/STOMP)
-- [ ] Multi-branch support (branch selector after login)
+- [x] Push notifications (expo-notifications + FCM token registration)
+- [x] Multi-branch support (branch selector after login, centerSlice in Redux)
+- [x] CENTER_OWNER self-registration + email OTP verification
+- [x] Admin approval gate — pending-approval screen, approvalStatus checked on login + session restore
 
-### Phase 3 — Customer App
-- [ ] React Native customer app (~30 screens)
+### Phase 2.5 — Production Hardening ⏳ Pending
+- [ ] Set EAS project ID in app.json (required for push notifications in production)
+- [ ] Switch API_BASE_URL and WS_URL to HTTPS/WSS for production builds
+- [ ] Add error boundary component
+- [ ] Add crash reporting (Sentry or Firebase Crashlytics)
+- [ ] Configure EAS build profiles (dev / staging / prod)
+
+### Phase 3 — Customer App 🔄 In Progress
+- [x] Project scaffold (maintenance-customer-app)
+- [x] Foundation: auth flow, session, i18n, onboarding, error boundary
+- [x] Centers: search/filter list, center detail
+- [x] Bookings list, favorites, notifications, profile, my reviews, complaints list
+- [x] Write review screen (reviews/new.tsx)
+- [ ] Booking form + confirmation + success screens
+- [ ] Booking detail + cancel flow
+- [ ] Chat thread (WebSocket/STOMP)
+- [ ] Complaint new + detail screens
+- [ ] Push notifications
+- [ ] Production hardening
 
 ### Phase 4 — Advanced
 - [ ] KNET payment integration (Kuwait)
@@ -412,5 +464,5 @@ cd ~/IdeaProjects/life-experience-app/service-center && ./mvnw test
 ### Repo Awareness
 3 separate repos — always confirm which repo before acting:
 - `service-center` — Spring Boot backend at `~/IdeaProjects/life-experience-app/service-center/`
-- `maintenance-customer-app` — React Native customer app (not started)
-- `maintenance-center-app` — React Native center owner app (this repo, in progress)
+- `maintenance-customer-app` — React Native customer app (in progress, ~70% complete)
+- `maintenance-center-app` — React Native center owner app (this repo, complete)

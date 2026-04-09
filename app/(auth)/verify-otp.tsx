@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useActivateAccountMutation, useResendOtpMutation } from '../../store/api/authApi';
@@ -12,6 +12,8 @@ export default function VerifyOTPScreen() {
 
   const [otp, setOtp] = useState('');
   const [cooldown, setCooldown] = useState(0);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const [activateAccount, { isLoading }] = useActivateAccountMutation();
   const [resendOtp, { isLoading: resendLoading }] = useResendOtpMutation();
@@ -27,34 +29,36 @@ export default function VerifyOTPScreen() {
   }, [cooldown]);
 
   const handleVerify = async () => {
+    setErrorMessage('');
+    setSuccessMessage('');
+
     if (otp.length !== 6) {
-      Alert.alert(t('common.error'), t('auth.invalidOTP'));
+      setErrorMessage(t('auth.invalidOTP'));
       return;
     }
 
     try {
       await activateAccount({ token: otp }).unwrap();
-      Alert.alert(t('common.success'), t('auth.accountActivated'), [
-        {
-          text: t('auth.login'),
-          onPress: () => router.replace('/(auth)/login'),
-        },
-      ]);
+      setSuccessMessage(t('auth.accountActivated'));
+      setTimeout(() => {
+        router.replace('/(auth)/login');
+      }, 1500);
     } catch (error: any) {
-      const errorMessage = error?.data?.message || t('auth.activationFailed');
-      Alert.alert(t('common.error'), errorMessage);
+      setErrorMessage(error?.data?.error || t('auth.activationFailed'));
     }
   };
 
   const handleResend = async () => {
     if (cooldown > 0 || !email) return;
+    setErrorMessage('');
+    setSuccessMessage('');
 
     try {
       await resendOtp({ email }).unwrap();
-      Alert.alert(t('common.success'), t('auth.otpResent'));
+      setSuccessMessage(t('auth.otpResent'));
       setCooldown(60);
-    } catch (error) {
-      Alert.alert(t('common.error'), t('auth.otpResendFailed'));
+    } catch {
+      setErrorMessage(t('auth.otpResendFailed'));
     }
   };
 
@@ -80,8 +84,7 @@ export default function VerifyOTPScreen() {
                 onChangeText={(value) => {
                   const newOtp = otp.split('');
                   newOtp[index] = value;
-                  const updatedOtp = newOtp.join('');
-                  handleOtpChange(updatedOtp);
+                  handleOtpChange(newOtp.join(''));
                 }}
                 maxLength={1}
                 keyboardType="number-pad"
@@ -92,7 +95,23 @@ export default function VerifyOTPScreen() {
             ))}
           </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleVerify} disabled={isLoading || otp.length !== 6}>
+          {errorMessage ? (
+            <View style={styles.errorBox}>
+              <Text style={[styles.errorText, isRTL && styles.textRtl]}>{errorMessage}</Text>
+            </View>
+          ) : null}
+
+          {successMessage ? (
+            <View style={styles.successBox}>
+              <Text style={[styles.successText, isRTL && styles.textRtl]}>{successMessage}</Text>
+            </View>
+          ) : null}
+
+          <TouchableOpacity
+            style={[styles.button, (isLoading || otp.length !== 6) && styles.buttonDisabled]}
+            onPress={handleVerify}
+            disabled={isLoading || otp.length !== 6}
+          >
             {isLoading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
@@ -164,6 +183,31 @@ const styles = StyleSheet.create({
   rtlInput: {
     textAlign: 'center',
   },
+  errorBox: {
+    backgroundColor: '#FFEBEE',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#C62828',
+    textAlign: 'left',
+  },
+  successBox: {
+    backgroundColor: '#E8F5E9',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  successText: {
+    fontSize: 14,
+    color: '#2E7D32',
+    textAlign: 'left',
+  },
+  textRtl: {
+    textAlign: 'right',
+  },
   button: {
     height: 50,
     backgroundColor: '#2196F3',
@@ -171,6 +215,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
   },
   buttonText: {
     color: '#FFFFFF',

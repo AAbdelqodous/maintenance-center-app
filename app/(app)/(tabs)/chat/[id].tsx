@@ -120,8 +120,9 @@ export default function ChatDetailScreen() {
 
     try {
       await sendMessage({
-        centerId: Number(centerId),
+        conversationId: Number(id),
         content: textToSend,
+        messageType: 'TEXT',
       }).unwrap();
     } catch (error) {
       console.error('Failed to send message', error);

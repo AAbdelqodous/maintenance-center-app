@@ -15,7 +15,9 @@
     "noData": "No data available",
     "success": "Success",
     "contact": "Contact",
-    "fillRequired": "Please fill in all required fields"
+    "fillRequired": "Please fill in all required fields",
+    "justNow": "Just now",
+    "ok": "OK"
   },
   "auth": {
     "login": "Login",
@@ -23,6 +25,8 @@
     "password": "Password",
     "loginButton": "Sign In",
     "loginError": "Invalid email or password",
+    "accountNotActivated": "Account not activated. Please check your email for the verification code.",
+    "verifyNow": "Verify Now",
     "logout": "Logout",
     "verifyOTP": "Verify OTP",
     "otpSent": "Enter the 6-digit code sent to your email",
@@ -34,7 +38,23 @@
     "accountActivated": "Account activated successfully! You can now login.",
     "activationFailed": "Failed to activate account. Please check your OTP and try again.",
     "otpResent": "New OTP has been sent to your email",
-    "otpResendFailed": "Failed to resend OTP. Please try again later."
+    "otpResendFailed": "Failed to resend OTP. Please try again later.",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create Account",
+    "haveAccount": "Already have an account?",
+    "firstname": "First Name",
+    "lastname": "Last Name",
+    "confirmPassword": "Confirm Password",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "registerButton": "Create Account",
+    "registerSubtitle": "Register your maintenance center",
+    "registerSuccess": "Account created! Please verify your email to continue.",
+    "registerError": "Registration failed. Please try again.",
+    "emailAlreadyExists": "This email is already registered. Please sign in instead.",
+    "pendingTitle": "Account Pending Approval",
+    "pendingMessage": "Your center owner account is under review. Our team will approve it shortly.",
+    "pendingInfo": "You will be notified by email once your account is approved and you can start managing your center."
   },
   "dashboard": {
     "title": "Dashboard",

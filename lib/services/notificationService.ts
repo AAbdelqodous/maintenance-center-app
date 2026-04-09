@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import * as Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { API_BASE_URL } from '@/lib/constants/config';
 
@@ -24,10 +25,17 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
 export const registerForPushNotificationsAsync = async (): Promise<string | null> => {
+  if (Platform.OS === 'web') {
+    console.log('Push notifications are not supported on web platform');
+    return null;
+  }
+
   if (!Device.isDevice) {
     console.log('Must use physical device for push notifications');
     return null;
@@ -57,7 +65,12 @@ export const registerForPushNotificationsAsync = async (): Promise<string | null
     });
   }
 
-  const projectId = 'your-project-id';
+  const projectId = (Constants as any).default?.expoConfig?.extra?.eas?.projectId
+    ?? (Constants as any).expoConfig?.extra?.eas?.projectId;
+  if (!projectId) {
+    console.warn('Expo project ID not configured. Set extra.eas.projectId in app.json.');
+    return null;
+  }
   pushTokenString = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
 
   console.log('Push token:', pushTokenString);

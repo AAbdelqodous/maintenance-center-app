@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '@/store';
@@ -15,10 +15,14 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isNotActivated, setIsNotActivated] = useState(false);
 
   const handleLogin = async () => {
+    setErrorMessage('');
+    setIsNotActivated(false);
     if (!email || !password) {
-      Alert.alert(t('common.error'), t('auth.loginError'));
+      setErrorMessage(t('auth.loginError'));
       return;
     }
 
@@ -26,9 +30,18 @@ export default function LoginScreen() {
       const result = await login({ email, password }).unwrap();
       await storage.saveSession(result.token, email);
       dispatch(setSession({ token: result.token, email }));
-      router.replace('/(app)/(tabs)/');
-    } catch (error) {
-      Alert.alert(t('common.error'), t('auth.loginError'));
+      if (result.approvalStatus === 'PENDING_APPROVAL') {
+        router.replace('/pending-approval');
+      } else {
+        router.replace('/(app)/(tabs)/');
+      }
+    } catch (err: any) {
+      if (err?.data?.businessErrorCode === 303) {
+        setIsNotActivated(true);
+        setErrorMessage(t('auth.accountNotActivated'));
+      } else {
+        setErrorMessage(t('auth.loginError'));
+      }
     }
   };
 
@@ -68,8 +81,27 @@ export default function LoginScreen() {
             />
           </View>
 
+          {errorMessage ? (
+            <View style={styles.errorBox}>
+              <Text style={[styles.errorText, isRTL && styles.textRtl]}>{errorMessage}</Text>
+              {isNotActivated && email ? (
+                <TouchableOpacity
+                  onPress={() => router.push('/(auth)/verify-otp?email=' + encodeURIComponent(email))}
+                  style={styles.verifyLink}
+                >
+                  <Text style={styles.verifyLinkText}>{t('auth.verifyNow')} →</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          ) : null}
+
           <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
             {isLoading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.buttonText}>{t('auth.loginButton')}</Text>}
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.registerLink} onPress={() => router.push('/(auth)/register')}>
+            <Text style={styles.registerText}>{t('auth.noAccount')} </Text>
+            <Text style={styles.registerLinkText}>{t('auth.createAccount')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -130,5 +162,43 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  registerLink: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  registerText: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  registerLinkText: {
+    fontSize: 14,
+    color: '#2196F3',
+    fontWeight: '600',
+  },
+  errorBox: {
+    backgroundColor: '#FFEBEE',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#C62828',
+    textAlign: 'left',
+  },
+  textRtl: {
+    textAlign: 'right',
+  },
+  verifyLink: {
+    marginTop: 8,
+  },
+  verifyLinkText: {
+    fontSize: 13,
+    color: '#C62828',
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
 });

@@ -9,7 +9,7 @@ export default function TabLayout() {
   const { data: bookingsData } = useGetBookingsQuery({ page: 0, size: 100 });
 
   const unreadNotifications = notificationsData?.unreadCount ?? 0;
-  const pendingBookings = bookingsData?.content.filter((b: { status: string }) => b.status === 'PENDING').length ?? 0;
+  const pendingBookings = bookingsData?.content.filter((b: { bookingStatus: string }) => b.bookingStatus === 'PENDING').length ?? 0;
 
   return (
     <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: '#2196F3', tabBarInactiveTintColor: '#9E9E9E' }}>
