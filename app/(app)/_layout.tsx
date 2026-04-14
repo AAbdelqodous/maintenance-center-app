@@ -3,14 +3,15 @@ import { useAppDispatch, useAppSelector } from '@/store';
 import { setSession } from '@/store/authSlice';
 import { setActiveCenterId, clearActiveCenter } from '@/store/centerSlice';
 import { storage } from '@/lib/storage';
-import { Redirect, Stack, router } from 'expo-router';
-import { ActivityIndicator, View, Text, TouchableOpacity } from 'react-native';
+import { Redirect, Stack, router, usePathname } from 'expo-router';
+import { ActivityIndicator, View } from 'react-native';
 import { API_BASE_URL } from '@/lib/constants/config';
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotificationsAsync, registerPushTokenWithBackend, getNavigationTarget } from '@/lib/services/notificationService';
 
 export default function AppLayout() {
   const dispatch = useAppDispatch();
+  const pathname = usePathname();
   const session = useAppSelector((state) => state.auth.session);
   const activeCenterId = useAppSelector((state) => state.center.activeCenterId);
   const [isLoading, setIsLoading] = useState(true);
@@ -113,24 +114,8 @@ export default function AppLayout() {
 
   if (isPendingApproval) return <Redirect href="/pending-approval" />;
 
-  if (hasCheckedCenters && noCentersError) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF', padding: 24 }}>
-        <Text style={{ fontSize: 18, color: '#666666', textAlign: 'center', marginBottom: 24 }}>
-          No centers found for your account.
-        </Text>
-        <TouchableOpacity
-          style={{ backgroundColor: '#F44336', paddingHorizontal: 32, paddingVertical: 12, borderRadius: 8 }}
-          onPress={async () => {
-            await storage.clearAll();
-            dispatch(clearActiveCenter());
-            router.replace('/(auth)/login');
-          }}
-        >
-          <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '600' }}>Logout</Text>
-        </TouchableOpacity>
-      </View>
-    );
+  if (hasCheckedCenters && noCentersError && !activeCenterId && !pathname.includes('setup-center')) {
+    return <Redirect href="/(app)/setup-center" />;
   }
 
   if (hasCheckedCenters && centersCount > 1 && !activeCenterId) {

@@ -76,6 +76,19 @@ export interface UpdateCenterRequest {
   categoryIds?: number[];
 }
 
+export interface CreateCenterRequest {
+  nameAr: string;
+  nameEn: string;
+  descriptionAr?: string;
+  descriptionEn?: string;
+  email: string;
+  phone: string;
+  address: Partial<Address>;
+  openingTime?: string;
+  closingTime?: string;
+  categoryIds: number[];
+}
+
 export const centerApi = createApi({
   reducerPath: 'centerApi',
   baseQuery: fetchBaseQuery({
@@ -88,6 +101,10 @@ export const centerApi = createApi({
   }),
   tagTypes: ['Center'],
   endpoints: (builder) => ({
+    createCenter: builder.mutation<CenterProfile, CreateCenterRequest>({
+      query: (body) => ({ url: '/centers', method: 'POST', body }),
+      invalidatesTags: ['Center'],
+    }),
     getMyCenters: builder.query<CenterSummary[], void>({
       query: () => '/centers/my',
       transformResponse: (response: any) => {
@@ -128,4 +145,4 @@ export const centerApi = createApi({
   }),
 });
 
-export const { useGetMyCentersQuery, useGetMyCenterQuery, useUpdateCenterMutation, useUploadCenterImageMutation, useDeleteCenterImageMutation, useGetCategoriesQuery } = centerApi;
+export const { useCreateCenterMutation, useGetMyCentersQuery, useGetMyCenterQuery, useUpdateCenterMutation, useUploadCenterImageMutation, useDeleteCenterImageMutation, useGetCategoriesQuery } = centerApi;
