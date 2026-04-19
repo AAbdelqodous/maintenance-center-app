@@ -4,6 +4,12 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useGetBookingByIdQuery, useUpdateBookingStatusMutation, BookingStatus, ServiceType } from '@/store/api/bookingsApi';
+import StageUpdateForm from '@/components/progress/StageUpdateForm';
+import ProgressTimeline from '@/components/progress/ProgressTimeline';
+import QuoteCard from '@/components/quotes/QuoteCard';
+import { useGetBookingQuotesQuery } from '@/store/api/quotesApi';
+import { BookingStatus as BookingStatusEnum } from '@/store/api/bookingsApi';
+import type { WorkStage } from '@/types/workProgress';
 
 export default function BookingDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -11,9 +17,11 @@ export default function BookingDetailScreen() {
   const isRTL = i18n.dir() === 'rtl';
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const { data: booking, isLoading } = useGetBookingByIdQuery(Number(id));
+  const { data: booking, isLoading, refetch } = useGetBookingByIdQuery(Number(id));
   const [updateStatus, { isLoading: isUpdating }] = useUpdateBookingStatusMutation();
+  const { data: quotes } = useGetBookingQuotesQuery(Number(id));
 
+  const [activeTab, setActiveTab] = useState<'details' | 'progress' | 'quotes'>('details');
   const [showRejectionSheet, setShowRejectionSheet] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [customReason, setCustomReason] = useState('');
@@ -43,6 +51,7 @@ export default function BookingDetailScreen() {
                 setSelectedReason(null);
                 setCustomReason('');
               }
+              refetch();
             } catch (error) {
               Alert.alert(t('common.error'), 'Failed to update status');
             }
@@ -105,18 +114,6 @@ export default function BookingDetailScreen() {
   const canCancel = booking.status === BookingStatus.PENDING || booking.status === BookingStatus.CONFIRMED;
   const isBookingOverdue = isOverdue();
 
-  const getPaymentMethodTranslation = (method: string) => {
-    if (!method) return '-';
-    const key = `bookings.paymentMethods.${method.toLowerCase()}`;
-    return t(key) || method;
-  };
-
-  const getPaymentStatusTranslation = (status: string) => {
-    if (!status) return '-';
-    const key = `bookings.paymentStatus.${status.toLowerCase()}`;
-    return t(key) || status;
-  };
-
   const DetailRow = ({ label, value }: { label: string; value: string }) => (
     <View style={[styles.detailRow, isRTL && styles.rowRtl]}>
       <Text style={styles.detailLabel}>{label}:</Text>
@@ -139,6 +136,29 @@ export default function BookingDetailScreen() {
     );
   };
 
+  const TabBar = () => (
+    <View style={[styles.tabBar, isRTL && styles.tabBarRtl]}>
+      {(['details', 'progress', 'quotes'] as const).map((tab) => (
+        <TouchableOpacity
+          key={tab}
+          style={[
+            styles.tab,
+            activeTab === tab && styles.tabActive,
+            isRTL && styles.tabRtl
+          ]}
+          onPress={() => setActiveTab(tab)}
+        >
+          <Text style={[
+            styles.tabText,
+            activeTab === tab && styles.tabTextActive
+          ]}>
+            {t(`progress.tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`)}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <Stack.Screen
@@ -152,6 +172,9 @@ export default function BookingDetailScreen() {
           ),
         }}
       />
+      
+      <TabBar />
+
       <ScrollView style={styles.content}>
         {booking.status === BookingStatus.CANCELLED && (
           <View style={styles.cancelledBanner}>
@@ -160,85 +183,133 @@ export default function BookingDetailScreen() {
           </View>
         )}
 
-        <View style={styles.card}>
-          <View style={[styles.header, isRTL && styles.rowRtl]}>
-            <View>
-              <Text style={styles.customerName}>{booking.customerName}</Text>
-              {booking.customerPhone ? (
-                <Text style={styles.customerPhone}>{booking.customerPhone}</Text>
-              ) : null}
-              {isBookingOverdue && (
-                <View style={styles.overdueBadge}>
-                  <Ionicons name="warning" size={12} color="#FFFFFF" />
-                  <Text style={styles.overdueText}>{t('bookings.overdue')}</Text>
+        {activeTab === 'details' && (
+          <>
+            <View style={styles.card}>
+              <View style={[styles.header, isRTL && styles.rowRtl]}>
+                <View>
+                  <Text style={styles.customerName}>{booking.customerName}</Text>
+                  {booking.customerPhone ? (
+                    <Text style={styles.customerPhone}>{booking.customerPhone}</Text>
+                  ) : null}
+                  {isBookingOverdue && (
+                    <View style={styles.overdueBadge}>
+                      <Ionicons name="warning" size={12} color="#FFFFFF" />
+                      <Text style={styles.overdueText}>{t('bookings.overdue')}</Text>
+                    </View>
+                  )}
                 </View>
-              )}
+                <Text style={styles.idText}>#{booking.id}</Text>
+              </View>
             </View>
-            <Text style={styles.idText}>#{booking.id}</Text>
+
+            <View style={styles.card}>
+              <DetailRow label={t('bookings.service')} value={getServiceTypeTranslation(booking.serviceType)} />
+              <DetailRow label={t('bookings.date')} value={formatDate(booking.scheduledDate)} />
+              <DetailRow label={t('bookings.time')} value={booking.scheduledTime} />
+              <DetailRow label={t('bookings.status')} value={t(`bookings.${booking.status.toLowerCase()}`)} />
+              {booking.notes && <DetailRow label={t('bookings.notes')} value={booking.notes} />}
+            </View>
+
+            {(canConfirm || canStart || canComplete || canCancel) && (
+              <View style={styles.actionsContainer}>
+                {canConfirm && (
+                  <>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.acceptButton]}
+                      onPress={() => handleStatusUpdate(BookingStatus.CONFIRMED)}
+                      disabled={isUpdating}
+                    >
+                      <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
+                      <Text style={styles.actionButtonText}>{t('bookings.confirmBooking')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.rejectButton]}
+                      onPress={handleReject}
+                      disabled={isUpdating}
+                    >
+                      <Ionicons name="close-circle" size={20} color="#FFFFFF" />
+                      <Text style={styles.actionButtonText}>{t('bookings.rejectBooking')}</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+                {canStart && (
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.startButton]}
+                    onPress={() => handleStatusUpdate(BookingStatus.IN_PROGRESS)}
+                    disabled={isUpdating}
+                  >
+                    <Ionicons name="play-circle" size={20} color="#FFFFFF" />
+                    <Text style={styles.actionButtonText}>{t('bookings.startService')}</Text>
+                  </TouchableOpacity>
+                )}
+                {canComplete && (
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.completeButton]}
+                    onPress={() => handleStatusUpdate(BookingStatus.COMPLETED)}
+                    disabled={isUpdating}
+                  >
+                    <Ionicons name="checkmark-done-circle" size={20} color="#FFFFFF" />
+                    <Text style={styles.actionButtonText}>{t('bookings.completeService')}</Text>
+                  </TouchableOpacity>
+                )}
+                {canCancel && !canConfirm && (
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.cancelButton]}
+                    onPress={() => handleStatusUpdate(BookingStatus.CANCELLED)}
+                    disabled={isUpdating}
+                  >
+                    <Ionicons name="close-circle" size={20} color="#FFFFFF" />
+                    <Text style={styles.actionButtonText}>{t('bookings.cancelBooking')}</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          </>
+        )}
+
+        {activeTab === 'progress' && (
+          <View>
+            {booking.status !== BookingStatus.CANCELLED && (
+              <StageUpdateForm
+                bookingId={Number(id)}
+                currentStage={booking.workStage as WorkStage}
+                onSuccess={() => refetch()}
+              />
+            )}
+            <TouchableOpacity
+              style={[styles.addUpdateButton, isRTL && styles.buttonRtl]}
+              onPress={() => router.push(`./add-progress?bookingId=${id}`)}
+            >
+              <Ionicons name="add-circle" size={24} color="#FFFFFF" />
+              <Text style={styles.addUpdateButtonText}>{t('progress.addUpdate')}</Text>
+            </TouchableOpacity>
+            <ProgressTimeline bookingId={Number(id)} />
           </View>
-        </View>
+        )}
 
-        <View style={styles.card}>
-          <DetailRow label={t('bookings.service')} value={getServiceTypeTranslation(booking.serviceType)} />
-          <DetailRow label={t('bookings.date')} value={formatDate(booking.scheduledDate)} />
-          <DetailRow label={t('bookings.time')} value={booking.scheduledTime} />
-          <DetailRow label={t('bookings.status')} value={t(`bookings.${booking.status.toLowerCase()}`)} />
-          <DetailRow label={t('bookings.paymentMethod')} value={getPaymentMethodTranslation(booking.paymentMethod || '')} />
-          <DetailRow label={t('bookings.paymentStatus')} value={getPaymentStatusTranslation(booking.paymentStatus || '')} />
-          {booking.notes && <DetailRow label={t('bookings.notes')} value={booking.notes} />}
-        </View>
-
-        {(canConfirm || canStart || canComplete || canCancel) && (
-          <View style={styles.actionsContainer}>
-            {canConfirm && (
-              <>
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.acceptButton]}
-                  onPress={() => handleStatusUpdate(BookingStatus.CONFIRMED)}
-                  disabled={isUpdating}
-                >
-                  <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
-                  <Text style={styles.actionButtonText}>{t('bookings.confirmBooking')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.rejectButton]}
-                  onPress={handleReject}
-                  disabled={isUpdating}
-                >
-                  <Ionicons name="close-circle" size={20} color="#FFFFFF" />
-                  <Text style={styles.actionButtonText}>{t('bookings.rejectBooking')}</Text>
-                </TouchableOpacity>
-              </>
-            )}
-            {canStart && (
-              <TouchableOpacity
-                style={[styles.actionButton, styles.startButton]}
-                onPress={() => handleStatusUpdate(BookingStatus.IN_PROGRESS)}
-                disabled={isUpdating}
-              >
-                <Ionicons name="play-circle" size={20} color="#FFFFFF" />
-                <Text style={styles.actionButtonText}>{t('bookings.startService')}</Text>
-              </TouchableOpacity>
-            )}
-            {canComplete && (
-              <TouchableOpacity
-                style={[styles.actionButton, styles.completeButton]}
-                onPress={() => handleStatusUpdate(BookingStatus.COMPLETED)}
-                disabled={isUpdating}
-              >
-                <Ionicons name="checkmark-done-circle" size={20} color="#FFFFFF" />
-                <Text style={styles.actionButtonText}>{t('bookings.completeService')}</Text>
-              </TouchableOpacity>
-            )}
-            {canCancel && !canConfirm && (
-              <TouchableOpacity
-                style={[styles.actionButton, styles.cancelButton]}
-                onPress={() => handleStatusUpdate(BookingStatus.CANCELLED)}
-                disabled={isUpdating}
-              >
-                <Ionicons name="close-circle" size={20} color="#FFFFFF" />
-                <Text style={styles.actionButtonText}>{t('bookings.cancelBooking')}</Text>
-              </TouchableOpacity>
+        {activeTab === 'quotes' && (
+          <View>
+            <TouchableOpacity
+              style={[styles.createQuoteButton, isRTL && styles.buttonRtl]}
+              onPress={() => router.push(`./create-quote?bookingId=${id}`)}
+            >
+              <Ionicons name="add-circle" size={24} color="#FFFFFF" />
+              <Text style={styles.createQuoteButtonText}>{t('quote.createQuote')}</Text>
+            </TouchableOpacity>
+            {quotes && quotes.length > 0 ? (
+              quotes.map((quote) => (
+                <QuoteCard
+                  key={quote.id}
+                  quote={quote}
+                  onPress={() => router.push(`./quote-detail?bookingId=${id}&quoteId=${quote.id}`)}
+                />
+              ))
+            ) : (
+              <View style={styles.centerContainer}>
+                <Ionicons name="document-text-outline" size={64} color="#E0E0E0" />
+                <Text style={styles.emptyText}>{t('quote.noQuotes')}</Text>
+              </View>
             )}
           </View>
         )}
@@ -316,6 +387,36 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: '#999999',
+  },
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  tabBarRtl: {
+    flexDirection: 'row-reverse',
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  tabRtl: {
+    textAlign: 'right',
+  },
+  tabActive: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#2196F3',
+  },
+  tabText: {
+    fontSize: 14,
+    color: '#666666',
+    fontWeight: '500',
+  },
+  tabTextActive: {
+    color: '#2196F3',
+    fontWeight: '600',
   },
   content: {
     flex: 1,
@@ -400,6 +501,50 @@ const styles = StyleSheet.create({
   },
   rejectButton: {
     backgroundColor: '#FF9800',
+  },
+  addUpdateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2196F3',
+    padding: 14,
+    borderRadius: 8,
+    marginBottom: 16,
+    gap: 8,
+  },
+  createQuoteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4CAF50',
+    padding: 14,
+    borderRadius: 8,
+    marginBottom: 16,
+    gap: 8,
+  },
+  buttonRtl: {
+    flexDirection: 'row-reverse',
+  },
+  addUpdateButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  createQuoteButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    minHeight: 200,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#757575',
+    marginTop: 16,
+    textAlign: 'center',
   },
   modalContainer: {
     flex: 1,

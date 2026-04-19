@@ -5,8 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { useGetConversationsQuery } from '@/store/api/chatApi';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector } from '@/store';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 
-export default function ChatListScreen() {
+function ChatListScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const isRTL = i18n.dir() === 'rtl';
@@ -80,6 +81,14 @@ export default function ChatListScreen() {
         </View>
       )}
     </View>
+  );
+}
+
+export default function ChatListScreenWrapper() {
+  return (
+    <ErrorBoundary>
+      <ChatListScreen />
+    </ErrorBoundary>
   );
 }
 

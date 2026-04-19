@@ -1,4 +1,4 @@
-# Maintenance Center Platform — Claude Code Context
+﻿# Maintenance Center Platform — Claude Code Context
 
 ## 🎯 Project Overview
 
@@ -11,6 +11,12 @@ service verticals is planned.
 **Languages:** Arabic (primary), English
 **Status:** Backend fully implemented and tested. Center owner app (this repo) in active
 development — core screens working.
+
+### Active Development: Phase 3.5+ Features
+- [ ] Service pricing management
+- [ ] Work progress updates with photos
+- [ ] Quote creation and sending
+- [ ] Trust badges display
 
 ---
 
@@ -97,8 +103,10 @@ service-center/src/main/java/com/maintainance/service_center/
 | Navigation | Expo Router (file-based) |
 | State | Redux Toolkit + RTK Query |
 | Persistence | expo-secure-store (native) + localStorage (web fallback) |
+| Forms | React Hook Form + Zod |
 | i18n | react-i18next (Arabic RTL + English) |
 | Web support | react-native-web |
+| Camera | expo-camera (for work progress photos) |
 
 ---
 
@@ -262,6 +270,31 @@ All paginated RTK Query endpoints use `transformResponse` to unwrap this.
 { "businessErrorCode": 304, "businessErrorDescription": "...", "error": "...", "validationErrors": [...] }
 ```
 
+### RTK Query Tag Types
+```typescript
+tagTypes: [
+  'Bookings', 'Reviews', 'Notifications', 'Conversations',
+  'CenterProfile', 'CenterImages',
+  'Pricing',        // Phase 3.5
+  'WorkProgress',   // Phase 4.0
+  'Quotes',         // Phase 4.0
+  'Analytics',      // Phase 5.0
+]
+```
+
+### Base API Config
+```typescript
+// lib/constants/config.ts
+export const API_BASE_URL = Platform.select({
+  android: 'http://10.0.2.2:8080/api/v1/',
+  ios: 'http://localhost:8080/api/v1/',
+  web: 'http://localhost:8080/api/v1/',
+  default: 'http://localhost:8080/api/v1/',
+});
+
+export const WS_URL = API_BASE_URL.replace('http', 'ws').replace('/api/v1/', '/ws');
+```
+
 ---
 
 ## 📱 Frontend App Structure
@@ -271,13 +304,18 @@ All paginated RTK Query endpoints use `transformResponse` to unwrap this.
 maintenance-center-app/
 ├── app/
 │   ├── _layout.tsx                   # Root: Provider + Stack
-│   ├── (auth)/login.tsx              # Login screen
-│   ├── (auth)/register.tsx          # CENTER_OWNER self-registration form
-│   ├── (auth)/verify-otp.tsx        # OTP verification after registration
+│   ├── pending-approval.tsx          # Root-level fallback pending screen
+│   ├── (auth)/
+│   │   ├── _layout.tsx
+│   │   ├── login.tsx                 # Login screen
+│   │   ├── register.tsx              # CENTER_OWNER self-registration form
+│   │   └── verify-otp.tsx            # OTP verification after registration
 │   └── (app)/
 │       ├── _layout.tsx               # Auth guard + session restore + approval check
 │       ├── pending-approval.tsx      # Shown when approvalStatus=PENDING_APPROVAL
 │       ├── branch-select.tsx         # Shown when owner has >1 center
+│       ├── setup-center.tsx          # First-time center profile setup screen
+│       ├── settings/index.tsx        # App settings screen
 │       └── (tabs)/
 │           ├── _layout.tsx           # Bottom tab navigator
 │           ├── index.tsx             # Dashboard
@@ -288,18 +326,20 @@ maintenance-center-app/
 │           ├── chat/
 │           │   ├── _layout.tsx
 │           │   ├── index.tsx         # Conversation list
-│           │   └── [id].tsx          # Chat thread
+│           │   └── [id].tsx          # Chat thread + WebSocket/STOMP
 │           ├── profile/index.tsx     # Center profile editor
 │           ├── reviews/index.tsx     # Reviews + reply
 │           └── notifications/index.tsx
 ├── components/
 │   ├── bookings/BookingCard.tsx
 │   ├── bookings/StatusBadge.tsx
+│   ├── chat/MessageBubble.tsx
 │   ├── reviews/ReviewCard.tsx
-│   └── ui/RatingStars.tsx
+│   └── ui/AppText.tsx, RatingStars.tsx, SearchBar.tsx
 ├── store/
 │   ├── index.ts                      # Store + 401 middleware
 │   ├── authSlice.ts                  # session: { token, email }
+│   ├── centerSlice.ts                # activeCenterId for multi-branch support
 │   └── api/
 │       ├── authApi.ts                # login, registerOwner, activateAccount, resendOtp
 │       ├── bookingsApi.ts
@@ -340,7 +380,7 @@ cd ~/IdeaProjects/life-experience-app/service-center
 
 ### Running the App
 ```bash
-cd ~/MaintenanceCenter/maintenance-center-app
+cd ~/MaintenanceCenters/maintenance-center-app
 npx expo start --web        # web
 npx expo start              # native (needs emulator)
 ```
@@ -413,24 +453,331 @@ npx expo start              # native (needs emulator)
 - [ ] Add crash reporting (Sentry or Firebase Crashlytics)
 - [ ] Configure EAS build profiles (dev / staging / prod)
 
-### Phase 3 — Customer App 🔄 In Progress
+### Phase 3.5 — Trust MVP 🆕
+- [ ] Service pricing management screen
+- [ ] Pricing CRUD operations
+- [ ] Display current trust score/badges
+
+### Phase 4.0 — Deep Trust
+- [ ] Work stage update screen
+- [ ] Photo upload for work progress
+- [ ] Quote builder component
+- [ ] Quote creation/sending
+- [ ] Progress timeline view
+
+### Phase 5.0 — Analytics
+- [ ] Performance dashboard
+- [ ] Revenue analytics
+- [ ] Customer insights
+
+### Phase 3 — Customer App 🔄 ~90% Complete
 - [x] Project scaffold (maintenance-customer-app)
 - [x] Foundation: auth flow, session, i18n, onboarding, error boundary
 - [x] Centers: search/filter list, center detail
-- [x] Bookings list, favorites, notifications, profile, my reviews, complaints list
-- [x] Write review screen (reviews/new.tsx)
-- [ ] Booking form + confirmation + success screens
-- [ ] Booking detail + cancel flow
-- [ ] Chat thread (WebSocket/STOMP)
-- [ ] Complaint new + detail screens
-- [ ] Push notifications
-- [ ] Production hardening
+- [x] Bookings: list, new (multi-step form), detail + cancel, confirmation, success
+- [x] Favorites, notifications, profile view/edit/logout
+- [x] My reviews list + write review
+- [x] Complaints: list, new, detail
+- [x] Chat: conversations list + thread (WebSocket/STOMP)
+- [x] Help screen (FAQ)
+- [ ] Push notifications (FCM)
+- [ ] Privacy, Terms, Notification prefs stub screens
+- [ ] Production hardening (HTTPS/WSS, EAS project ID, Sentry)
 
 ### Phase 4 — Advanced
 - [ ] KNET payment integration (Kuwait)
 - [ ] Analytics dashboard for center owners
 - [ ] Multi-branch management UI
 - [ ] Offline support
+
+---
+
+## 🆕 Phase 3.5 — Service Pricing
+
+### Types
+```typescript
+// types/pricing.ts
+export interface CenterServicePricing {
+  id: number;
+  serviceType: ServiceType;
+  serviceNameAr: string;
+  serviceNameEn: string;
+  minPrice: number;
+  maxPrice: number;
+  typicalDurationMinutes?: number;
+  descriptionAr?: string;
+  descriptionEn?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CreatePricingRequest {
+  serviceType: ServiceType;
+  serviceNameAr: string;
+  serviceNameEn: string;
+  minPrice: number;
+  maxPrice: number;
+  typicalDurationMinutes?: number;
+  descriptionAr?: string;
+  descriptionEn?: string;
+}
+
+export interface UpdatePricingRequest extends CreatePricingRequest {
+  isActive?: boolean;
+}
+```
+
+### API Endpoints
+```
+GET    /centers/my/pricing            → CenterServicePricing[]
+POST   /centers/my/pricing            → CenterServicePricing
+PUT    /centers/my/pricing/{id}       → CenterServicePricing
+DELETE /centers/my/pricing/{id}       → void
+```
+
+### API Slice (store/api/pricingApi.ts)
+```typescript
+export const pricingApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getMyPricing:   builder.query<CenterServicePricing[], void>({ query: () => 'centers/my/pricing', providesTags: ['Pricing'] }),
+    createPricing:  builder.mutation<CenterServicePricing, CreatePricingRequest>({ query: (body) => ({ url: 'centers/my/pricing', method: 'POST', body }), invalidatesTags: ['Pricing'] }),
+    updatePricing:  builder.mutation<CenterServicePricing, { id: number; data: UpdatePricingRequest }>({ query: ({ id, data }) => ({ url: `centers/my/pricing/${id}`, method: 'PUT', body: data }), invalidatesTags: ['Pricing'] }),
+    deletePricing:  builder.mutation<void, number>({ query: (id) => ({ url: `centers/my/pricing/${id}`, method: 'DELETE' }), invalidatesTags: ['Pricing'] }),
+  }),
+});
+```
+
+---
+
+## 🆕 Phase 4.0 — Work Progress & Quotes
+
+### Work Stage Types
+```typescript
+// types/workProgress.ts
+export type WorkStage =
+  | 'RECEIVED' | 'DIAGNOSING' | 'QUOTE_READY' | 'QUOTE_APPROVED' | 'QUOTE_REJECTED'
+  | 'PARTS_ORDERED' | 'PARTS_RECEIVED' | 'WORK_IN_PROGRESS' | 'QUALITY_CHECK'
+  | 'READY_FOR_PICKUP' | 'PICKED_UP';
+
+export interface WorkStageInfo {
+  stage: WorkStage;
+  displayNameAr: string;
+  displayNameEn: string;
+  order: number;
+  canTransitionTo: WorkStage[];
+}
+
+export const WORK_STAGES: WorkStageInfo[] = [
+  { stage: 'RECEIVED',         displayNameAr: 'تم استلام السيارة',   displayNameEn: 'Car Received',       order: 1,  canTransitionTo: ['DIAGNOSING'] },
+  { stage: 'DIAGNOSING',       displayNameAr: 'جاري الفحص',          displayNameEn: 'Diagnosing',          order: 2,  canTransitionTo: ['QUOTE_READY'] },
+  { stage: 'QUOTE_READY',      displayNameAr: 'عرض السعر جاهز',      displayNameEn: 'Quote Ready',         order: 3,  canTransitionTo: ['QUOTE_APPROVED', 'QUOTE_REJECTED'] },
+  { stage: 'QUOTE_APPROVED',   displayNameAr: 'تمت الموافقة',         displayNameEn: 'Quote Approved',      order: 4,  canTransitionTo: ['PARTS_ORDERED', 'WORK_IN_PROGRESS'] },
+  { stage: 'PARTS_ORDERED',    displayNameAr: 'تم طلب القطع',         displayNameEn: 'Parts Ordered',       order: 5,  canTransitionTo: ['PARTS_RECEIVED'] },
+  { stage: 'PARTS_RECEIVED',   displayNameAr: 'وصلت القطع',           displayNameEn: 'Parts Received',      order: 6,  canTransitionTo: ['WORK_IN_PROGRESS'] },
+  { stage: 'WORK_IN_PROGRESS', displayNameAr: 'جاري العمل',           displayNameEn: 'Work In Progress',    order: 7,  canTransitionTo: ['QUALITY_CHECK'] },
+  { stage: 'QUALITY_CHECK',    displayNameAr: 'فحص الجودة',           displayNameEn: 'Quality Check',       order: 8,  canTransitionTo: ['READY_FOR_PICKUP', 'WORK_IN_PROGRESS'] },
+  { stage: 'READY_FOR_PICKUP', displayNameAr: 'جاهز للاستلام',        displayNameEn: 'Ready for Pickup',    order: 9,  canTransitionTo: ['PICKED_UP'] },
+  { stage: 'PICKED_UP',        displayNameAr: 'تم الاستلام',          displayNameEn: 'Picked Up',           order: 10, canTransitionTo: [] },
+];
+
+export interface UpdateWorkStageRequest {
+  stage: WorkStage;
+  notes?: string;
+  notesAr?: string;
+  internalNotes?: string;
+  estimatedMinutesRemaining?: number;
+}
+
+export interface BookingWorkProgress {
+  id: number;
+  stage: WorkStage;
+  notes?: string;
+  notesAr?: string;
+  internalNotes?: string;  // Only visible to center
+  photoUrl?: string;
+  videoUrl?: string;
+  estimatedMinutesRemaining?: number;
+  createdAt: string;
+  createdByName?: string;
+}
+
+export type MediaCategory =
+  | 'VEHICLE_ARRIVAL' | 'ISSUE_FOUND' | 'PARTS_USED' | 'WORK_IN_PROGRESS'
+  | 'BEFORE_REPAIR' | 'AFTER_REPAIR' | 'QUALITY_CHECK' | 'CUSTOMER_PICKUP';
+
+export interface BookingMedia {
+  id: number;
+  mediaType: 'PHOTO' | 'VIDEO';
+  category: MediaCategory;
+  url: string;
+  thumbnailUrl?: string;
+  caption?: string;
+  captionAr?: string;
+  isVisibleToCustomer: boolean;
+  createdAt: string;
+}
+```
+
+### Work Progress API Endpoints
+```
+PUT  /bookings/{id}/work-stage        → void
+POST /bookings/{id}/work-progress     → BookingWorkProgress  (multipart/form-data)
+GET  /bookings/{id}/work-progress     → BookingWorkProgress[]
+POST /bookings/{id}/media             → BookingMedia  (multipart/form-data)
+GET  /bookings/{id}/media             → BookingMedia[]
+```
+
+### Quote Types
+```typescript
+// types/quote.ts
+export interface QuoteLineItem {
+  description: string;
+  descriptionAr?: string;
+  partsCost: number;
+  laborCost: number;
+}
+
+export interface CreateQuoteRequest {
+  lineItems: QuoteLineItem[];
+  discountAmount?: number;
+  discountReason?: string;
+  estimatedDurationMinutes?: number;
+  notes?: string;
+  notesAr?: string;
+}
+
+export interface BookingQuote {
+  id: number;
+  bookingId: number;
+  version: number;
+  lineItems: QuoteLineItem[];
+  subtotal: number;
+  discountAmount: number;
+  discountReason?: string;
+  taxAmount: number;
+  totalAmount: number;
+  estimatedDurationMinutes?: number;
+  notes?: string;
+  notesAr?: string;
+  status: 'DRAFT' | 'SENT' | 'APPROVED' | 'REJECTED' | 'REVISED';
+  sentAt?: string;
+  respondedAt?: string;
+  responseNotes?: string;
+  createdAt: string;
+}
+```
+
+### Quote API Endpoints
+```
+GET  /bookings/{id}/quotes            → BookingQuote[]
+POST /bookings/{id}/quotes            → BookingQuote
+POST /bookings/{id}/quotes/{qid}/send → BookingQuote
+```
+
+---
+
+## 🆕 Phase 3.5/4.0 — New Components
+
+### Planned component locations
+```
+components/
+├── bookings/
+│   ├── WorkStageSelector.tsx   # Shows available next stages from canTransitionTo
+│   └── QuoteBuilder.tsx        # React Hook Form + Zod quote form with line items
+├── progress/
+│   ├── StageUpdateForm.tsx
+│   ├── PhotoUploader.tsx       # expo-image-picker + expo-camera, max 5 photos
+│   └── ProgressTimeline.tsx
+├── pricing/
+│   ├── PricingCard.tsx
+│   ├── PricingForm.tsx
+│   └── PricingList.tsx
+└── dashboard/
+    └── TrustScoreCard.tsx      # Phase 4.0
+```
+
+### WorkStageSelector — key logic
+- Derives available transitions from `WORK_STAGES[currentStage].canTransitionTo`
+- Renders only reachable next stages as buttons
+- Uses `i18n.language === 'ar'` to pick `displayNameAr` vs `displayNameEn`
+
+### PhotoUploader — key logic
+- Uses `expo-image-picker` (gallery) and `expo-camera` (camera)
+- Enforces `maxPhotos` limit (default 5)
+- Returns `uri[]`; caller builds `FormData` and calls `uploadMedia` mutation
+
+### QuoteBuilder — key logic
+- `useFieldArray` for dynamic line items
+- Zod schema validates min 1 line item
+- Live subtotal/total computed from `watch('lineItems')` and `watch('discountAmount')`
+- Amounts displayed as `x.toFixed(3) KD` (Kuwaiti Dinar 3 decimals)
+
+---
+
+## 🌍 i18n Keys to Add
+
+### Phase 3.5
+```json
+{
+  "pricing": {
+    "title": "Service Pricing",
+    "add": "Add Service",
+    "edit": "Edit Pricing",
+    "serviceName": "Service Name",
+    "minPrice": "Min Price (KD)",
+    "maxPrice": "Max Price (KD)",
+    "duration": "Typical Duration (minutes)",
+    "description": "Description (optional)",
+    "saved": "Pricing saved successfully"
+  }
+}
+```
+
+### Phase 4.0
+```json
+{
+  "progress": {
+    "title": "Work Progress",
+    "updateStage": "Update Stage",
+    "currentStage": "Current Stage",
+    "addUpdate": "Add Progress Update",
+    "notes": "Notes for customer",
+    "internalNotes": "Internal notes (not visible to customer)",
+    "uploadPhotos": "Upload Photos",
+    "gallery": "Gallery",
+    "camera": "Camera",
+    "estimatedTime": "Estimated time remaining"
+  },
+  "quote": {
+    "createQuote": "Create Quote",
+    "lineItems": "Line Items",
+    "description": "Service Description",
+    "partsCost": "Parts Cost",
+    "laborCost": "Labor Cost",
+    "addLineItem": "Add Line Item",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "total": "Total",
+    "saveQuote": "Save Quote",
+    "sendToCustomer": "Send to Customer",
+    "quoteSent": "Quote sent successfully"
+  },
+  "workStage": {
+    "RECEIVED": "Car Received",
+    "DIAGNOSING": "Diagnosing",
+    "QUOTE_READY": "Quote Ready",
+    "QUOTE_APPROVED": "Quote Approved",
+    "QUOTE_REJECTED": "Quote Rejected",
+    "PARTS_ORDERED": "Parts Ordered",
+    "PARTS_RECEIVED": "Parts Received",
+    "WORK_IN_PROGRESS": "Work In Progress",
+    "QUALITY_CHECK": "Quality Check",
+    "READY_FOR_PICKUP": "Ready for Pickup",
+    "PICKED_UP": "Picked Up"
+  }
+}
+```
 
 ---
 
@@ -464,5 +811,5 @@ cd ~/IdeaProjects/life-experience-app/service-center && ./mvnw test
 ### Repo Awareness
 3 separate repos — always confirm which repo before acting:
 - `service-center` — Spring Boot backend at `~/IdeaProjects/life-experience-app/service-center/`
-- `maintenance-customer-app` — React Native customer app (in progress, ~70% complete)
+- `maintenance-customer-app` — React Native customer app (in progress, ~90% complete)
 - `maintenance-center-app` — React Native center owner app (this repo, complete)

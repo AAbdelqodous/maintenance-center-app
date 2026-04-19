@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useGetNotificationsQuery, useMarkNotificationAsReadMutation, useMarkAllNotificationsAsReadMutation } from '@/store/api/notificationsApi';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 
-export default function NotificationsScreen() {
+function NotificationsScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const isRTL = i18n.dir() === 'rtl';
@@ -134,6 +135,14 @@ export default function NotificationsScreen() {
         </View>
       )}
     </View>
+  );
+}
+
+export default function NotificationsScreenWrapper() {
+  return (
+    <ErrorBoundary>
+      <NotificationsScreen />
+    </ErrorBoundary>
   );
 }
 

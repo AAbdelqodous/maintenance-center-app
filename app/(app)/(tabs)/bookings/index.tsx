@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useGetBookingsQuery, BookingStatus } from '@/store/api/bookingsApi';
 import { BookingCard } from '@/components/bookings/BookingCard';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 
-export default function BookingsScreen() {
+function BookingsScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const isRTL = i18n.dir() === 'rtl';
@@ -123,6 +124,14 @@ export default function BookingsScreen() {
         </View>
       )}
     </View>
+  );
+}
+
+export default function BookingsScreenWrapper() {
+  return (
+    <ErrorBoundary>
+      <BookingsScreen />
+    </ErrorBoundary>
   );
 }
 

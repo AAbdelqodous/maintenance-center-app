@@ -39,6 +39,7 @@ export interface Booking {
   notes?: string;
   paymentMethod?: string;
   paymentStatus?: string;
+  workStage?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { setSentryCenter } from '@/lib/sentry';
 
 interface CenterState {
   activeCenterId: number | null;
@@ -14,6 +15,7 @@ const centerSlice = createSlice({
   reducers: {
     setActiveCenterId: (state, action: PayloadAction<number>) => {
       state.activeCenterId = action.payload;
+      setSentryCenter(action.payload);
     },
     clearActiveCenter: (state) => {
       state.activeCenterId = null;

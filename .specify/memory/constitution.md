@@ -1,7 +1,9 @@
 <!-- Sync Impact Report
-Version change: 0.0.0 → 1.0.0 (initial ratification)
-Added sections: Core Principles (I–VI), Regional & Localization Standards, Development Workflow
-Templates requiring updates: ✅ none pending at ratification
+Version change: 1.0.0 → 1.1.0 (MINOR — expanded phase structure, new principle clarifications)
+Modified principles: none renamed
+Added sections: none (expanded Development Workflow with phase mapping table)
+Removed sections: none
+Templates requiring updates: ✅ no template changes required
 Deferred: none
 -->
 
@@ -45,9 +47,15 @@ The center owner's identity is always tied to a specific `MaintenanceCenter` ent
 ### VI. Security & Privacy
 JWTs MUST be stored in encrypted secure storage — never in AsyncStorage plain text.
 No PII may be logged to the console in production builds.
-All API calls MUST use HTTPS.
+All API calls MUST use HTTPS in production builds (HTTP allowed in local dev only).
 Sensitive screens (center profile, financials) MUST re-authenticate if the session has expired.
 Center owners MUST only be able to view and manage data belonging to their own center(s).
+
+### VII. Production Readiness (added v1.1.0)
+Every feature MUST be production-ready before being merged — no feature flags, no pseudocode, no placeholder UI.
+Error boundaries MUST wrap all screen-level components.
+Crash reporting (Sentry or equivalent) MUST be integrated before any production release.
+EAS build profiles (dev / staging / prod) MUST be configured before the first TestFlight or Play Store submission.
 
 ## Regional & Localization Standards
 
@@ -69,6 +77,21 @@ Kuwait is the primary market. All regional defaults MUST reflect this unless ove
 - **Navigation**: Expo Router (file-based) — route files live in `app/`
 - **Commits**: Conventional commits (`feat:`, `fix:`, `chore:`, etc.)
 
+### Phase Map (spec file → CLAUDE.md phase → status)
+
+| Spec File | Feature Area | CLAUDE.md Phase | Status |
+|-----------|--------------|-----------------|--------|
+| `phase-1-foundation.md` | Auth, dashboard, i18n, session | Phase 2 (core app) | ✅ Complete |
+| `phase-2-booking-management.md` | Bookings list, detail, status transitions | Phase 2 (core app) | ✅ Complete |
+| `phase-3-center-profile.md` | Profile view/edit, hours, photos | Phase 2 (core app) | ✅ Complete |
+| `phase-4-service-catalog.md` | Service catalog CRUD, pause/delete | Phase 2 (core app) | ✅ Complete |
+| `phase-5-review-management.md` | Reviews, replies, flag | Phase 2 (core app) | ✅ Complete |
+| `phase-6-analytics.md` | Analytics, charts, PDF export | Phase 5.0 | ⏳ Planned |
+| `phase-7-chat-and-notifications.md` | Chat, push notifications | Phase 2 (core app) | ✅ Complete |
+| `phase-2.5-production-hardening.md` | EAS, HTTPS, error boundary, crash reporting | Phase 2.5 | ⏳ Pending |
+| `phase-3.5-service-pricing.md` | CenterServicePricing min/max ranges | Phase 3.5 Trust MVP | 🆕 Active |
+| `phase-4.0-work-progress-and-quotes.md` | Work stages, photos, quotes | Phase 4.0 Deep Trust | 🆕 Active |
+
 ## Governance
 
 This constitution supersedes all other coding conventions and README guidance.
@@ -76,4 +99,4 @@ Amendments require: (1) a clear rationale, (2) a version bump per semver rules, 
 All specs MUST be reviewed for compliance with this constitution before planning begins.
 The CLAUDE.md file is the authoritative backend reference — mobile specs MUST align with it.
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-02 | **Last Amended**: 2026-04-02
+**Version**: 1.1.0 | **Ratified**: 2026-04-02 | **Last Amended**: 2026-04-15

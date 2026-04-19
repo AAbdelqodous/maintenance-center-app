@@ -5,8 +5,9 @@ import { useGetReviewsQuery } from '@/store/api/reviewsApi';
 import { useGetMyCenterQuery } from '@/store/api/centerApi';
 import { ReviewCard } from '@/components/reviews/ReviewCard';
 import { RatingStars } from '@/components/ui/RatingStars';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 
-export default function ReviewsScreen() {
+function ReviewsScreen() {
   const { t } = useTranslation();
 
   const { data: reviewsData, isLoading, refetch } = useGetReviewsQuery({ page: 0, size: 100 });
@@ -61,6 +62,14 @@ export default function ReviewsScreen() {
         </View>
       )}
     </View>
+  );
+}
+
+export default function ReviewsScreenWrapper() {
+  return (
+    <ErrorBoundary>
+      <ReviewsScreen />
+    </ErrorBoundary>
   );
 }
 

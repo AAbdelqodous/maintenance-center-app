@@ -9,8 +9,9 @@ import { API_BASE_URL } from '@/lib/constants/config';
 import { useAppDispatch } from '@/store';
 import { clearSession } from '@/store/authSlice';
 import { storage } from '@/lib/storage';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 
-export default function ProfileScreen() {
+function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -403,6 +404,26 @@ export default function ProfileScreen() {
         )}
       </TouchableOpacity>
 
+      <View style={styles.section}>
+        <TouchableOpacity
+          style={[styles.menuRow, isRTL && styles.rowRtl]}
+          onPress={() => router.push('./pricing')}
+        >
+          <Ionicons name="pricetags-outline" size={20} color="#2196F3" />
+          <Text style={styles.menuRowText}>{t('pricing.managePricing')}</Text>
+          <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.menuRow, isRTL && styles.rowRtl]}
+          onPress={() => router.push('./trust')}
+        >
+          <Ionicons name="shield-checkmark-outline" size={20} color="#FF9800" />
+          <Text style={styles.menuRowText}>{t('trustBadge.title')}</Text>
+          <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
+        </TouchableOpacity>
+      </View>
+
       <TouchableOpacity
         style={styles.logoutButton}
         onPress={handleLogout}
@@ -412,6 +433,14 @@ export default function ProfileScreen() {
       </TouchableOpacity>
     </ScrollView>
   </View>
+  );
+}
+
+export default function ProfileScreenWrapper() {
+  return (
+    <ErrorBoundary>
+      <ProfileScreen />
+    </ErrorBoundary>
   );
 }
 
@@ -581,5 +610,18 @@ const styles = StyleSheet.create({
     color: '#F44336',
     fontSize: 16,
     fontWeight: '600',
+  },
+  menuRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    gap: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  menuRowText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333333',
   },
 });

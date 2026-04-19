@@ -51,6 +51,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="analytics/index"
+        options={{
+          title: 'Analytics',
+          tabBarIcon: ({ color, size }) => <Ionicons name="stats-chart" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="profile/index"
         options={{
           title: 'Profile',

@@ -7,8 +7,9 @@ import { useGetBookingStatsQuery, useGetBookingsQuery } from '@/store/api/bookin
 import { useGetMyCenterQuery } from '@/store/api/centerApi';
 import { BookingCard } from '@/components/bookings/BookingCard';
 import { RatingStars } from '@/components/ui/RatingStars';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 
-export default function DashboardScreen() {
+function DashboardScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const isRTL = i18n.dir() === 'rtl';
@@ -103,6 +104,14 @@ export default function DashboardScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+  );
+}
+
+export default function DashboardScreenWrapper() {
+  return (
+    <ErrorBoundary>
+      <DashboardScreen />
+    </ErrorBoundary>
   );
 }
 

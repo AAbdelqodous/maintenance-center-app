@@ -9,6 +9,11 @@ import { centerApi } from './api/centerApi';
 import { chatApi } from './api/chatApi';
 import { notificationsApi } from './api/notificationsApi';
 import { reviewsApi } from './api/reviewsApi';
+import { pricingApi } from './api/pricingApi';
+import { trustApi } from './api/trustApi';
+import { workProgressApi } from './api/workProgressApi';
+import { quotesApi } from './api/quotesApi';
+import { analyticsApi } from './api/analyticsApi';
 
 const unauthenticatedMiddleware: Middleware = ({ dispatch }) => (next) => (action) => {
   if (isRejectedWithValue(action) && (action.payload as any)?.status === 401) {
@@ -29,6 +34,11 @@ export const store = configureStore({
     [chatApi.reducerPath]: chatApi.reducer,
     [notificationsApi.reducerPath]: notificationsApi.reducer,
     [reviewsApi.reducerPath]: reviewsApi.reducer,
+    [pricingApi.reducerPath]: pricingApi.reducer,
+    [trustApi.reducerPath]: trustApi.reducer,
+    [workProgressApi.reducerPath]: workProgressApi.reducer,
+    [quotesApi.reducerPath]: quotesApi.reducer,
+    [analyticsApi.reducerPath]: analyticsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -41,6 +51,11 @@ export const store = configureStore({
       chatApi.middleware,
       notificationsApi.middleware,
       reviewsApi.middleware,
+      pricingApi.middleware,
+      trustApi.middleware,
+      workProgressApi.middleware,
+      quotesApi.middleware,
+      analyticsApi.middleware,
     ),
 });
 

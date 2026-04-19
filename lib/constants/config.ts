@@ -1,6 +1,15 @@
 import { Platform } from 'react-native';
 
-const HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
-export const API_BASE_URL = `http://${HOST}:8080/api/v1`;
-export const SERVER_URL = `http://${HOST}:8080`;
-export const WS_URL = `ws://${HOST}:8080/api/v1/ws`;
+export const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL ??
+  Platform.select({
+    android: 'http://10.0.2.2:8080/api/v1/',
+    default:  'http://localhost:8080/api/v1/',
+  })!;
+
+export const WS_URL =
+  process.env.EXPO_PUBLIC_WS_URL ??
+  Platform.select({
+    android: 'ws://10.0.2.2:8080/ws',
+    default:  'ws://localhost:8080/ws',
+  })!;

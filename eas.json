@@ -1,0 +1,27 @@
+{
+  "cli": { "version": ">= 13.0.0" },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "development",
+        "EXPO_PUBLIC_API_BASE_URL": "http://localhost:8080/api/v1/",
+        "EXPO_PUBLIC_WS_URL": "ws://localhost:8080/ws"
+      },
+      "android": { "buildType": "apk" }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "preview"
+      }
+    },
+    "production": {
+      "distribution": "store",
+      "env": {
+        "APP_VARIANT": "production"
+      }
+    }
+  }
+}
