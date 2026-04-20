@@ -29,8 +29,8 @@ export default function BookingDetailScreen() {
   const REJECTION_REASONS = ['fullyBooked', 'serviceNotAvailable', 'outsideServiceArea', 'other'] as const;
 
   const isOverdue = () => {
-    if (!booking || booking.status !== BookingStatus.PENDING) return false;
-    const scheduledDateTime = new Date(`${booking.scheduledDate}T${booking.scheduledTime}`);
+    if (!booking || booking.bookingStatus !== BookingStatus.PENDING) return false;
+    const scheduledDateTime = new Date(`${booking.bookingDate}T${booking.bookingTime}`);
     return scheduledDateTime < new Date();
   };
 
@@ -75,7 +75,7 @@ export default function BookingDetailScreen() {
       return;
     }
     const reason = selectedReason === 'other' ? customReason : t(`bookings.${selectedReason}`);
-    handleStatusUpdate(BookingStatus.CANCELLED, reason);
+    handleStatusUpdate(BookingStatus.REJECTED, reason);
   };
 
   const formatDate = (dateStr: string) => {
@@ -108,10 +108,10 @@ export default function BookingDetailScreen() {
     );
   }
 
-  const canConfirm = booking.status === BookingStatus.PENDING;
-  const canStart = booking.status === BookingStatus.CONFIRMED;
-  const canComplete = booking.status === BookingStatus.IN_PROGRESS;
-  const canCancel = booking.status === BookingStatus.PENDING || booking.status === BookingStatus.CONFIRMED;
+  const canConfirm = booking.bookingStatus === BookingStatus.PENDING;
+  const canStart = booking.bookingStatus === BookingStatus.CONFIRMED;
+  const canComplete = booking.bookingStatus === BookingStatus.IN_PROGRESS;
+  const canCancel = booking.bookingStatus === BookingStatus.PENDING || booking.bookingStatus === BookingStatus.CONFIRMED;
   const isBookingOverdue = isOverdue();
 
   const DetailRow = ({ label, value }: { label: string; value: string }) => (
@@ -176,7 +176,7 @@ export default function BookingDetailScreen() {
       <TabBar />
 
       <ScrollView style={styles.content}>
-        {booking.status === BookingStatus.CANCELLED && (
+        {booking.bookingStatus === BookingStatus.CANCELLED && (
           <View style={styles.cancelledBanner}>
             <Ionicons name="information-circle" size={16} color="#FFFFFF" />
             <Text style={styles.cancelledBannerText}>{t('bookings.customerCancelled')}</Text>
@@ -205,9 +205,9 @@ export default function BookingDetailScreen() {
 
             <View style={styles.card}>
               <DetailRow label={t('bookings.service')} value={getServiceTypeTranslation(booking.serviceType)} />
-              <DetailRow label={t('bookings.date')} value={formatDate(booking.scheduledDate)} />
-              <DetailRow label={t('bookings.time')} value={booking.scheduledTime} />
-              <DetailRow label={t('bookings.status')} value={t(`bookings.${booking.status.toLowerCase()}`)} />
+              <DetailRow label={t('bookings.date')} value={formatDate(booking.bookingDate)} />
+              <DetailRow label={t('bookings.time')} value={booking.bookingTime} />
+              <DetailRow label={t('bookings.status')} value={t(`bookings.${booking.bookingStatus.toLowerCase()}`)} />
               {booking.notes && <DetailRow label={t('bookings.notes')} value={booking.notes} />}
             </View>
 
@@ -270,7 +270,7 @@ export default function BookingDetailScreen() {
 
         {activeTab === 'progress' && (
           <View>
-            {booking.status !== BookingStatus.CANCELLED && (
+            {booking.bookingStatus !== BookingStatus.CANCELLED && (
               <StageUpdateForm
                 bookingId={Number(id)}
                 currentStage={booking.workStage as WorkStage}

@@ -23,8 +23,8 @@ function BookingsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const isOverdue = useCallback((booking: any) => {
-    if (booking.status !== BookingStatus.PENDING) return false;
-    const scheduledDateTime = new Date(`${booking.scheduledDate}T${booking.scheduledTime}`);
+    if (booking.bookingStatus !== BookingStatus.PENDING) return false;
+    const scheduledDateTime = new Date(`${booking.bookingDate}T${booking.bookingTime}`);
     return scheduledDateTime < new Date();
   }, []);
 

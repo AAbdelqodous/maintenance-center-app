@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useCreateQuoteMutation } from '@/store/api/quotesApi';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { quoteSchema, QuoteFormValues } from '@/components/quotes/quoteSchema';
 
@@ -14,7 +14,7 @@ export default function CreateQuoteScreen() {
   const [createQuote, { isLoading }] = useCreateQuoteMutation();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const { control, handleSubmit, watch, formState: { errors } } = useForm<QuoteFormValues>({
+  const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteSchema),
     defaultValues: {
       lineItems: [{ description: '', partsCost: 0, laborCost: 0 }],
@@ -22,6 +22,7 @@ export default function CreateQuoteScreen() {
     },
   });
 
+  const { fields, append, remove } = useFieldArray({ control, name: 'lineItems' });
   const watchedItems = watch('lineItems');
   const watchedDiscount = watch('discountAmount') ?? 0;
 
@@ -55,8 +56,8 @@ export default function CreateQuoteScreen() {
 
         <Text style={styles.sectionTitle}>{t('quote.lineItems')}</Text>
 
-        {watchedItems.map((item, index) => (
-          <View key={index} style={styles.lineItemCard}>
+        {fields.map((field, index) => (
+          <View key={field.id} style={styles.lineItemCard}>
             <Text style={styles.lineItemIndex}>{index + 1}</Text>
 
             <View style={styles.fieldContainer}>
@@ -64,11 +65,8 @@ export default function CreateQuoteScreen() {
               <TextInput
                 style={styles.input}
                 placeholder={t('quote.description')}
-                value={item.description}
-                onChangeText={(text) => {
-                  const newItems = [...watchedItems];
-                  newItems[index].description = text;
-                }}
+                value={watchedItems[index]?.description ?? ''}
+                onChangeText={(text) => setValue(`lineItems.${index}.description`, text, { shouldValidate: true })}
               />
               {errors.lineItems?.[index]?.description && (
                 <Text style={styles.errorText}>{errors.lineItems[index].description?.message}</Text>
@@ -80,11 +78,8 @@ export default function CreateQuoteScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="0.000"
-                value={item.partsCost !== undefined ? String(item.partsCost) : ''}
-                onChangeText={(text) => {
-                  const newItems = [...watchedItems];
-                  newItems[index].partsCost = parseFloat(text) || 0;
-                }}
+                value={watchedItems[index]?.partsCost !== undefined ? String(watchedItems[index].partsCost) : ''}
+                onChangeText={(text) => setValue(`lineItems.${index}.partsCost`, parseFloat(text) || 0, { shouldValidate: true })}
                 keyboardType="decimal-pad"
               />
               {errors.lineItems?.[index]?.partsCost && (
@@ -97,11 +92,8 @@ export default function CreateQuoteScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="0.000"
-                value={item.laborCost !== undefined ? String(item.laborCost) : ''}
-                onChangeText={(text) => {
-                  const newItems = [...watchedItems];
-                  newItems[index].laborCost = parseFloat(text) || 0;
-                }}
+                value={watchedItems[index]?.laborCost !== undefined ? String(watchedItems[index].laborCost) : ''}
+                onChangeText={(text) => setValue(`lineItems.${index}.laborCost`, parseFloat(text) || 0, { shouldValidate: true })}
                 keyboardType="decimal-pad"
               />
               {errors.lineItems?.[index]?.laborCost && (
@@ -109,13 +101,8 @@ export default function CreateQuoteScreen() {
               )}
             </View>
 
-            {watchedItems.length > 1 && (
-              <TouchableOpacity
-                style={styles.removeButton}
-                onPress={() => {
-                  const newItems = watchedItems.filter((_, i) => i !== index);
-                }}
-              >
+            {fields.length > 1 && (
+              <TouchableOpacity style={styles.removeButton} onPress={() => remove(index)}>
                 <Text style={styles.removeButtonText}>{t('quote.removeLineItem')}</Text>
               </TouchableOpacity>
             )}
@@ -124,9 +111,7 @@ export default function CreateQuoteScreen() {
 
         <TouchableOpacity
           style={styles.addLineButton}
-          onPress={() => {
-            const newItems = [...watchedItems, { description: '', partsCost: 0, laborCost: 0 }];
-          }}
+          onPress={() => append({ description: '', partsCost: 0, laborCost: 0 })}
         >
           <Text style={styles.addLineButtonText}>{t('quote.addLineItem')}</Text>
         </TouchableOpacity>
@@ -137,9 +122,7 @@ export default function CreateQuoteScreen() {
             style={styles.input}
             placeholder="0.000"
             value={watchedDiscount !== undefined && watchedDiscount !== null ? String(watchedDiscount) : ''}
-            onChangeText={(text) => {
-              const val = parseFloat(text) || 0;
-            }}
+            onChangeText={(text) => setValue('discountAmount', parseFloat(text) || 0, { shouldValidate: true })}
             keyboardType="decimal-pad"
           />
           {errors.discountAmount && (

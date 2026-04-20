@@ -2,7 +2,6 @@ import React, { ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import i18next from 'i18next';
-import { useTheme } from '../theme';
 import AppText from './AppText';
 
 interface Props {
@@ -34,25 +33,16 @@ export default class ErrorBoundary extends React.Component<Props, State> {
   };
 
   render(): ReactNode {
-    const { colors } = useTheme();
-
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
       return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
-          <AppText style={[styles.title, { color: colors.text }]}>
-            {i18next.t('error.title')}
-          </AppText>
-          <AppText style={[styles.message, { color: colors.textSecondary }]}>
-            {i18next.t('error.message')}
-          </AppText>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }]}
-            onPress={this.handleRetry}
-          >
+        <View style={styles.container}>
+          <AppText style={styles.title}>{i18next.t('error.title')}</AppText>
+          <AppText style={styles.message}>{i18next.t('error.message')}</AppText>
+          <TouchableOpacity style={styles.button} onPress={this.handleRetry}>
             <Text style={styles.buttonText}>{i18next.t('error.retry')}</Text>
           </TouchableOpacity>
         </View>

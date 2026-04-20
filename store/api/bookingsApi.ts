@@ -8,6 +8,7 @@ export enum BookingStatus {
   IN_PROGRESS = 'IN_PROGRESS',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
+  REJECTED = 'REJECTED',
 }
 
 export enum ServiceType {
@@ -62,12 +63,11 @@ export interface BookingsQueryParams {
 }
 
 export interface BookingStats {
-  total: number;
-  pending: number;
-  confirmed: number;
-  inProgress: number;
-  completed: number;
-  cancelled: number;
+  pendingCount: number;
+  activeCount: number;
+  completedCount: number;
+  totalReviews: number;
+  averageRating: number;
 }
 
 export const bookingsApi = createApi({
@@ -88,7 +88,7 @@ export const bookingsApi = createApi({
     }),
     getBookingById: builder.query<Booking, number>({
       query: (id) => `/bookings/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Booking', id }],
+      providesTags: (_result, _error, id) => [{ type: 'Booking', id }],
     }),
     updateBookingStatus: builder.mutation<Booking, { id: number; status: BookingStatus; reason?: string; notes?: string }>({
       query: ({ id, status, reason, notes }) => ({
@@ -96,7 +96,7 @@ export const bookingsApi = createApi({
         method: 'PUT',
         body: { status, ...(reason && { reason }), ...(notes && { notes }) },
       }),
-      invalidatesTags: (result, error, { id }) => ['Booking', { type: 'Booking', id }],
+      invalidatesTags: (_result, _error, { id }) => ['Booking', { type: 'Booking', id }],
     }),
     getBookingStats: builder.query<BookingStats, void>({
       query: () => '/bookings/stats',

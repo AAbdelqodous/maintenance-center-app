@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useCreateWorkProgressMutation } from '@/store/api/workProgressApi';
 import * as FileSystem from 'expo-file-system';
+import { API_BASE_URL } from '@/lib/constants/config';
 import { useAppSelector } from '@/store';
 import PhotoUploader from '@/components/progress/PhotoUploader';
 
@@ -45,7 +46,7 @@ export default function AddProgressScreen() {
           
           try {
             await FileSystem.uploadAsync(
-              `${process.env.EXPO_PUBLIC_API_BASE_URL}bookings/${bookingId}/media`,
+              `${API_BASE_URL}bookings/${bookingId}/media`,
               photo.uri,
               {
                 headers: { Authorization: `Bearer ${token}` },
