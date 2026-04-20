@@ -44,7 +44,9 @@
       "Bash(mv \"002-service-pricing-trust\" \"008-service-pricing-trust\")",
       "Bash(mv \"003-work-progress-quotes\" \"009-work-progress-quotes\")",
       "Bash(mv \"004-analytics-dashboard\" \"010-analytics-dashboard\")",
-      "Bash(mv completed/001-foundation .)"
+      "Bash(mv completed/001-foundation .)",
+      "Bash(ls node_modules/react-native-linear-gradient)",
+      "Bash(ls node_modules/expo-linear-gradient)"
     ]
   }
 }

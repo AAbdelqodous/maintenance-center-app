@@ -39,11 +39,11 @@ export const reviewsApi = createApi({
   tagTypes: ['Review'],
   endpoints: (builder) => ({
     getReviews: builder.query<ReviewsResponse, { page?: number; size?: number }>({
-      query: (params) => ({ url: '/reviews/center', params }),
+      query: (params) => ({ url: 'reviews/center', params }),
       providesTags: ['Review'],
     }),
     replyToReview: builder.mutation<Review, { id: number; reply: string }>({
-      query: ({ id, reply }) => ({ url: `/reviews/${id}/reply`, method: 'POST', body: { reply } }),
+      query: ({ id, reply }) => ({ url: `reviews/${id}/reply`, method: 'POST', body: { reply } }),
       invalidatesTags: ['Review'],
     }),
   }),

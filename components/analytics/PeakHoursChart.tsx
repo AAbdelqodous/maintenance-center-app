@@ -79,12 +79,12 @@ export function PeakHoursChart({ data, isLoading }: PeakHoursChartProps) {
               maxValue={maxBookings * 1.1}
               height={180}
               width={Math.max(300, data.length * 28)}
-              renderTooltip={(item, index) => {
+              renderTooltip={(item: { label: string; value: number }) => {
                 return (
                   <View style={styles.tooltip}>
-                    <Text style={styles.tooltipText}>{formatHour(item.hour)}</Text>
+                    <Text style={styles.tooltipText}>{formatHour(Number(item.label))}</Text>
                     <Text style={styles.tooltipText}>
-                      {item.bookingCount} {t('analytics.peakHours.bookings')}
+                      {item.value} {t('analytics.peakHours.bookings')}
                     </Text>
                   </View>
                 );

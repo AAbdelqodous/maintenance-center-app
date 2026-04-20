@@ -38,7 +38,7 @@ export const notificationsApi = createApi({
   tagTypes: ['Notification'],
   endpoints: (builder) => ({
     getNotifications: builder.query<NotificationsResponse, { page?: number; size?: number }>({
-      query: (params) => ({ url: '/notifications', params }),
+      query: (params) => ({ url: 'notifications', params }),
       providesTags: ['Notification'],
       transformResponse: (response: any) => ({
         content: response.content ?? [],
@@ -47,15 +47,15 @@ export const notificationsApi = createApi({
       }),
     }),
     markNotificationAsRead: builder.mutation<void, number>({
-      query: (id) => ({ url: `/notifications/${id}/read`, method: 'PUT' }),
+      query: (id) => ({ url: `notifications/${id}/read`, method: 'PUT' }),
       invalidatesTags: ['Notification'],
     }),
     markAllNotificationsAsRead: builder.mutation<void, void>({
-      query: () => ({ url: '/notifications/read-all', method: 'PUT' }),
+      query: () => ({ url: 'notifications/read-all', method: 'PUT' }),
       invalidatesTags: ['Notification'],
     }),
     registerPushToken: builder.mutation<void, RegisterPushTokenRequest>({
-      query: (body) => ({ url: '/users/me/push-token', method: 'PUT', body }),
+      query: (body) => ({ url: 'users/me/push-token', method: 'PUT', body }),
     }),
   }),
 });

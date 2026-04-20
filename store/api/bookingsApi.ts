@@ -83,23 +83,23 @@ export const bookingsApi = createApi({
   tagTypes: ['Booking'],
   endpoints: (builder) => ({
     getBookings: builder.query<BookingsResponse, BookingsQueryParams>({
-      query: (params) => ({ url: '/bookings', params }),
+      query: (params) => ({ url: 'bookings', params }),
       providesTags: ['Booking'],
     }),
     getBookingById: builder.query<Booking, number>({
-      query: (id) => `/bookings/${id}`,
+      query: (id) => `bookings/${id}`,
       providesTags: (_result, _error, id) => [{ type: 'Booking', id }],
     }),
     updateBookingStatus: builder.mutation<Booking, { id: number; status: BookingStatus; reason?: string; notes?: string }>({
       query: ({ id, status, reason, notes }) => ({
-        url: `/bookings/${id}/status`,
+        url: `bookings/${id}/status`,
         method: 'PUT',
         body: { status, ...(reason && { reason }), ...(notes && { notes }) },
       }),
       invalidatesTags: (_result, _error, { id }) => ['Booking', { type: 'Booking', id }],
     }),
     getBookingStats: builder.query<BookingStats, void>({
-      query: () => '/bookings/stats',
+      query: () => 'bookings/stats',
     }),
   }),
 });

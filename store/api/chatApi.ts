@@ -50,7 +50,7 @@ export const chatApi = createApi({
   tagTypes: ['Conversation', 'Message'],
   endpoints: (builder) => ({
     getConversations: builder.query<Conversation[], void>({
-      query: () => '/conversations/center',
+      query: () => 'conversations/center',
       providesTags: ['Conversation'],
       transformResponse: (response: any) => {
         if (Array.isArray(response)) return response;
@@ -59,7 +59,7 @@ export const chatApi = createApi({
       },
     }),
     getMessages: builder.query<Message[], number>({
-      query: (conversationId) => `/conversations/${conversationId}/messages`,
+      query: (conversationId) => `conversations/${conversationId}/messages`,
       providesTags: (result, error, id) => [{ type: 'Message', id }],
       transformResponse: (response: any) => {
         if (Array.isArray(response)) return response;
@@ -69,14 +69,14 @@ export const chatApi = createApi({
     }),
     sendMessage: builder.mutation<Message, SendMessageRequest>({
       query: ({ conversationId, ...body }) => ({
-        url: `/conversations/${conversationId}/messages`,
+        url: `conversations/${conversationId}/messages`,
         method: 'POST',
         body,
       }),
       invalidatesTags: ['Conversation'],
     }),
     markConversationAsRead: builder.mutation<void, number>({
-      query: (conversationId) => ({ url: `/conversations/${conversationId}/read`, method: 'PUT' }),
+      query: (conversationId) => ({ url: `conversations/${conversationId}/read`, method: 'PUT' }),
       invalidatesTags: ['Conversation'],
     }),
   }),

@@ -8,7 +8,6 @@ import StageUpdateForm from '@/components/progress/StageUpdateForm';
 import ProgressTimeline from '@/components/progress/ProgressTimeline';
 import QuoteCard from '@/components/quotes/QuoteCard';
 import { useGetBookingQuotesQuery } from '@/store/api/quotesApi';
-import { BookingStatus as BookingStatusEnum } from '@/store/api/bookingsApi';
 import type { WorkStage } from '@/types/workProgress';
 
 export default function BookingDetailScreen() {
@@ -46,7 +45,7 @@ export default function BookingDetailScreen() {
             try {
               await updateStatus({ id: Number(id), status: newStatus, reason }).unwrap();
               Alert.alert(t('common.save'), t('bookings.statusUpdated'));
-              if (newStatus === BookingStatus.CANCELLED && reason) {
+              if (newStatus === BookingStatus.REJECTED) {
                 setShowRejectionSheet(false);
                 setSelectedReason(null);
                 setCustomReason('');

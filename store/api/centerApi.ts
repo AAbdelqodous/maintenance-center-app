@@ -102,11 +102,11 @@ export const centerApi = createApi({
   tagTypes: ['Center'],
   endpoints: (builder) => ({
     createCenter: builder.mutation<CenterProfile, CreateCenterRequest>({
-      query: (body) => ({ url: '/centers', method: 'POST', body }),
+      query: (body) => ({ url: 'centers', method: 'POST', body }),
       invalidatesTags: ['Center'],
     }),
     getMyCenters: builder.query<CenterSummary[], void>({
-      query: () => '/centers/my',
+      query: () => 'centers/my',
       transformResponse: (response: any) => {
         if (Array.isArray(response)) return response;
         if (response?.content) return response.content;
@@ -115,27 +115,27 @@ export const centerApi = createApi({
       providesTags: ['Center'],
     }),
     getMyCenter: builder.query<CenterProfile, void>({
-      query: () => '/centers/my/profile',
+      query: () => 'centers/my/profile',
       providesTags: ['Center'],
     }),
     updateCenter: builder.mutation<CenterProfile, UpdateCenterRequest>({
-      query: (body) => ({ url: '/centers/my', method: 'PUT', body }),
+      query: (body) => ({ url: 'centers/my', method: 'PUT', body }),
       invalidatesTags: ['Center'],
     }),
     uploadCenterImage: builder.mutation<string, FormData>({
       query: (formData) => ({
-        url: '/centers/my/images',
+        url: 'centers/my/images',
         method: 'POST',
         body: formData,
       }),
       invalidatesTags: ['Center'],
     }),
     deleteCenterImage: builder.mutation<void, string>({
-      query: (imageUrl) => ({ url: `/centers/my/images/${encodeURIComponent(imageUrl)}`, method: 'DELETE' }),
+      query: (imageUrl) => ({ url: `centers/my/images/${encodeURIComponent(imageUrl)}`, method: 'DELETE' }),
       invalidatesTags: ['Center'],
     }),
     getCategories: builder.query<ServiceCategory[], void>({
-      query: () => '/categories',
+      query: () => 'categories',
       transformResponse: (response: any) => {
         if (Array.isArray(response)) return response;
         if (response?.content) return response.content;

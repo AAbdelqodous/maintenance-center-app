@@ -30,20 +30,20 @@ export const authApi = createApi({
   }),
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponse, { email: string; password: string }>({
-      query: (body) => ({ url: '/auth/authenticate', method: 'POST', body }),
+      query: (body) => ({ url: 'auth/authenticate', method: 'POST', body }),
     }),
     registerOwner: builder.mutation<void, RegisterOwnerRequest>({
       query: (body) => ({
-        url: '/auth/register',
+        url: 'auth/register',
         method: 'POST',
         body: { ...body, userType: 'CENTER_OWNER' },
       }),
     }),
     activateAccount: builder.mutation<void, { token: string }>({
-      query: ({ token }) => ({ url: '/auth/activate-account', method: 'GET', params: { token } }),
+      query: ({ token }) => ({ url: 'auth/activate-account', method: 'GET', params: { token } }),
     }),
     resendOtp: builder.mutation<void, { email: string }>({
-      query: (body) => ({ url: '/auth/resend-otp', method: 'POST', body }),
+      query: (body) => ({ url: 'auth/resend-otp', method: 'POST', body }),
     }),
   }),
 });

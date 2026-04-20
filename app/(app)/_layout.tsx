@@ -36,7 +36,7 @@ export default function AppLayout() {
           const token = saved.token;
 
           // Check approval status before anything else
-          const meResponse = await fetch(`${API_BASE_URL}/users/me`, {
+          const meResponse = await fetch(`${API_BASE_URL}users/me`, {
             headers: { 'Authorization': `Bearer ${token}` },
           });
           if (meResponse.ok) {
@@ -47,7 +47,7 @@ export default function AppLayout() {
             }
           }
 
-          const response = await fetch(`${API_BASE_URL}/centers/my`, {
+          const response = await fetch(`${API_BASE_URL}centers/my`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
