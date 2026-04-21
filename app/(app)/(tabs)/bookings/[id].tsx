@@ -16,14 +16,14 @@ export default function BookingDetailScreen() {
   const isRTL = i18n.dir() === 'rtl';
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const { data: booking, isLoading, refetch } = useGetBookingByIdQuery(Number(id));
-  const [updateStatus, { isLoading: isUpdating }] = useUpdateBookingStatusMutation();
-  const { data: quotes } = useGetBookingQuotesQuery(Number(id), { skip: activeTab !== 'quotes' });
-
   const [activeTab, setActiveTab] = useState<'details' | 'progress' | 'quotes'>('details');
   const [showRejectionSheet, setShowRejectionSheet] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [customReason, setCustomReason] = useState('');
+
+  const { data: booking, isLoading, refetch } = useGetBookingByIdQuery(Number(id));
+  const [updateStatus, { isLoading: isUpdating }] = useUpdateBookingStatusMutation();
+  const { data: quotes } = useGetBookingQuotesQuery(Number(id), { skip: activeTab !== 'quotes' });
 
   const REJECTION_REASONS = ['fullyBooked', 'serviceNotAvailable', 'outsideServiceArea', 'other'] as const;
 

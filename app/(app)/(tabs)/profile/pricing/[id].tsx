@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, Switch, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, Switch, Platform, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter, useNavigation, usePreventRemove } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useGetMyPricingQuery, useUpdatePricingMutation, useDeletePricingMutation } from '@/store/api/pricingApi';
