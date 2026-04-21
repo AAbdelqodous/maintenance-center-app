@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, FlatList } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -16,6 +16,7 @@ function BookingsScreen() {
   const [allBookings, setAllBookings] = useState<any[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const isFetchingMoreRef = useRef(false);
 
   const statusParam = selectedStatus === 'ALL' ? undefined : selectedStatus;
   const { data: bookingsData, isLoading, isFetching, refetch } = useGetBookingsQuery({ page, size: 20, status: statusParam });
@@ -34,6 +35,7 @@ function BookingsScreen() {
     setAllBookings([]);
     setHasMore(true);
     setIsFetchingMore(false);
+    isFetchingMoreRef.current = false;
   }, [selectedStatus]);
 
   React.useEffect(() => {
@@ -45,6 +47,7 @@ function BookingsScreen() {
       }
       setHasMore(!bookingsData.last);
       setIsFetchingMore(false);
+      isFetchingMoreRef.current = false;
     }
   }, [bookingsData]);
 
@@ -56,11 +59,12 @@ function BookingsScreen() {
   };
 
   const loadMore = useCallback(() => {
-    if (!isFetchingMore && hasMore && !isFetching) {
+    if (!isFetchingMoreRef.current && hasMore && !isFetching && !isLoading) {
+      isFetchingMoreRef.current = true;
       setIsFetchingMore(true);
       setPage(prev => prev + 1);
     }
-  }, [isFetchingMore, hasMore, isFetching]);
+  }, [hasMore, isFetching, isLoading]);
 
   const statuses: (BookingStatus | 'ALL')[] = ['ALL', BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS, BookingStatus.COMPLETED, BookingStatus.CANCELLED];
 

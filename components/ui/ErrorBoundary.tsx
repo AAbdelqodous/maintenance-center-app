@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import i18next from 'i18next';
-import AppText from './AppText';
+import { AppText } from './AppText';
 
 interface Props {
   children: ReactNode;

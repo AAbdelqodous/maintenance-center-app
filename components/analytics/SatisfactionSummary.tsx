@@ -50,7 +50,8 @@ export function SatisfactionSummary({ data, isLoading }: SatisfactionSummaryProp
     return '#9E9E9E';
   };
 
-  const maxCount = Math.max(...data.distribution.map(d => d.count), 1);
+  const distribution = Array.isArray(data.distribution) ? data.distribution : [];
+  const maxCount = Math.max(...distribution.map(d => d.count), 1);
 
   return (
     <View style={styles.section}>
@@ -79,7 +80,7 @@ export function SatisfactionSummary({ data, isLoading }: SatisfactionSummaryProp
         </View>
 
         <View style={styles.distribution}>
-          {data.distribution.map((item) => {
+          {distribution.map((item) => {
             const percentage = (item.count / maxCount) * 100;
             return (
               <View key={item.stars} style={[styles.barRow, isRTL && styles.barRowRtl]}>

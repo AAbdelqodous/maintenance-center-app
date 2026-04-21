@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, Picker } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { Platform } from 'react-native';
 import { ServiceType } from '@/types/pricing';
 import { pricingSchema, PricingFormValues } from './pricingSchema';
 
@@ -23,7 +22,13 @@ export default function PricingForm({ defaultValues, onSubmit, isLoading }: Prop
     formState: { errors },
   } = useForm<PricingFormValues>({
     resolver: zodResolver(pricingSchema),
-    defaultValues,
+    defaultValues: {
+      serviceNameAr: '',
+      serviceNameEn: '',
+      descriptionAr: '',
+      descriptionEn: '',
+      ...defaultValues,
+    },
   });
 
   const serviceTypes = Object.values(ServiceType);
@@ -36,31 +41,37 @@ export default function PricingForm({ defaultValues, onSubmit, isLoading }: Prop
           control={control}
           name="serviceType"
           render={({ field: { onChange, value } }) => (
-            <View style={styles.pickerContainer}>
-              {Platform.OS === 'ios' ? (
-                <TextInput
-                  style={styles.input}
-                  placeholder={t('pricing.serviceType')}
-                  value={value}
-                  onChangeText={onChange}
-                />
-              ) : (
-                <Picker
-                  selectedValue={value}
-                  onValueChange={onChange}
-                  style={styles.picker}
-                >
-                  <Picker.Item label={t('pricing.serviceType')} value="" />
-                  {serviceTypes.map((type) => (
-                    <Picker.Item
-                      key={type}
-                      label={type.replace('_', ' ')}
-                      value={type}
-                    />
-                  ))}
-                </Picker>
-              )}
-            </View>
+            Platform.OS === 'web' ? (
+              <select
+                value={value ?? ''}
+                onChange={(e) => onChange(e.target.value)}
+                style={{
+                  height: 50, width: '100%', borderWidth: 1, borderColor: '#E0E0E0',
+                  borderRadius: 8, paddingLeft: 12, fontSize: 16,
+                  color: value ? '#333333' : '#9E9E9E', backgroundColor: '#FAFAFA',
+                  border: '1px solid #E0E0E0', outline: 'none',
+                } as any}
+              >
+                <option value="" disabled>{t('pricing.serviceType')}</option>
+                {serviceTypes.map((type) => (
+                  <option key={type} value={type}>{type.replace(/_/g, ' ')}</option>
+                ))}
+              </select>
+            ) : (
+              <View style={styles.serviceTypeGrid}>
+                {serviceTypes.map((type) => (
+                  <TouchableOpacity
+                    key={type}
+                    style={[styles.serviceTypeChip, value === type && styles.serviceTypeChipActive]}
+                    onPress={() => onChange(type)}
+                  >
+                    <Text style={[styles.serviceTypeChipText, value === type && styles.serviceTypeChipTextActive]}>
+                      {type.replace(/_/g, ' ')}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )
           )}
         />
         {errors.serviceType && (
@@ -118,7 +129,7 @@ export default function PricingForm({ defaultValues, onSubmit, isLoading }: Prop
               style={styles.input}
               placeholder="0.000"
               value={value !== undefined && value !== null ? String(value) : ''}
-              onChangeText={(text) => onChange(parseFloat(text) || NaN)}
+              onChangeText={(text) => onChange(text === '' ? undefined : parseFloat(text))}
               onBlur={onBlur}
               keyboardType="decimal-pad"
             />
@@ -139,7 +150,7 @@ export default function PricingForm({ defaultValues, onSubmit, isLoading }: Prop
               style={styles.input}
               placeholder="0.000"
               value={value !== undefined && value !== null ? String(value) : ''}
-              onChangeText={(text) => onChange(parseFloat(text) || NaN)}
+              onChangeText={(text) => onChange(text === '' ? undefined : parseFloat(text))}
               onBlur={onBlur}
               keyboardType="decimal-pad"
             />
@@ -160,7 +171,7 @@ export default function PricingForm({ defaultValues, onSubmit, isLoading }: Prop
               style={styles.input}
               placeholder="30"
               value={value !== undefined && value !== null ? String(value) : ''}
-              onChangeText={(text) => onChange(text ? parseInt(text, 10) : undefined)}
+              onChangeText={(text) => onChange(text === '' ? undefined : parseInt(text, 10))}
               onBlur={onBlur}
               keyboardType="number-pad"
             />
@@ -262,14 +273,30 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     paddingTop: 12,
   },
-  pickerContainer: {
+  serviceTypeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  serviceTypeChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#E0E0E0',
-    borderRadius: 8,
     backgroundColor: '#FAFAFA',
   },
-  picker: {
-    height: 50,
+  serviceTypeChipActive: {
+    backgroundColor: '#2196F3',
+    borderColor: '#2196F3',
+  },
+  serviceTypeChipText: {
+    fontSize: 13,
+    color: '#666666',
+  },
+  serviceTypeChipTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
   errorText: {
     fontSize: 12,

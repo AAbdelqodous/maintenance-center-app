@@ -14,12 +14,14 @@ export default function AddPricingScreen() {
 
   const handleSubmit = async (values: PricingFormValues) => {
     setErrorMessage(null);
+    console.log('Submitting pricing:', JSON.stringify(values, null, 2));
     try {
       await createPricing(values).unwrap();
       router.back();
-    } catch (error) {
-      console.error('Failed to create pricing:', error);
-      setErrorMessage(t('pricing.errorSave'));
+    } catch (error: any) {
+      console.error('Pricing 400 body:', JSON.stringify(error?.data, null, 2));
+      const msg = error?.data?.businessErrorDescription ?? error?.data?.error ?? t('pricing.errorSave');
+      setErrorMessage(msg);
     }
   };
 

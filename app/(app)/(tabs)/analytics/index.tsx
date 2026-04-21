@@ -28,7 +28,12 @@ function AnalyticsScreen() {
   const [customEndDate, setCustomEndDate] = useState(new Date());
   const [refreshing, setRefreshing] = useState(false);
 
-  const dateRange = periodToDateRange(selectedPeriod);
+  const dateRange: DateRange = selectedPeriod === 'CUSTOM'
+    ? {
+        startDate: customStartDate.toISOString().split('T')[0],
+        endDate: customEndDate.toISOString().split('T')[0],
+      }
+    : periodToDateRange(selectedPeriod);
   const daysInRange = Math.ceil((new Date(dateRange.endDate).getTime() - new Date(dateRange.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1;
   const granularity = daysInRange > 90 ? 'WEEKLY' : 'DAILY';
 
@@ -83,7 +88,7 @@ function AnalyticsScreen() {
     if (customEndDate < customStartDate) {
       return;
     }
-    setSelectedPeriod('THIS_WEEK' as AnalyticsPeriod);
+    setSelectedPeriod('CUSTOM');
     setShowDatePicker(false);
   };
 
@@ -259,24 +264,36 @@ function AnalyticsScreen() {
             <View style={styles.datePickerContainer}>
               <View style={styles.datePickerRow}>
                 <Text style={styles.datePickerLabel}>{t('analytics.period.startDate')}</Text>
-                <Text style={styles.dateValue}>
-                  {customStartDate.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </Text>
+                {Platform.OS === 'web' ? (
+                  <input
+                    type="date"
+                    value={customStartDate.toISOString().split('T')[0]}
+                    max={customEndDate.toISOString().split('T')[0]}
+                    onChange={(e) => e.target.value && setCustomStartDate(new Date(e.target.value))}
+                    style={{ fontSize: 16, color: '#333333', border: 'none', outline: 'none', fontWeight: '500', cursor: 'pointer' }}
+                  />
+                ) : (
+                  <Text style={styles.dateValue}>
+                    {customStartDate.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </Text>
+                )}
               </View>
 
               <View style={styles.datePickerRow}>
                 <Text style={styles.datePickerLabel}>{t('analytics.period.endDate')}</Text>
-                <Text style={styles.dateValue}>
-                  {customEndDate.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </Text>
+                {Platform.OS === 'web' ? (
+                  <input
+                    type="date"
+                    value={customEndDate.toISOString().split('T')[0]}
+                    min={customStartDate.toISOString().split('T')[0]}
+                    onChange={(e) => e.target.value && setCustomEndDate(new Date(e.target.value))}
+                    style={{ fontSize: 16, color: '#333333', border: 'none', outline: 'none', fontWeight: '500', cursor: 'pointer' }}
+                  />
+                ) : (
+                  <Text style={styles.dateValue}>
+                    {customEndDate.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </Text>
+                )}
               </View>
             </View>
 

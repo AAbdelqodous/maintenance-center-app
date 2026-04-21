@@ -407,7 +407,7 @@ function ProfileScreen() {
       <View style={styles.section}>
         <TouchableOpacity
           style={[styles.menuRow, isRTL && styles.rowRtl]}
-          onPress={() => router.push('./pricing')}
+          onPress={() => router.push('/(app)/(tabs)/profile/pricing' as any)}
         >
           <Ionicons name="pricetags-outline" size={20} color="#2196F3" />
           <Text style={styles.menuRowText}>{t('pricing.managePricing')}</Text>
@@ -416,7 +416,7 @@ function ProfileScreen() {
 
         <TouchableOpacity
           style={[styles.menuRow, isRTL && styles.rowRtl]}
-          onPress={() => router.push('./trust')}
+          onPress={() => router.push('/(app)/(tabs)/profile/trust' as any)}
         >
           <Ionicons name="shield-checkmark-outline" size={20} color="#FF9800" />
           <Text style={styles.menuRowText}>{t('trustBadge.title')}</Text>

@@ -1,4 +1,4 @@
-export type AnalyticsPeriod = 'THIS_WEEK' | 'THIS_MONTH' | 'LAST_3_MONTHS';
+export type AnalyticsPeriod = 'THIS_WEEK' | 'THIS_MONTH' | 'LAST_3_MONTHS' | 'CUSTOM';
 
 export interface DateRange {
   startDate: string;

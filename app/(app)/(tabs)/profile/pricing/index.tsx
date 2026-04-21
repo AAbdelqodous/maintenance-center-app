@@ -46,7 +46,7 @@ export default function PricingListScreen() {
         <Text style={styles.emptySubtitle}>{t('pricing.noEntriesSubtitle')}</Text>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => router.push('./add')}
+          onPress={() => router.push('/(app)/(tabs)/profile/pricing/add' as any)}
         >
           <Ionicons name="add" size={20} color="#FFFFFF" />
           <Text style={styles.addButtonText}>{t('pricing.addService')}</Text>
@@ -63,7 +63,7 @@ export default function PricingListScreen() {
         renderItem={({ item }) => (
           <PricingCard
             item={item}
-            onPress={() => router.push(`./pricing/${item.id}` as any)}
+            onPress={() => router.push(`/(app)/(tabs)/profile/pricing/${item.id}` as any)}
           />
         )}
         contentContainerStyle={styles.listContent}
