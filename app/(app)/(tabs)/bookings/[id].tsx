@@ -18,7 +18,7 @@ export default function BookingDetailScreen() {
 
   const { data: booking, isLoading, refetch } = useGetBookingByIdQuery(Number(id));
   const [updateStatus, { isLoading: isUpdating }] = useUpdateBookingStatusMutation();
-  const { data: quotes } = useGetBookingQuotesQuery(Number(id));
+  const { data: quotes } = useGetBookingQuotesQuery(Number(id), { skip: activeTab !== 'quotes' });
 
   const [activeTab, setActiveTab] = useState<'details' | 'progress' | 'quotes'>('details');
   const [showRejectionSheet, setShowRejectionSheet] = useState(false);
