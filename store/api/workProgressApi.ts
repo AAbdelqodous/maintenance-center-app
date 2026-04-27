@@ -31,12 +31,19 @@ export const workProgressApi = createApi({
       query: (bookingId) => `bookings/${bookingId}/work-progress`,
       providesTags: ['WorkProgress'],
     }),
-    createWorkProgress: builder.mutation<BookingWorkProgress, { bookingId: number; notes?: string; internalNotes?: string; estimatedMinutesRemaining?: number }>({
-      query: ({ bookingId, ...body }) => ({
-        url: `bookings/${bookingId}/work-progress`,
-        method: 'POST',
-        body,
-      }),
+    createWorkProgress: builder.mutation<BookingWorkProgress, { bookingId: number; notes?: string; notesAr?: string; internalNotes?: string; estimatedMinutesRemaining?: number }>({
+      query: ({ bookingId, notes, notesAr, internalNotes, estimatedMinutesRemaining }) => {
+        const formData = new FormData();
+        if (notes) formData.append('notes', notes);
+        if (notesAr) formData.append('notesAr', notesAr);
+        if (internalNotes) formData.append('internalNotes', internalNotes);
+        if (estimatedMinutesRemaining != null) formData.append('estimatedMinutesRemaining', String(estimatedMinutesRemaining));
+        return {
+          url: `bookings/${bookingId}/work-progress`,
+          method: 'POST',
+          body: formData,
+        };
+      },
       invalidatesTags: ['WorkProgress'],
     }),
     getBookingMedia: builder.query<BookingMedia[], number>({

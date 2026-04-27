@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useCreateWorkProgressMutation } from '@/store/api/workProgressApi';
 import * as FileSystem from 'expo-file-system';
+import { FileSystemUploadType } from 'expo-file-system';
 import { API_BASE_URL } from '@/lib/constants/config';
 import { useAppSelector } from '@/store';
 import PhotoUploader from '@/components/progress/PhotoUploader';
@@ -32,7 +33,7 @@ export default function AddProgressScreen() {
     setErrorMessage(null);
     
     try {
-      const progressResult = await createWorkProgress({
+      await createWorkProgress({
         bookingId: Number(bookingId),
         notes: notes || undefined,
         internalNotes: internalNotes || undefined,
@@ -45,16 +46,30 @@ export default function AddProgressScreen() {
           setUploadStates(prev => ({ ...prev, [i]: { progress: 0 } }));
           
           try {
-            await FileSystem.uploadAsync(
-              `${API_BASE_URL}bookings/${bookingId}/media`,
-              photo.uri,
-              {
+            if (Platform.OS === 'web') {
+              const blob = await fetch(photo.uri).then(r => r.blob());
+              const formData = new FormData();
+              formData.append('file', blob, photo.name);
+              formData.append('category', 'WORK_IN_PROGRESS');
+              const res = await fetch(`${API_BASE_URL}bookings/${bookingId}/media`, {
+                method: 'POST',
                 headers: { Authorization: `Bearer ${token}` },
-                httpMethod: 'POST',
-                uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-                fieldName: 'file',
-              }
-            );
+                body: formData,
+              });
+              if (!res.ok) throw new Error('Upload failed');
+            } else {
+              await FileSystem.uploadAsync(
+                `${API_BASE_URL}bookings/${bookingId}/media`,
+                photo.uri,
+                {
+                  headers: { Authorization: `Bearer ${token}` },
+                  httpMethod: 'POST',
+                  uploadType: FileSystemUploadType.MULTIPART,
+                  fieldName: 'file',
+                  parameters: { category: 'WORK_IN_PROGRESS' },
+                }
+              );
+            }
             setUploadStates(prev => ({ ...prev, [i]: { progress: 100 } }));
           } catch (uploadError) {
             console.error('Upload failed:', uploadError);

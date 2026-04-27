@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, FlatList, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -54,12 +54,15 @@ export default function PhotoUploader({ onPhotosChange, maxPhotos = 5, currentPh
   };
 
   const handleAddPhoto = () => {
-    const options = [
+    if (Platform.OS === 'web') {
+      handlePickImage('gallery');
+      return;
+    }
+    Alert.alert(t('progress.uploadPhotos'), '', [
       { text: t('progress.camera'), onPress: () => handlePickImage('camera') },
       { text: t('progress.gallery'), onPress: () => handlePickImage('gallery') },
-      { text: t('common.cancel'), style: 'cancel' as const },
-    ];
-    Alert.alert(t('progress.uploadPhotos'), '', options);
+      { text: t('common.cancel'), style: 'cancel' },
+    ]);
   };
 
   const handleRemovePhoto = (index: number) => {
