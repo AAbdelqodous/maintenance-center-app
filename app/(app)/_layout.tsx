@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { setSession } from '@/store/authSlice';
+import { setSession, clearSession } from '@/store/authSlice';
 import { setActiveCenterId, clearActiveCenter } from '@/store/centerSlice';
 import { storage } from '@/lib/storage';
 import { Redirect, Stack, router, usePathname } from 'expo-router';
@@ -39,6 +39,12 @@ export default function AppLayout() {
           const meResponse = await fetch(`${API_BASE_URL}users/me`, {
             headers: { 'Authorization': `Bearer ${token}` },
           });
+          if (meResponse.status === 401) {
+            await storage.clearAll();
+            dispatch(clearSession());
+            dispatch(clearActiveCenter());
+            return;
+          }
           if (meResponse.ok) {
             const me = await meResponse.json();
             if (me.approvalStatus === 'PENDING_APPROVAL') {
@@ -52,6 +58,13 @@ export default function AppLayout() {
               'Authorization': `Bearer ${token}`,
             },
           });
+
+          if (response.status === 401) {
+            await storage.clearAll();
+            dispatch(clearSession());
+            dispatch(clearActiveCenter());
+            return;
+          }
 
           if (response.ok) {
             const data = await response.json();

@@ -8,7 +8,8 @@ export enum BookingStatus {
   IN_PROGRESS = 'IN_PROGRESS',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
-  REJECTED = 'REJECTED',
+  NO_SHOW = 'NO_SHOW',
+  RESCHEDULED = 'RESCHEDULED',
 }
 
 export enum ServiceType {
@@ -67,12 +68,29 @@ export interface BookingsQueryParams {
   date?: string;
 }
 
+export interface CenterBookingsQueryParams {
+  page?: number;
+  size?: number;
+  status?: BookingStatus;
+}
+
+export interface BookingCompletionRequest {
+  finalCost: number;
+  completionNotes?: string;
+  costNotes?: string;
+  paymentStatus?: 'PAID' | 'PENDING';
+}
+
 export interface BookingStats {
-  pendingCount: number;
-  activeCount: number;
-  completedCount: number;
-  totalReviews: number;
-  averageRating: number;
+  total: number;
+  pending: number;
+  confirmed: number;
+  inProgress: number;
+  completed: number;
+  cancelled: number;
+  noShow: number;
+  rescheduled: number;
+  totalRevenue: number;
 }
 
 export const bookingsApi = createApi({
@@ -91,22 +109,47 @@ export const bookingsApi = createApi({
       query: (params) => ({ url: 'bookings', params }),
       providesTags: ['Booking'],
     }),
+    getCenterBookings: builder.query<BookingsResponse, CenterBookingsQueryParams>({
+      query: ({ page, size, status }) => ({
+        url: 'bookings',
+        params: { page, size, ...(status && { status }) },
+      }),
+      providesTags: ['Booking'],
+    }),
     getBookingById: builder.query<Booking, number>({
       query: (id) => `bookings/${id}`,
       providesTags: (_result, _error, id) => [{ type: 'Booking', id }],
     }),
-    updateBookingStatus: builder.mutation<Booking, { id: number; status: BookingStatus; reason?: string; notes?: string }>({
-      query: ({ id, status, reason, notes }) => ({
-        url: `bookings/${id}/status`,
-        method: 'PUT',
-        body: { status, ...(reason && { reason }), ...(notes && { notes }) },
-      }),
-      invalidatesTags: (_result, _error, { id }) => ['Booking', { type: 'Booking', id }],
-    }),
     getBookingStats: builder.query<BookingStats, void>({
       query: () => 'bookings/stats',
+      providesTags: ['Booking'],
+    }),
+    confirmBooking: builder.mutation<Booking, number>({
+      query: (id) => ({ url: `bookings/${id}/confirm`, method: 'POST' }),
+      invalidatesTags: (_result, _error, id) => ['Booking', { type: 'Booking', id }],
+    }),
+    startService: builder.mutation<Booking, number>({
+      query: (id) => ({ url: `bookings/${id}/start`, method: 'POST' }),
+      invalidatesTags: (_result, _error, id) => ['Booking', { type: 'Booking', id }],
+    }),
+    completeBooking: builder.mutation<Booking, { id: number; data: BookingCompletionRequest }>({
+      query: ({ id, data }) => ({ url: `bookings/${id}/complete`, method: 'POST', body: data }),
+      invalidatesTags: (_result, _error, { id }) => ['Booking', { type: 'Booking', id }],
+    }),
+    cancelBooking: builder.mutation<Booking, { id: number; reason: string }>({
+      query: ({ id, reason }) => ({ url: `bookings/${id}/cancel`, method: 'POST', body: { reason } }),
+      invalidatesTags: (_result, _error, { id }) => ['Booking', { type: 'Booking', id }],
     }),
   }),
 });
 
-export const { useGetBookingsQuery, useGetBookingByIdQuery, useUpdateBookingStatusMutation, useGetBookingStatsQuery } = bookingsApi;
+export const {
+  useGetBookingsQuery,
+  useGetCenterBookingsQuery,
+  useGetBookingByIdQuery,
+  useGetBookingStatsQuery,
+  useConfirmBookingMutation,
+  useStartServiceMutation,
+  useCompleteBookingMutation,
+  useCancelBookingMutation,
+} = bookingsApi;

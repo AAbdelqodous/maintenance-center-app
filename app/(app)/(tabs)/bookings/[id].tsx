@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { useGetBookingByIdQuery, useUpdateBookingStatusMutation, BookingStatus, ServiceType } from '@/store/api/bookingsApi';
+import { useGetBookingByIdQuery, useConfirmBookingMutation, useStartServiceMutation, useCompleteBookingMutation, useCancelBookingMutation, BookingStatus, ServiceType } from '@/store/api/bookingsApi';
 import StageUpdateForm from '@/components/progress/StageUpdateForm';
 import ProgressTimeline from '@/components/progress/ProgressTimeline';
 import QuoteCard from '@/components/quotes/QuoteCard';
@@ -18,11 +18,20 @@ export default function BookingDetailScreen() {
 
   const [activeTab, setActiveTab] = useState<'details' | 'progress' | 'quotes'>('details');
   const [showRejectionSheet, setShowRejectionSheet] = useState(false);
+  const [cancellationMode, setCancellationMode] = useState<'reject' | 'cancel'>('reject');
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [customReason, setCustomReason] = useState('');
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [finalCost, setFinalCost] = useState('');
+  const [completionNotes, setCompletionNotes] = useState('');
+  const [actionMessage, setActionMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const { data: booking, isLoading, refetch } = useGetBookingByIdQuery(Number(id));
-  const [updateStatus, { isLoading: isUpdating }] = useUpdateBookingStatusMutation();
+  const [confirmBooking, { isLoading: isConfirming }] = useConfirmBookingMutation();
+  const [startService, { isLoading: isStarting }] = useStartServiceMutation();
+  const [completeBooking, { isLoading: isCompleting }] = useCompleteBookingMutation();
+  const [cancelBooking, { isLoading: isCancelling }] = useCancelBookingMutation();
+  const isUpdating = isConfirming || isStarting || isCompleting || isCancelling;
   const { data: quotes } = useGetBookingQuotesQuery(Number(id), { skip: activeTab !== 'quotes' });
 
   const REJECTION_REASONS = ['fullyBooked', 'serviceNotAvailable', 'outsideServiceArea', 'other'] as const;
@@ -33,48 +42,99 @@ export default function BookingDetailScreen() {
     return scheduledDateTime < new Date();
   };
 
-  const handleStatusUpdate = async (newStatus: BookingStatus, reason?: string) => {
-    Alert.alert(
-      t('common.confirm'),
-      `${t('bookings.updateStatus')}?`,
-      [
+  const showFeedback = (type: 'success' | 'error', text: string) => {
+    if (Platform.OS === 'web') {
+      setActionMessage({ type, text });
+    } else {
+      Alert.alert(type === 'success' ? t('common.save') : t('common.error'), text);
+    }
+  };
+
+  const withConfirmation = (onConfirm: () => void) => {
+    if (Platform.OS === 'web') {
+      if (window.confirm(`${t('bookings.updateStatus')}?`)) onConfirm();
+    } else {
+      Alert.alert(t('common.confirm'), `${t('bookings.updateStatus')}?`, [
         { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('common.yes'),
-          onPress: async () => {
-            try {
-              await updateStatus({ id: Number(id), status: newStatus, reason }).unwrap();
-              Alert.alert(t('common.save'), t('bookings.statusUpdated'));
-              if (newStatus === BookingStatus.REJECTED) {
-                setShowRejectionSheet(false);
-                setSelectedReason(null);
-                setCustomReason('');
-              }
-              refetch();
-            } catch (error) {
-              Alert.alert(t('common.error'), 'Failed to update status');
-            }
-          },
-        },
-      ]
-    );
+        { text: t('common.yes'), onPress: onConfirm },
+      ]);
+    }
+  };
+
+  const handleConfirm = () => {
+    withConfirmation(async () => {
+      try {
+        await confirmBooking(Number(id)).unwrap();
+        showFeedback('success', t('bookings.statusUpdated'));
+        refetch();
+      } catch {
+        showFeedback('error', 'Failed to confirm booking');
+      }
+    });
+  };
+
+  const handleStart = () => {
+    withConfirmation(async () => {
+      try {
+        await startService(Number(id)).unwrap();
+        showFeedback('success', t('bookings.statusUpdated'));
+        refetch();
+      } catch {
+        showFeedback('error', 'Failed to start service');
+      }
+    });
+  };
+
+  const handleCompleteSubmit = async () => {
+    const cost = parseFloat(finalCost);
+    if (!finalCost || isNaN(cost) || cost < 0) {
+      showFeedback('error', t('bookings.invalidCost'));
+      return;
+    }
+    try {
+      await completeBooking({ id: Number(id), data: { finalCost: cost, completionNotes: completionNotes || undefined } }).unwrap();
+      setShowCompleteModal(false);
+      setFinalCost('');
+      setCompletionNotes('');
+      showFeedback('success', t('bookings.statusUpdated'));
+      refetch();
+    } catch {
+      showFeedback('error', 'Failed to complete booking');
+    }
   };
 
   const handleReject = () => {
+    setCancellationMode('reject');
     setShowRejectionSheet(true);
   };
 
-  const handleRejectConfirm = () => {
+  const handleCancel = () => {
+    setCancellationMode('cancel');
+    setSelectedReason(null);
+    setCustomReason('');
+    setShowRejectionSheet(true);
+  };
+
+  const handleCancellationConfirm = async () => {
     if (!selectedReason) {
-      Alert.alert(t('common.error'), t('bookings.selectReason'));
+      showFeedback('error', t('bookings.selectReason'));
       return;
     }
     if (selectedReason === 'other' && !customReason.trim()) {
-      Alert.alert(t('common.error'), t('bookings.enterReason'));
+      showFeedback('error', t('bookings.enterReason'));
       return;
     }
     const reason = selectedReason === 'other' ? customReason : t(`bookings.${selectedReason}`);
-    handleStatusUpdate(BookingStatus.REJECTED, reason);
+    try {
+      await cancelBooking({ id: Number(id), reason }).unwrap();
+      setShowRejectionSheet(false);
+      setSelectedReason(null);
+      setCustomReason('');
+      showFeedback('success', t('bookings.statusUpdated'));
+      refetch();
+    } catch {
+      showFeedback('error', cancellationMode === 'reject' ? 'Failed to reject booking' : 'Failed to cancel booking');
+    }
   };
 
   const formatDate = (dateStr: string) => {
@@ -174,6 +234,15 @@ export default function BookingDetailScreen() {
       
       <TabBar />
 
+      {actionMessage && (
+        <View style={[styles.messageBanner, actionMessage.type === 'success' ? styles.successBanner : styles.errorBanner]}>
+          <Text style={styles.messageBannerText}>{actionMessage.text}</Text>
+          <TouchableOpacity onPress={() => setActionMessage(null)}>
+            <Ionicons name="close" size={16} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+      )}
+
       <ScrollView style={styles.content}>
         {booking.bookingStatus === BookingStatus.CANCELLED && (
           <View style={styles.cancelledBanner}>
@@ -216,7 +285,7 @@ export default function BookingDetailScreen() {
                   <>
                     <TouchableOpacity
                       style={[styles.actionButton, styles.acceptButton]}
-                      onPress={() => handleStatusUpdate(BookingStatus.CONFIRMED)}
+                      onPress={handleConfirm}
                       disabled={isUpdating}
                     >
                       <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
@@ -235,7 +304,7 @@ export default function BookingDetailScreen() {
                 {canStart && (
                   <TouchableOpacity
                     style={[styles.actionButton, styles.startButton]}
-                    onPress={() => handleStatusUpdate(BookingStatus.IN_PROGRESS)}
+                    onPress={handleStart}
                     disabled={isUpdating}
                   >
                     <Ionicons name="play-circle" size={20} color="#FFFFFF" />
@@ -245,7 +314,7 @@ export default function BookingDetailScreen() {
                 {canComplete && (
                   <TouchableOpacity
                     style={[styles.actionButton, styles.completeButton]}
-                    onPress={() => handleStatusUpdate(BookingStatus.COMPLETED)}
+                    onPress={() => setShowCompleteModal(true)}
                     disabled={isUpdating}
                   >
                     <Ionicons name="checkmark-done-circle" size={20} color="#FFFFFF" />
@@ -255,7 +324,7 @@ export default function BookingDetailScreen() {
                 {canCancel && !canConfirm && (
                   <TouchableOpacity
                     style={[styles.actionButton, styles.cancelButton]}
-                    onPress={() => handleStatusUpdate(BookingStatus.CANCELLED)}
+                    onPress={handleCancel}
                     disabled={isUpdating}
                   >
                     <Ionicons name="close-circle" size={20} color="#FFFFFF" />
@@ -315,6 +384,55 @@ export default function BookingDetailScreen() {
       </ScrollView>
 
       <Modal
+        visible={showCompleteModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowCompleteModal(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalContainer}
+        >
+          <View style={styles.modalContent}>
+            <View style={[styles.modalHeader, isRTL && styles.rowRtl]}>
+              <Text style={styles.modalTitle}>{t('bookings.completeService')}</Text>
+              <TouchableOpacity onPress={() => setShowCompleteModal(false)}>
+                <Ionicons name="close" size={24} color="#333333" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.customReasonLabel}>{t('bookings.finalCost')}</Text>
+            <TextInput
+              style={[styles.customReasonInput, { minHeight: 48, textAlign: isRTL ? 'right' : 'left' }]}
+              placeholder="0.000"
+              value={finalCost}
+              onChangeText={setFinalCost}
+              keyboardType="decimal-pad"
+            />
+            <Text style={[styles.customReasonLabel, { marginTop: 12 }]}>{t('bookings.completionNotes')}</Text>
+            <TextInput
+              style={[styles.customReasonInput, { textAlign: isRTL ? 'right' : 'left' }]}
+              placeholder={t('bookings.completionNotesPlaceholder')}
+              value={completionNotes}
+              onChangeText={setCompletionNotes}
+              multiline
+              maxLength={500}
+              textAlignVertical="top"
+            />
+            <TouchableOpacity
+              style={[styles.confirmButton, (!finalCost || isCompleting) && styles.disabledButton, { marginTop: 16 }]}
+              onPress={handleCompleteSubmit}
+              disabled={!finalCost || isCompleting}
+            >
+              {isCompleting
+                ? <ActivityIndicator color="#FFFFFF" />
+                : <Text style={styles.confirmButtonText}>{t('common.confirm')}</Text>
+              }
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      <Modal
         visible={showRejectionSheet}
         transparent
         animationType="slide"
@@ -326,7 +444,7 @@ export default function BookingDetailScreen() {
         >
           <View style={styles.modalContent}>
             <View style={[styles.modalHeader, isRTL && styles.rowRtl]}>
-              <Text style={styles.modalTitle}>{t('bookings.rejectReason')}</Text>
+              <Text style={styles.modalTitle}>{cancellationMode === 'reject' ? t('bookings.rejectReason') : t('bookings.cancelReason')}</Text>
               <TouchableOpacity onPress={() => setShowRejectionSheet(false)}>
                 <Ionicons name="close" size={24} color="#333333" />
               </TouchableOpacity>
@@ -355,9 +473,9 @@ export default function BookingDetailScreen() {
             )}
 
             <TouchableOpacity
-              style={[styles.confirmButton, (!selectedReason || (selectedReason === 'other' && !customReason.trim())) && styles.disabledButton]}
-              onPress={handleRejectConfirm}
-              disabled={!selectedReason || (selectedReason === 'other' && !customReason.trim())}
+              style={[styles.confirmButton, (!selectedReason || (selectedReason === 'other' && !customReason.trim()) || isCancelling) && styles.disabledButton]}
+              onPress={handleCancellationConfirm}
+              disabled={!selectedReason || (selectedReason === 'other' && !customReason.trim()) || isCancelling}
             >
               <Text style={styles.confirmButtonText}>{t('common.confirm')}</Text>
             </TouchableOpacity>
@@ -674,5 +792,25 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '600',
+  },
+  messageBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  successBanner: {
+    backgroundColor: '#4CAF50',
+  },
+  errorBanner: {
+    backgroundColor: '#F44336',
+  },
+  messageBannerText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '500',
+    flex: 1,
+    marginRight: 8,
   },
 });

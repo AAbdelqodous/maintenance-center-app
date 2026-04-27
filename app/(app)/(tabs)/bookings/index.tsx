@@ -2,7 +2,8 @@ import React, { useState, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, FlatList } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { useGetBookingsQuery, BookingStatus } from '@/store/api/bookingsApi';
+import { useGetCenterBookingsQuery, BookingStatus } from '@/store/api/bookingsApi';
+import { useAppSelector } from '@/store';
 import { BookingCard } from '@/components/bookings/BookingCard';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 
@@ -18,8 +19,12 @@ function BookingsScreen() {
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const isFetchingMoreRef = useRef(false);
 
+  const activeCenterId = useAppSelector((state) => state.center.activeCenterId);
   const statusParam = selectedStatus === 'ALL' ? undefined : selectedStatus;
-  const { data: bookingsData, isLoading, isFetching, refetch } = useGetBookingsQuery({ page, size: 20, status: statusParam });
+  const { data: bookingsData, isLoading, isFetching, refetch } = useGetCenterBookingsQuery(
+    { page, size: 20, status: statusParam },
+    { skip: !activeCenterId }
+  );
 
   const [refreshing, setRefreshing] = useState(false);
 

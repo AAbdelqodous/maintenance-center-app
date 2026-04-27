@@ -3,8 +3,10 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { useGetBookingStatsQuery, useGetBookingsQuery } from '@/store/api/bookingsApi';
+import { useGetBookingStatsQuery, useGetCenterBookingsQuery } from '@/store/api/bookingsApi';
 import { useGetMyCenterQuery } from '@/store/api/centerApi';
+import { useGetReviewsQuery } from '@/store/api/reviewsApi';
+import { useAppSelector } from '@/store';
 import { BookingCard } from '@/components/bookings/BookingCard';
 import { RatingStars } from '@/components/ui/RatingStars';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
@@ -14,9 +16,14 @@ function DashboardScreen() {
   const router = useRouter();
   const isRTL = i18n.dir() === 'rtl';
 
+  const activeCenterId = useAppSelector((state) => state.center.activeCenterId);
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetBookingStatsQuery();
   const { data: centerData, isLoading: centerLoading } = useGetMyCenterQuery();
-  const { data: bookingsData, isLoading: bookingsLoading, refetch: refetchBookings } = useGetBookingsQuery({ page: 0, size: 5 });
+  const { data: reviewsData } = useGetReviewsQuery({ size: 1 });
+  const { data: bookingsData, isLoading: bookingsLoading, refetch: refetchBookings } = useGetCenterBookingsQuery(
+    { page: 0, size: 5 },
+    { skip: !activeCenterId }
+  );
 
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -58,13 +65,15 @@ function DashboardScreen() {
         <StatCard title={t('dashboard.totalBookings')} value={stats?.total ?? 0} icon="calendar" color="#2196F3" />
         <StatCard title={t('dashboard.pendingBookings')} value={stats?.pending ?? 0} icon="time" color="#FF9800" />
         <StatCard title={t('dashboard.confirmedBookings')} value={stats?.confirmed ?? 0} icon="checkmark-circle" color="#4CAF50" />
+        <StatCard title={t('bookings.inProgress')} value={stats?.inProgress ?? 0} icon="construct" color="#9C27B0" />
+        <StatCard title={t('bookings.cancelled')} value={stats?.cancelled ?? 0} icon="close-circle" color="#F44336" />
         <View style={[styles.statCard, isRTL && styles.cardRtl, styles.ratingCard]}>
           <View style={[styles.statIcon, { backgroundColor: '#FFD700' + '20' }]}>
             <Ionicons name="star" size={24} color="#FFD700" />
           </View>
           <View style={styles.statContent}>
             <RatingStars rating={centerData?.averageRating ?? 0} />
-            <Text style={styles.statTitle}>{centerData?.totalReviews ?? 0} {t('dashboard.totalReviews')}</Text>
+            <Text style={styles.statTitle}>{reviewsData?.totalElements ?? 0} {t('dashboard.totalReviews')}</Text>
           </View>
         </View>
       </View>
