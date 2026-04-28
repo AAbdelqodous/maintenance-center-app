@@ -47,7 +47,8 @@
       "Bash(mv completed/001-foundation .)",
       "Bash(ls node_modules/react-native-linear-gradient)",
       "Bash(ls node_modules/expo-linear-gradient)",
-      "Read(//c/Users/ahmed.elsayed/IdeaProjects/life-experience-app/**)"
+      "Read(//c/Users/ahmed.elsayed/IdeaProjects/life-experience-app/**)",
+      "Bash(git checkout *)"
     ]
   }
 }

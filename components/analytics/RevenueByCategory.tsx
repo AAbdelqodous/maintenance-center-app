@@ -55,7 +55,7 @@ export function RevenueByCategory({ data, isLoading }: RevenueByCategoryProps) {
             radius={100}
             innerRadius={60}
             textSize={12}
-            fontStyle="bold"
+            fontStyle={'bold' as any}
             showTextBackground
             textBackgroundColor="#333333"
             textBackgroundRadius={22}
@@ -79,7 +79,9 @@ export function RevenueByCategory({ data, isLoading }: RevenueByCategoryProps) {
                     {item.completedBookings} {t('analytics.revenue.bookings')} • {percentage}%
                   </Text>
                 </View>
-                <Text style={styles.legendRevenue}>KD {item.revenue.toFixed(3)}</Text>
+                {item.revenue != null && (
+                  <Text style={styles.legendRevenue}>KD {item.revenue.toFixed(3)}</Text>
+                )}
               </View>
             );
           })}

@@ -9,7 +9,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: `Center Owner${appNameSuffix}`,
   slug: 'maintenance-center-app',
-  scheme: 'maintenancecenterapp',
+  scheme: 'maintenancecenter',
   version: '1.0.0',
   platforms: ['ios', 'android', 'web'],
 

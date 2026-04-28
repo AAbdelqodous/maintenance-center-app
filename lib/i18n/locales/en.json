@@ -428,5 +428,87 @@
     "title": "Something went wrong",
     "message": "An unexpected error occurred. Please try again.",
     "retry": "Try Again"
+  },
+  "staff": {
+    "title": "Staff",
+    "emptyState": "No staff yet. Tap 'Invite Staff' to add your first team member.",
+    "roles": {
+      "OWNER": "Owner",
+      "BRANCH_MANAGER": "Branch Manager",
+      "RECEPTIONIST": "Receptionist",
+      "TECHNICIAN": "Technician",
+      "ACCOUNTANT": "Accountant"
+    },
+    "statuses": {
+      "ACTIVE": "Active",
+      "INVITED": "Invited",
+      "SUSPENDED": "Suspended",
+      "REMOVED": "Removed",
+      "INVITATION_EXPIRED": "Invitation Expired",
+      "INVITATION_DECLINED": "Declined"
+    },
+    "invite": {
+      "title": "Invite Staff",
+      "email": "Email Address",
+      "emailPlaceholder": "Enter email address",
+      "role": "Role",
+      "send": "Send Invitation",
+      "sent": "Invitation sent successfully"
+    },
+    "member": {
+      "title": "Staff Member",
+      "details": "Member Details",
+      "role": "Role",
+      "status": "Status",
+      "invitedBy": "Invited by {{name}}",
+      "activatedAt": "Activated",
+      "since": "Member since {{date}}",
+      "changeRole": "Change Role",
+      "suspend": "Suspend",
+      "reinstate": "Reinstate",
+      "remove": "Remove",
+      "leave": "Leave Center",
+      "notFound": "Staff member not found",
+      "confirmRemove": "Are you sure you want to remove this staff member? This action cannot be undone.",
+      "confirmSuspend": "Are you sure you want to suspend this staff member? They will lose access to the center.",
+      "confirmLeave": "Are you sure you want to leave this center? This action cannot be undone.",
+      "selectRole": "Select new role"
+    },
+    "invite_accept": {
+      "title": "You've been invited",
+      "body": "{{inviter}} has invited you to join {{center}} as {{role}}.",
+      "accept": "Accept Invitation",
+      "decline": "Decline",
+      "expired": "Invitation Expired",
+      "expiredMessage": "This invitation has expired. Please ask for a new invitation.",
+      "alreadyUsed": "Invitation Already Used",
+      "alreadyAccepted": "Already Accepted",
+      "alreadyAcceptedMessage": "You have already accepted this invitation. You can access the center from your dashboard.",
+      "declined": "Invitation Declined",
+      "declinedMessage": "This invitation has been declined.",
+      "center": "Center",
+      "role": "Role",
+      "expiresAt": "Expires at",
+      "loading": "Loading invitation...",
+      "errorTitle": "Invalid Invitation",
+      "notFound": "This invitation link is invalid or has been removed.",
+      "error": "An error occurred. Please try again.",
+      "success": "Invitation accepted successfully!",
+      "goToDashboard": "Go to Dashboard"
+    },
+    "invite_auth": {
+      "signInPrompt": "Please sign in or create an account to accept this invitation.",
+      "signIn": "Sign In",
+      "createAccount": "Create Account"
+    },
+    "noAccess": {
+      "title": "No Center Access",
+      "body": "You don't have access to any maintenance center. Ask a center owner to invite you.",
+      "goToCustomerApp": "Go to Customer App"
+    },
+    "errors": {
+      "invitationFailed": "Failed to send invitation. Please try again.",
+      "permissionDenied": "You don't have permission to perform this action."
+    }
   }
 }

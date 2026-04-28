@@ -1,4 +1,5 @@
 import { configureStore, isRejectedWithValue, Middleware } from '@reduxjs/toolkit';
+import { setupListeners } from '@reduxjs/toolkit/query';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import authReducer, { clearSession } from './authSlice';
 import centerReducer, { clearActiveCenter } from './centerSlice';
@@ -14,6 +15,7 @@ import { trustApi } from './api/trustApi';
 import { workProgressApi } from './api/workProgressApi';
 import { quotesApi } from './api/quotesApi';
 import { analyticsApi } from './api/analyticsApi';
+import { staffApi } from './api/staffApi';
 
 const unauthenticatedMiddleware: Middleware = ({ dispatch }) => (next) => (action) => {
   if (isRejectedWithValue(action) && (action.payload as any)?.status === 401) {
@@ -39,6 +41,7 @@ export const store = configureStore({
     [workProgressApi.reducerPath]: workProgressApi.reducer,
     [quotesApi.reducerPath]: quotesApi.reducer,
     [analyticsApi.reducerPath]: analyticsApi.reducer,
+    [staffApi.reducerPath]: staffApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -56,8 +59,11 @@ export const store = configureStore({
       workProgressApi.middleware,
       quotesApi.middleware,
       analyticsApi.middleware,
+      staffApi.middleware,
     ),
 });
+
+setupListeners(store.dispatch);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

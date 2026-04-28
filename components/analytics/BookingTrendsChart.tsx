@@ -31,21 +31,17 @@ export function BookingTrendsChart({ data, granularity, isLoading }: BookingTren
     return null;
   }
 
-  const completedData = data.map((item, index) => ({
+  const completedData = data.map((item) => ({
     label: item.periodLabel,
     value: item.completed,
-    labelComponent: (
-      <Text style={styles.xAxisLabel}>{item.periodLabel}</Text>
-    ),
+    labelComponent: () => <Text style={styles.xAxisLabel}>{item.periodLabel}</Text>,
     frontColor: '#4CAF50',
   }));
 
-  const cancelledData = data.map((item, index) => ({
+  const cancelledData = data.map((item) => ({
     label: item.periodLabel,
     value: item.cancelled,
-    labelComponent: (
-      <Text style={styles.xAxisLabel}>{item.periodLabel}</Text>
-    ),
+    labelComponent: () => <Text style={styles.xAxisLabel}>{item.periodLabel}</Text>,
     frontColor: '#F44336',
   }));
 

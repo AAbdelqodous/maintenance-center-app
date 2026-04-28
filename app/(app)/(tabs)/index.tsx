@@ -17,12 +17,12 @@ function DashboardScreen() {
   const isRTL = i18n.dir() === 'rtl';
 
   const activeCenterId = useAppSelector((state) => state.center.activeCenterId);
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetBookingStatsQuery();
+  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetBookingStatsQuery(undefined, { refetchOnFocus: true });
   const { data: centerData, isLoading: centerLoading } = useGetMyCenterQuery();
   const { data: reviewsData } = useGetReviewsQuery({ size: 1 });
   const { data: bookingsData, isLoading: bookingsLoading, refetch: refetchBookings } = useGetCenterBookingsQuery(
     { page: 0, size: 5 },
-    { skip: !activeCenterId }
+    { skip: !activeCenterId, refetchOnFocus: true }
   );
 
   const [refreshing, setRefreshing] = React.useState(false);
