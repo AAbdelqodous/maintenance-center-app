@@ -52,6 +52,7 @@
     "registerButton": "Create Account",
     "registerSubtitle": "Register your maintenance center",
     "registerSuccess": "Account created! Please verify your email to continue.",
+    "registerStaffSuccess": "Account created! Please sign in to continue.",
     "registerError": "Registration failed. Please try again.",
     "emailAlreadyExists": "This email is already registered. Please sign in instead.",
     "pendingTitle": "Account Pending Approval",
@@ -493,6 +494,7 @@
       "errorTitle": "Invalid Invitation",
       "notFound": "This invitation link is invalid or has been removed.",
       "error": "An error occurred. Please try again.",
+      "alreadyMember": "You are already a member of this center.",
       "success": "Invitation accepted successfully!",
       "goToDashboard": "Go to Dashboard"
     },

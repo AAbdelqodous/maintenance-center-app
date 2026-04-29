@@ -39,6 +39,13 @@ export const authApi = createApi({
         body: { ...body, userType: 'CENTER_OWNER' },
       }),
     }),
+    registerStaff: builder.mutation<void, RegisterOwnerRequest>({
+      query: (body) => ({
+        url: 'auth/register',
+        method: 'POST',
+        body: { ...body, userType: 'CUSTOMER' },
+      }),
+    }),
     activateAccount: builder.mutation<void, { token: string }>({
       query: ({ token }) => ({ url: 'auth/activate-account', method: 'GET', params: { token } }),
     }),
@@ -51,6 +58,7 @@ export const authApi = createApi({
 export const {
   useLoginMutation,
   useRegisterOwnerMutation,
+  useRegisterStaffMutation,
   useActivateAccountMutation,
   useResendOtpMutation,
 } = authApi;

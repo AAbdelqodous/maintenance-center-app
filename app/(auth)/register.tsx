@@ -10,20 +10,24 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useRegisterOwnerMutation } from '@/store/api/authApi';
+import { useRegisterOwnerMutation, useRegisterStaffMutation } from '@/store/api/authApi';
 
 export default function RegisterScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const isRTL = i18n.dir() === 'rtl';
+  const { staff, email: prefillEmail } = useLocalSearchParams<{ staff?: string; email?: string }>();
+  const isStaffRegistration = staff === 'true';
 
-  const [registerOwner, { isLoading }] = useRegisterOwnerMutation();
+  const [registerOwner, { isLoading: ownerLoading }] = useRegisterOwnerMutation();
+  const [registerStaff, { isLoading: staffLoading }] = useRegisterStaffMutation();
+  const isLoading = ownerLoading || staffLoading;
 
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(prefillEmail ?? '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -54,10 +58,15 @@ export default function RegisterScreen() {
     }
 
     try {
-      await registerOwner({ firstname, lastname, email, password }).unwrap();
-      setSuccessMessage(t('auth.registerSuccess'));
+      const register = isStaffRegistration ? registerStaff : registerOwner;
+      await register({ firstname, lastname, email, password }).unwrap();
+      setSuccessMessage(isStaffRegistration ? t('auth.registerStaffSuccess') : t('auth.registerSuccess'));
       setTimeout(() => {
-        router.replace('/(auth)/verify-otp?email=' + encodeURIComponent(email));
+        if (isStaffRegistration) {
+          router.replace('/(auth)/login');
+        } else {
+          router.replace('/(auth)/verify-otp?email=' + encodeURIComponent(email));
+        }
       }, 1500);
     } catch (err: any) {
       if (err?.status === 409) {

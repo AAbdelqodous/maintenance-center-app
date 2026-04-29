@@ -5,8 +5,10 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useGetMyCentersQuery } from '@/store/api/centerApi';
 import { useAppDispatch } from '@/store';
-import { setActiveCenterId, clearActiveCenter } from '@/store/centerSlice';
+import { setActiveCenter, clearActiveCenter } from '@/store/centerSlice';
+import { ROLE_PERMISSIONS } from '@/types/staff';
 import { storage } from '@/lib/storage';
+import { resolveImageUrl } from '@/lib/constants/config';
 import { CenterSummary } from '@/store/api/centerApi';
 
 export default function BranchSelectScreen() {
@@ -24,7 +26,7 @@ export default function BranchSelectScreen() {
 
   const handleSelectBranch = async (center: CenterSummary) => {
     await storage.saveActiveCenterId(center.id);
-    dispatch(setActiveCenterId(center.id));
+    dispatch(setActiveCenter({ centerId: center.id, role: 'OWNER', permissions: ROLE_PERMISSIONS['OWNER'] }));
     router.replace('/(app)/(tabs)/');
   };
 
@@ -53,7 +55,7 @@ export default function BranchSelectScreen() {
     >
       {item.logoUrl ? (
         <Image
-          source={{ uri: item.logoUrl.startsWith('http') ? item.logoUrl : item.logoUrl }}
+          source={{ uri: resolveImageUrl(item.logoUrl) ?? undefined }}
           style={styles.centerLogo}
           resizeMode="cover"
         />

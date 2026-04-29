@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, Stack } from 'expo-router';
 import { useGetMyCenterQuery, useUpdateCenterMutation, useUploadCenterImageMutation, useDeleteCenterImageMutation, useGetCategoriesQuery } from '@/store/api/centerApi';
 import * as ImagePicker from 'expo-image-picker';
-import { API_BASE_URL } from '@/lib/constants/config';
+import { resolveImageUrl } from '@/lib/constants/config';
 import { useAppDispatch } from '@/store';
 import { clearSession } from '@/store/authSlice';
 import { storage } from '@/lib/storage';
@@ -373,7 +373,7 @@ function ProfileScreen() {
             {center.imageUrls.map((imageUrl, index) => (
               <View key={index} style={styles.photoItem}>
                 <Image
-                  source={{ uri: imageUrl.startsWith('http') ? imageUrl : API_BASE_URL + imageUrl }}
+                  source={{ uri: resolveImageUrl(imageUrl) ?? undefined }}
                   style={styles.photo}
                   onError={(e) => console.error('Image load error:', imageUrl, e.nativeEvent)}
                   onLoad={() => console.log('Image loaded OK:', imageUrl)}

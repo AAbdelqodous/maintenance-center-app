@@ -73,15 +73,6 @@ function StaffScreen() {
         <Text style={styles.emptyText}>
           {t('staff.emptyState')}
         </Text>
-        <PermissionGate permission="MANAGE_NON_MANAGER_STAFF">
-          <TouchableOpacity
-            style={styles.emptyButton}
-            onPress={() => router.push('/staff/invite')}
-          >
-            <Ionicons name="person-add" size={20} color="#FFFFFF" />
-            <Text style={styles.emptyButtonText}>{t('staff.inviteButton')}</Text>
-          </TouchableOpacity>
-        </PermissionGate>
       </View>
     );
   };
@@ -154,21 +145,6 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     marginTop: 16,
     textAlign: 'center',
-  },
-  emptyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#4F46E5',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 24,
-    gap: 8,
-  },
-  emptyButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
   },
   footerLoader: {
     paddingVertical: 20,

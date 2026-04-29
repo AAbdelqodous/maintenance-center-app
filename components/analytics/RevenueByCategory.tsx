@@ -28,18 +28,15 @@ export function RevenueByCategory({ data, isLoading }: RevenueByCategoryProps) {
     return null;
   }
 
-  const totalRevenue = data.reduce((sum, item) => sum + item.revenue, 0);
+  const colors = ['#2196F3', '#4CAF50', '#FF9800', '#9C27B0', '#F44336', '#00BCD4', '#795548'];
   const totalBookings = data.reduce((sum, item) => sum + item.completedBookings, 0);
 
-  const pieData = data.slice(0, 5).map((item, index) => {
-    const colors = ['#2196F3', '#4CAF50', '#FF9800', '#9C27B0', '#F44336'];
-    return {
-      value: item.revenue,
-      color: colors[index % colors.length],
-      text: `${((item.revenue / totalRevenue) * 100).toFixed(1)}%`,
-      label: isRTL ? item.categoryNameAr : item.categoryNameEn,
-    };
-  });
+  const pieData = data.slice(0, 5).map((item, index) => ({
+    value: item.completedBookings || 0,
+    color: colors[index % colors.length],
+    text: totalBookings > 0 ? `${((item.completedBookings / totalBookings) * 100).toFixed(0)}%` : '0%',
+    label: isRTL ? item.categoryNameAr : item.categoryNameEn,
+  }));
 
   return (
     <View style={styles.section}>
@@ -61,17 +58,16 @@ export function RevenueByCategory({ data, isLoading }: RevenueByCategoryProps) {
             textBackgroundRadius={22}
           />
           <View style={styles.centerText}>
-            <Text style={styles.centerValue}>{totalRevenue.toFixed(3)}</Text>
-            <Text style={styles.centerLabel}>KD</Text>
+            <Text style={styles.centerValue}>{totalBookings}</Text>
+            <Text style={styles.centerLabel}>bookings</Text>
           </View>
         </View>
 
         <View style={[styles.legend, isRTL && styles.legendRtl]}>
           {data.map((item, index) => {
-            const colors = ['#2196F3', '#4CAF50', '#FF9800', '#9C27B0', '#F44336', '#00BCD4', '#795548'];
             const percentage = totalBookings > 0 ? ((item.completedBookings / totalBookings) * 100).toFixed(1) : '0.0';
             return (
-              <View key={item.categoryId} style={[styles.legendItem, isRTL && styles.legendItemRtl]}>
+              <View key={item.categoryNameEn || index} style={[styles.legendItem, isRTL && styles.legendItemRtl]}>
                 <View style={[styles.legendDot, { backgroundColor: colors[index % colors.length] }]} />
                 <View style={styles.legendContent}>
                   <Text style={styles.legendName}>{isRTL ? item.categoryNameAr : item.categoryNameEn}</Text>

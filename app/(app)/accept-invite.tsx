@@ -49,7 +49,12 @@ export default function AcceptInviteScreen() {
       }, 1500);
     } catch (err: any) {
       console.error('Accept invitation error:', err);
-      const msg = err?.data?.message || err?.data?.businessErrorDescription || t('staff.invite_accept.error');
+      let msg = err?.data?.businessErrorDescription || err?.data?.message;
+      if (!msg) {
+        msg = err?.status === 409
+          ? t('staff.invite_accept.alreadyMember')
+          : t('staff.invite_accept.error');
+      }
       setErrorMessage(msg);
     }
   };
@@ -193,7 +198,7 @@ export default function AcceptInviteScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.buttonSecondary}
-              onPress={() => router.push('/register')}
+              onPress={() => router.push(`/(auth)/register?staff=true&email=${encodeURIComponent(invitationDetails?.targetEmail ?? '')}` as any)}
             >
               <Text style={styles.buttonSecondaryText}>{t('staff.invite_auth.createAccount')}</Text>
             </TouchableOpacity>
