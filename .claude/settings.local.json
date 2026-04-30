@@ -48,7 +48,11 @@
       "Bash(ls node_modules/react-native-linear-gradient)",
       "Bash(ls node_modules/expo-linear-gradient)",
       "Read(//c/Users/ahmed.elsayed/IdeaProjects/life-experience-app/**)",
-      "Bash(git checkout *)"
+      "Bash(git checkout *)",
+      "PowerShell(& \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\create-new-feature.ps1\" \"Phase 6.0 - Admin Panel\" -Json -ShortName \"admin-panel\")",
+      "PowerShell(& \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\setup-plan.ps1\" -Json)",
+      "PowerShell(& \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\update-agent-context.ps1\" -AgentType claude)",
+      "PowerShell(& \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1\" -Json)"
     ]
   }
 }

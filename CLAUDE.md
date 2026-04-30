@@ -71,8 +71,8 @@ service-center/src/main/java/com/maintainance/service_center/
 ├── role/           # Role entity, RoleRepository
 ├── search/         # SearchHistory entity, SearchSource enum + SearchController
 ├── security/       # JwtService, JwtFilter, SecurityConfig, UserDetailsServiceImpl
-├── admin/          # AdminController, AdminService — center owner approval endpoints
-└── user/           # User, Token, TokenRepository, UserRepository, UserType, ApprovalStatus, Language
+├── admin/          # AdminController, AdminService, UserResponse — center owner approval + platform admin (Phase 6.0, NOT YET BUILT)
+└── user/           # User, Token, TokenRepository, UserRepository, UserType, ApprovalStatus (PENDING_APPROVAL/APPROVED/REJECTED), Language
 ```
 
 ---
@@ -196,6 +196,14 @@ GET   /auth/activate-account          → ?token=XXXXXX
 GET   /admin/users/pending            → Page<UserResponse> (pending center owners)
 PUT   /admin/users/{id}/approve       → UserResponse
 PUT   /admin/users/{id}/reject        → UserResponse
+```
+
+**Admin** (ROLE_ADMIN only — Phase 6.0, NOT YET BUILT on backend)
+```
+GET   /admin/users/pending            → Page<UserResponse> (pending CENTER_OWNER accounts)
+PUT   /admin/users/{id}/approve       → UserResponse
+PUT   /admin/users/{id}/reject        → { reason? } → UserResponse
+GET   /admin/users?page=&size=&type=  → Page<UserResponse> (all users, filterable by UserType)
 ```
 
 **Users**
@@ -489,6 +497,15 @@ npx expo start              # native (needs emulator)
 - [ ] Analytics dashboard for center owners
 - [ ] Multi-branch management UI
 - [ ] Offline support
+
+### Phase 6.0 — Admin Panel 🆕
+- [ ] `ApprovalStatus` enum (PENDING_APPROVAL / APPROVED / REJECTED) + `User.approvalStatus` field (backend)
+- [ ] `AdminController` + `AdminService` — approve/reject/list center owners (backend)
+- [ ] `ADMIN` role seeding + default admin user bootstrapped on startup (backend)
+- [ ] `SecurityConfig`: protect `/admin/**` with `ROLE_ADMIN`
+- [ ] `RegistrationRequest`: add optional `userType` field for CENTER_OWNER self-registration
+- [ ] `AuthenticationResponse`: return `approvalStatus` so the app can gate pending owners
+- [ ] `AuthenticationService`: set PENDING_APPROVAL on CENTER_OWNER register; block REJECTED at login
 
 ---
 

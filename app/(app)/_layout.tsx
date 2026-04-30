@@ -55,13 +55,16 @@ export default function AppLayout() {
 
           const me = await meResponse.json();
 
+          // Treat legacy null userType as CENTER_OWNER
+          const userType = me.userType ?? 'CENTER_OWNER';
+
           // Approval gate — only CENTER_OWNER accounts require admin approval
-          if (me.userType === 'CENTER_OWNER' && me.approvalStatus === 'PENDING_APPROVAL') {
+          if (userType === 'CENTER_OWNER' && me.approvalStatus === 'PENDING_APPROVAL') {
             setIsPendingApproval(true);
             return;
           }
 
-          if (me.userType === 'CUSTOMER') {
+          if (userType === 'CUSTOMER') {
             // Staff member — resolve center via memberships, not ownership
             const membershipsRes = await fetch(`${API_BASE_URL}users/me/memberships`, {
               headers: { 'Authorization': `Bearer ${token}` },
