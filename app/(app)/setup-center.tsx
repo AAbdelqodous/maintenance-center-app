@@ -7,7 +7,6 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -20,6 +19,35 @@ import { clearSession } from '@/store/authSlice';
 import { clearActiveCenter } from '@/store/centerSlice';
 
 const TOTAL_STEPS = 3;
+
+const Field = ({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  keyboardType = 'default' as any,
+  isRTL = false,
+}: {
+  label: string;
+  value: string;
+  onChangeText: (v: string) => void;
+  placeholder?: string;
+  keyboardType?: any;
+  isRTL?: boolean;
+}) => (
+  <View style={styles.fieldContainer}>
+    <Text style={styles.label}>{label}</Text>
+    <TextInput
+      style={[styles.input, isRTL && styles.inputRtl]}
+      value={value}
+      onChangeText={onChangeText}
+      placeholder={placeholder}
+      placeholderTextColor="#9E9E9E"
+      keyboardType={keyboardType}
+      autoCapitalize="none"
+    />
+  </View>
+);
 
 export default function SetupCenterScreen() {
   const { t, i18n } = useTranslation();
@@ -126,32 +154,6 @@ export default function SetupCenterScreen() {
     { title: t('setupCenter.step3Title'), subtitle: t('setupCenter.step3Subtitle') },
   ];
 
-  const Field = ({
-    label,
-    value,
-    onChangeText,
-    placeholder,
-    keyboardType = 'default' as any,
-  }: {
-    label: string;
-    value: string;
-    onChangeText: (v: string) => void;
-    placeholder?: string;
-    keyboardType?: any;
-  }) => (
-    <View style={styles.fieldContainer}>
-      <Text style={styles.label}>{label}</Text>
-      <TextInput
-        style={[styles.input, isRTL && styles.inputRtl]}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor="#9E9E9E"
-        keyboardType={keyboardType}
-        autoCapitalize="none"
-      />
-    </View>
-  );
 
   return (
     <View style={styles.container}>
@@ -187,12 +189,14 @@ export default function SetupCenterScreen() {
               value={nameAr}
               onChangeText={setNameAr}
               placeholder="مركز الصيانة"
+              isRTL={isRTL}
             />
             <Field
               label={t('setupCenter.nameEn')}
               value={nameEn}
               onChangeText={setNameEn}
               placeholder="Maintenance Center"
+              isRTL={isRTL}
             />
             <Field
               label={t('setupCenter.phone')}
@@ -200,6 +204,7 @@ export default function SetupCenterScreen() {
               onChangeText={setPhone}
               placeholder="+965 XXXX XXXX"
               keyboardType="phone-pad"
+              isRTL={isRTL}
             />
             <Field
               label={t('setupCenter.email')}
@@ -207,6 +212,7 @@ export default function SetupCenterScreen() {
               onChangeText={setEmail}
               placeholder="center@example.com"
               keyboardType="email-address"
+              isRTL={isRTL}
             />
           </View>
         )}
@@ -219,36 +225,42 @@ export default function SetupCenterScreen() {
               value={cityAr}
               onChangeText={setCityAr}
               placeholder="الكويت"
+              isRTL={isRTL}
             />
             <Field
               label={t('setupCenter.cityEn')}
               value={cityEn}
               onChangeText={setCityEn}
               placeholder="Kuwait City"
+              isRTL={isRTL}
             />
             <Field
               label={t('setupCenter.districtAr')}
               value={districtAr}
               onChangeText={setDistrictAr}
               placeholder="الروضة"
+              isRTL={isRTL}
             />
             <Field
               label={t('setupCenter.districtEn')}
               value={districtEn}
               onChangeText={setDistrictEn}
               placeholder="Rumaithiya"
+              isRTL={isRTL}
             />
             <Field
               label={t('setupCenter.streetAr')}
               value={streetAr}
               onChangeText={setStreetAr}
               placeholder="شارع الخليج"
+              isRTL={isRTL}
             />
             <Field
               label={t('setupCenter.streetEn')}
               value={streetEn}
               onChangeText={setStreetEn}
               placeholder="Gulf Road"
+              isRTL={isRTL}
             />
           </View>
         )}
@@ -283,12 +295,14 @@ export default function SetupCenterScreen() {
               value={openingTime}
               onChangeText={setOpeningTime}
               placeholder="09:00:00"
+              isRTL={isRTL}
             />
             <Field
               label={t('setupCenter.closingTime')}
               value={closingTime}
               onChangeText={setClosingTime}
               placeholder="21:00:00"
+              isRTL={isRTL}
             />
           </View>
         )}

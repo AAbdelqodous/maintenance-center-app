@@ -512,5 +512,48 @@
       "invitationFailed": "Failed to send invitation. Please try again.",
       "permissionDenied": "You don't have permission to perform this action."
     }
+  },
+  "offers": {
+    "title": "Offers & Promotions",
+    "add": "Add Offer",
+    "edit": "Edit Offer",
+    "cancel": "Cancel Offer",
+    "cancelConfirm": "Are you sure you want to cancel this offer? This cannot be undone.",
+    "titleAr": "Title (Arabic)",
+    "titleEn": "Title (English)",
+    "descriptionAr": "Description (Arabic)",
+    "descriptionEn": "Description (English)",
+    "discountType": "Discount Type",
+    "discountValue": "Discount Value",
+    "percentage": "Percentage (%)",
+    "fixedAmount": "Fixed Amount (KD)",
+    "applicableServices": "Applicable Services",
+    "allServices": "All Services",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "maxRedemptions": "Max Redemptions (optional)",
+    "redeemed": "redeemed",
+    "of": "of",
+    "noOffers": "No Offers Yet",
+    "noOffersSubtitle": "Create your first promotion to attract more customers",
+    "saved": "Offer saved successfully",
+    "cancelled": "Offer cancelled",
+    "errorSave": "Failed to save offer",
+    "errorCancel": "Failed to cancel offer",
+    "limitReached": "You have reached the maximum of 10 active or scheduled offers",
+    "fieldLocked": "This field cannot be changed while the offer is active",
+    "saveChanges": "Save Changes",
+    "status": {
+      "SCHEDULED": "Scheduled",
+      "ACTIVE": "Active",
+      "EXPIRED": "Expired",
+      "CANCELLED": "Cancelled"
+    },
+    "filter": {
+      "all": "All",
+      "active": "Active",
+      "scheduled": "Scheduled",
+      "expired": "Expired"
+    }
   }
 }

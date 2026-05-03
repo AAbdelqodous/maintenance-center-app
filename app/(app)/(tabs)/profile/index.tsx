@@ -422,6 +422,15 @@ function ProfileScreen() {
           <Text style={styles.menuRowText}>{t('trustBadge.title')}</Text>
           <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.menuRow, isRTL && styles.rowRtl]}
+          onPress={() => router.push('/(app)/(tabs)/profile/offers' as any)}
+        >
+          <Ionicons name="megaphone-outline" size={20} color="#9C27B0" />
+          <Text style={styles.menuRowText}>{t('offers.title')}</Text>
+          <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
+        </TouchableOpacity>
       </View>
 
       <TouchableOpacity

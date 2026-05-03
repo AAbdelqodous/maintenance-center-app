@@ -16,6 +16,7 @@ import { workProgressApi } from './api/workProgressApi';
 import { quotesApi } from './api/quotesApi';
 import { analyticsApi } from './api/analyticsApi';
 import { staffApi } from './api/staffApi';
+import { offersApi } from './api/offersApi';
 
 const unauthenticatedMiddleware: Middleware = ({ dispatch }) => (next) => (action) => {
   if (isRejectedWithValue(action) && (action.payload as any)?.status === 401) {
@@ -42,6 +43,7 @@ export const store = configureStore({
     [quotesApi.reducerPath]: quotesApi.reducer,
     [analyticsApi.reducerPath]: analyticsApi.reducer,
     [staffApi.reducerPath]: staffApi.reducer,
+    [offersApi.reducerPath]: offersApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -60,6 +62,7 @@ export const store = configureStore({
       quotesApi.middleware,
       analyticsApi.middleware,
       staffApi.middleware,
+      offersApi.middleware,
     ),
 });
 

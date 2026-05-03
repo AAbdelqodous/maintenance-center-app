@@ -509,5 +509,48 @@
       "invitationFailed": "فشل إرسال الدعوة. يرجى المحاولة مرة أخرى.",
       "permissionDenied": "لا تملك صلاحية لتنفيذ هذا الإجراء."
     }
+  },
+  "offers": {
+    "title": "العروض والترقيات",
+    "add": "إضافة عرض",
+    "edit": "تعديل العرض",
+    "cancel": "إلغاء العرض",
+    "cancelConfirm": "هل أنت متأكد من إلغاء هذا العرض؟ لا يمكن التراجع عن هذا الإجراء.",
+    "titleAr": "العنوان (عربي)",
+    "titleEn": "العنوان (إنجليزي)",
+    "descriptionAr": "الوصف (عربي)",
+    "descriptionEn": "الوصف (إنجليزي)",
+    "discountType": "نوع الخصم",
+    "discountValue": "قيمة الخصم",
+    "percentage": "نسبة مئوية (%)",
+    "fixedAmount": "مبلغ ثابت (د.ك)",
+    "applicableServices": "الخدمات المشمولة",
+    "allServices": "جميع الخدمات",
+    "startDate": "تاريخ البدء",
+    "endDate": "تاريخ الانتهاء",
+    "maxRedemptions": "الحد الأقصى للاستخدامات (اختياري)",
+    "redeemed": "مُستخدم",
+    "of": "من",
+    "noOffers": "لا توجد عروض بعد",
+    "noOffersSubtitle": "أنشئ أول عرض ترويجي لجذب المزيد من العملاء",
+    "saved": "تم حفظ العرض بنجاح",
+    "cancelled": "تم إلغاء العرض",
+    "errorSave": "فشل في حفظ العرض",
+    "errorCancel": "فشل في إلغاء العرض",
+    "limitReached": "لقد وصلت إلى الحد الأقصى وهو 10 عروض نشطة أو مجدولة",
+    "fieldLocked": "لا يمكن تغيير هذا الحقل أثناء تفعيل العرض",
+    "saveChanges": "حفظ التغييرات",
+    "status": {
+      "SCHEDULED": "مجدول",
+      "ACTIVE": "نشط",
+      "EXPIRED": "منتهي",
+      "CANCELLED": "ملغى"
+    },
+    "filter": {
+      "all": "الكل",
+      "active": "النشطة",
+      "scheduled": "المجدولة",
+      "expired": "المنتهية"
+    }
   }
 }

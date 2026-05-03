@@ -52,7 +52,16 @@
       "PowerShell(& \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\create-new-feature.ps1\" \"Phase 6.0 - Admin Panel\" -Json -ShortName \"admin-panel\")",
       "PowerShell(& \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\setup-plan.ps1\" -Json)",
       "PowerShell(& \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\update-agent-context.ps1\" -AgentType claude)",
-      "PowerShell(& \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1\" -Json)"
+      "PowerShell(& \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1\" -Json)",
+      "Bash(python -c \"import bcrypt; print\\(bcrypt.hashpw\\(b'Admin@12345', bcrypt.gensalt\\(10\\)\\).decode\\(\\)\\)\")",
+      "Bash(node -e \"const bcrypt=require\\('bcrypt'\\); bcrypt.hash\\('Admin@12345',10\\).then\\(h=>console.log\\(h\\)\\)\")",
+      "Bash(curl -s -X POST http://localhost:8080/api/v1/auth/register -H 'Content-Type: application/json' -d '{\"email\":\"temp_hash@temp.com\",\"password\":\"Admin@12345\",\"firstname\":\"Temp\",\"lastname\":\"Temp\"}')",
+      "Bash(curl -s -X POST http://localhost:8080/api/v1/auth/authenticate -H 'Content-Type: application/json' -d '{\"email\":\"admin@experience.com\",\"password\":\"Admin@12345\"}')",
+      "Bash(python -m json.tool)",
+      "Bash(curl -s -X PUT http://localhost:8080/api/v1/admin/users/10/approve -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJmdWxsTmFtZSI6IkFkbWluIFN5c3RlbSIsInN1YiI6ImFkbWluQGV4cGVyaWVuY2UuY29tIiwiaWF0IjoxNzc3Nzg0OTM0LCJleHAiOjE3Nzc3OTM1NzQsImF1dGhvcml0aWVzIjpbIlJPTEVfQURNSU4iXX0.0lVLPCOtyxxWHuou5M3hJjakaxYyR5Ik-MGqKGqtA9z8uy_t53IHApdXOaIQawAv2HiNdatuZEAmSS2yBaykAQ')",
+      "PowerShell(& \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\create-new-feature.ps1\" \"Phase 3.6 - Offers and Promotions\" -Json -ShortName \"offers-promotions\")",
+      "PowerShell(& \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
+      "Bash(powershell -Command \"\\(Get-Content tasks.md\\) -replace '\\\\[x\\\\] - \\\\[ \\\\] ', '[x] ' | Set-Content tasks.md -Encoding utf8\")"
     ]
   }
 }

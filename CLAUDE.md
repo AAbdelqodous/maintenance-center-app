@@ -466,6 +466,14 @@ npx expo start              # native (needs emulator)
 - [ ] Pricing CRUD operations
 - [ ] Display current trust score/badges
 
+### Phase 3.6 — Offers & Promotions 🆕
+- [ ] CenterOffer entity + backend CRUD (create, list, edit, cancel)
+- [ ] Offer status computed server-side (SCHEDULED / ACTIVE / EXPIRED / CANCELLED)
+- [ ] Offer list screen with status filter tabs
+- [ ] Add offer form (bilingual, discount type, date range, service types, redemption cap)
+- [ ] Edit offer screen (field restrictions enforced for ACTIVE offers)
+- [ ] Redemption counter display (read-only)
+
 ### Phase 4.0 — Deep Trust
 - [ ] Work stage update screen
 - [ ] Photo upload for work progress

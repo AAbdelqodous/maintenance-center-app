@@ -10,9 +10,10 @@ interface Props {
   defaultValues?: Partial<PricingFormValues>;
   onSubmit: (values: PricingFormValues) => Promise<void>;
   isLoading: boolean;
+  availableServiceTypes?: ServiceType[];
 }
 
-export default function PricingForm({ defaultValues, onSubmit, isLoading }: Props) {
+export default function PricingForm({ defaultValues, onSubmit, isLoading, availableServiceTypes }: Props) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
 
@@ -31,7 +32,7 @@ export default function PricingForm({ defaultValues, onSubmit, isLoading }: Prop
     },
   });
 
-  const serviceTypes = Object.values(ServiceType);
+  const serviceTypes = availableServiceTypes ?? Object.values(ServiceType);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>

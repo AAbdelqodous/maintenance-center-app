@@ -66,7 +66,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="staff/index"
+        name="staff"
         options={{
           title: 'Staff',
           href: canManageStaff ? undefined : null,
