@@ -10,7 +10,7 @@
 **File**: `user/ApprovalStatus.java`
 
 ```
-PENDING_APPROVAL   Initial state for every CENTER_OWNER registration
+PENDING_APPROVAL   Initial state for every OWNER registration
 APPROVED           Admin has approved; owner can operate their center
 REJECTED           Admin has rejected; owner is blocked at login
 ```
@@ -25,7 +25,7 @@ Null for CUSTOMER and ADMIN accounts — approval does not apply to them.
 
 | Column | DB Type | Java Type | Default | Notes |
 |--------|---------|-----------|---------|-------|
-| `approval_status` | `VARCHAR(255)` | `ApprovalStatus` (enum) | `null` | Already exists in `_user` table. `@Enumerated(EnumType.STRING)`. Only set for CENTER_OWNER accounts. |
+| `approval_status` | `VARCHAR(255)` | `ApprovalStatus` (enum) | `null` | Already exists in `_user` table. `@Enumerated(EnumType.STRING)`. Only set for OWNER accounts. |
 | `rejection_reason` | `VARCHAR(500)` | `String` | `null` | **New column** — Hibernate will add it via `ddl-auto: update`. Populated only when admin rejects; null otherwise. |
 
 Hibernate `ddl-auto: update` will bind to `approval_status` (existing) and add `rejection_reason` (new) without touching other columns.
@@ -45,7 +45,7 @@ Hibernate `ddl-auto: update` will bind to `approval_status` (existing) and add `
 | `lastname` | `String` | `User.lastname` | |
 | `email` | `String` | `User.email` | |
 | `userType` | `UserType` | `User.userType` | |
-| `approvalStatus` | `ApprovalStatus` | `User.approvalStatus` | null for non-CENTER_OWNER |
+| `approvalStatus` | `ApprovalStatus` | `User.approvalStatus` | null for non-OWNER |
 | `rejectionReason` | `String` | `User.rejectionReason` | null unless rejected |
 | `enabled` | `boolean` | `User.enabled` | email verified |
 | `createdDate` | `LocalDateTime` | `User.createdDate` | |
@@ -73,7 +73,7 @@ No password, token, or credential fields exposed.
 | Field | Type | Notes |
 |-------|------|-------|
 | `token` | `String` | Existing |
-| `approvalStatus` | `ApprovalStatus` | **New**. Null for non-CENTER_OWNER accounts. |
+| `approvalStatus` | `ApprovalStatus` | **New**. Null for non-OWNER accounts. |
 
 ---
 
@@ -103,7 +103,7 @@ Page<User> findByUserTypeAndApprovalStatus(
     Pageable pageable
 );
 
-// Used by GET /admin/users?type=CENTER_OWNER
+// Used by GET /admin/users?type=OWNER
 Page<User> findByUserType(UserType userType, Pageable pageable);
 ```
 

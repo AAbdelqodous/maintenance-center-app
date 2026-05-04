@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useGetBookingStatsQuery, useGetCenterBookingsQuery } from '@/store/api/bookingsApi';
@@ -17,12 +17,15 @@ function DashboardScreen() {
   const isRTL = i18n.dir() === 'rtl';
 
   const activeCenterId = useAppSelector((state) => state.center.activeCenterId);
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetBookingStatsQuery(undefined, { refetchOnFocus: true });
-  const { data: centerData, isLoading: centerLoading } = useGetMyCenterQuery();
-  const { data: reviewsData } = useGetReviewsQuery({ size: 1 });
+  const isAdmin = useAppSelector((state) => state.auth.session?.userType) === 'ADMIN';
+
+  // All queries skip for admin — admin has no center, bookings, or reviews
+  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetBookingStatsQuery(undefined, { skip: isAdmin, refetchOnFocus: true });
+  const { data: centerData, isLoading: centerLoading } = useGetMyCenterQuery(undefined, { skip: isAdmin });
+  const { data: reviewsData } = useGetReviewsQuery({ size: 1 }, { skip: isAdmin });
   const { data: bookingsData, isLoading: bookingsLoading, refetch: refetchBookings } = useGetCenterBookingsQuery(
     { page: 0, size: 5 },
-    { skip: !activeCenterId, refetchOnFocus: true }
+    { skip: isAdmin || !activeCenterId, refetchOnFocus: true }
   );
 
   const [refreshing, setRefreshing] = React.useState(false);
@@ -32,6 +35,8 @@ function DashboardScreen() {
     await Promise.all([refetchStats(), refetchBookings()]);
     setRefreshing(false);
   }, [refetchStats, refetchBookings]);
+
+  if (isAdmin) return <Redirect href="/(tabs)/admin" />;
 
   const StatCard = ({ title, value, icon, color }: { title: string; value: string | number; icon: string; color: string }) => (
     <View style={[styles.statCard, isRTL && styles.cardRtl]}>

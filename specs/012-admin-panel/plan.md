@@ -6,7 +6,7 @@
 
 ## Summary
 
-Build the backend admin panel that gates CENTER_OWNER access behind an explicit platform admin approval. The feature touches the auth flow (registration sets `PENDING_APPROVAL`, login returns `approvalStatus`, REJECTED is blocked), adds four admin endpoints, seeds a default ADMIN account on startup, and exposes `GET /users/me` for the frontend's session-restore approval check. No new DB tables — the `approval_status` column already exists in `_user`.
+Build the backend admin panel that gates OWNER access behind an explicit platform admin approval. The feature touches the auth flow (registration sets `PENDING_APPROVAL`, login returns `approvalStatus`, REJECTED is blocked), adds four admin endpoints, seeds a default ADMIN account on startup, and exposes `GET /users/me` for the frontend's session-restore approval check. No new DB tables — the `approval_status` column already exists in `_user`.
 
 ---
 
@@ -131,7 +131,7 @@ private UserType userType;   // optional, no @NotNull — defaults to CUSTOMER i
 ### 4. AuthenticationResponse.java — new field
 
 ```java
-private ApprovalStatus approvalStatus;   // null for non-CENTER_OWNER
+private ApprovalStatus approvalStatus;   // null for non-OWNER
 ```
 
 ---
@@ -187,7 +187,7 @@ if (type == UserType.ADMIN || type == UserType.SUPER_ADMIN) {
     type = UserType.CUSTOMER;
 }
 user.setUserType(type);
-if (type == UserType.CENTER_OWNER) {
+if (type == UserType.OWNER) {
     user.setApprovalStatus(ApprovalStatus.PENDING_APPROVAL);
 }
 ```
@@ -290,8 +290,8 @@ public class DataInitializer implements CommandLineRunner {
 public UserResponse approveOwner(Integer id) {
     User user = userRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("User not found"));
-    if (user.getUserType() != UserType.CENTER_OWNER) {
-        throw new IllegalArgumentException("Only CENTER_OWNER accounts can be approved");
+    if (user.getUserType() != UserType.OWNER) {
+        throw new IllegalArgumentException("Only OWNER accounts can be approved");
     }
     user.setApprovalStatus(ApprovalStatus.APPROVED);
     return toResponse(userRepository.save(user));
@@ -301,8 +301,8 @@ public UserResponse approveOwner(Integer id) {
 public UserResponse rejectOwner(Integer id, AdminRejectRequest request) {
     User user = userRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("User not found"));
-    if (user.getUserType() != UserType.CENTER_OWNER) {
-        throw new IllegalArgumentException("Only CENTER_OWNER accounts can be rejected");
+    if (user.getUserType() != UserType.OWNER) {
+        throw new IllegalArgumentException("Only OWNER accounts can be rejected");
     }
     user.setApprovalStatus(ApprovalStatus.REJECTED);
     return toResponse(userRepository.save(user));
@@ -311,7 +311,7 @@ public UserResponse rejectOwner(Integer id, AdminRejectRequest request) {
 // Pending list
 public Page<UserResponse> getPendingOwners(Pageable pageable) {
     return userRepository
-            .findByUserTypeAndApprovalStatus(UserType.CENTER_OWNER, ApprovalStatus.PENDING_APPROVAL, pageable)
+            .findByUserTypeAndApprovalStatus(UserType.OWNER, ApprovalStatus.PENDING_APPROVAL, pageable)
             .map(this::toResponse);
 }
 

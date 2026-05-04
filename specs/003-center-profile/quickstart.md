@@ -9,7 +9,7 @@
 - Phase 1 & 2 working (login, session, bookings)
 - Docker Compose running: `docker-compose up -d`
 - Spring Boot backend running: `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`
-- Logged in as an APPROVED CENTER_OWNER
+- Logged in as an APPROVED OWNER
 
 ---
 
@@ -26,7 +26,7 @@ npx expo start --web
 
 ### First-Time Setup
 
-- [ ] Log in as a CENTER_OWNER with no existing center → redirected to `setup-center` screen
+- [ ] Log in as a OWNER with no existing center → redirected to `setup-center` screen
 - [ ] Fill in Arabic name, English name, phone, address fields, opening/closing time, select ≥1 category
 - [ ] Submit → center created; redirected to the main dashboard
 

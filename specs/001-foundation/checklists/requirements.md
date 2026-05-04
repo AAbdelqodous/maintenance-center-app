@@ -40,6 +40,6 @@ Phase 1 is fully implemented. All 5 user stories delivered:
 - US5: Session expiry + manual logout (✅)
 
 Additional items implemented beyond spec scope:
-- CENTER_OWNER self-registration flow (`register.tsx`)
+- OWNER self-registration flow (`register.tsx`)
 - Admin approval gate (pending-approval screen)
 - Multi-branch center selector (`branch-select.tsx`)

@@ -9,6 +9,8 @@ import ProgressTimeline from '@/components/progress/ProgressTimeline';
 import QuoteCard from '@/components/quotes/QuoteCard';
 import { useGetBookingQuotesQuery } from '@/store/api/quotesApi';
 import type { WorkStage } from '@/types/workProgress';
+import { useLookup } from '@/lib/hooks/useLookup';
+import { LOOKUP_PARAMS, OTHER_SHORT_NAME } from '@/types/lookup';
 
 export default function BookingDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -33,8 +35,11 @@ export default function BookingDetailScreen() {
   const [cancelBooking, { isLoading: isCancelling }] = useCancelBookingMutation();
   const isUpdating = isConfirming || isStarting || isCompleting || isCancelling;
   const { data: quotes } = useGetBookingQuotesQuery(Number(id), { skip: activeTab !== 'quotes' });
-
-  const REJECTION_REASONS = ['fullyBooked', 'serviceNotAvailable', 'outsideServiceArea', 'other'] as const;
+  const {
+    values: rejectionReasons,
+    getLabel: getRejectionLabel,
+    isLoading: isRejectionLoading,
+  } = useLookup(LOOKUP_PARAMS.REJECTION_REASON);
 
   const isOverdue = () => {
     if (!booking || booking.bookingStatus !== BookingStatus.PENDING) return false;
@@ -120,11 +125,13 @@ export default function BookingDetailScreen() {
       showFeedback('error', t('bookings.selectReason'));
       return;
     }
-    if (selectedReason === 'other' && !customReason.trim()) {
+    if (selectedReason === OTHER_SHORT_NAME && !customReason.trim()) {
       showFeedback('error', t('bookings.enterReason'));
       return;
     }
-    const reason = selectedReason === 'other' ? customReason : t(`bookings.${selectedReason}`);
+    const reason = selectedReason === OTHER_SHORT_NAME
+      ? customReason
+      : getRejectionLabel(selectedReason);
     try {
       await cancelBooking({ id: Number(id), reason }).unwrap();
       setShowRejectionSheet(false);
@@ -189,7 +196,7 @@ export default function BookingDetailScreen() {
       >
         <View style={[styles.radioCircle, isSelected && styles.radioCircleSelected]} />
         <Text style={[styles.reasonText, isSelected && styles.reasonTextSelected]}>
-          {t(`bookings.${reason}`)}
+          {getRejectionLabel(reason)}
         </Text>
       </TouchableOpacity>
     );
@@ -451,12 +458,16 @@ export default function BookingDetailScreen() {
             </View>
 
             <ScrollView style={styles.reasonsList}>
-              {REJECTION_REASONS.map((reason) => (
-                <RejectionReasonOption key={reason} reason={reason} />
-              ))}
+              {isRejectionLoading ? (
+                <ActivityIndicator size="small" color="#2196F3" style={{ margin: 16 }} />
+              ) : (
+                rejectionReasons.map((detail) => (
+                  <RejectionReasonOption key={detail.shortName} reason={detail.shortName} />
+                ))
+              )}
             </ScrollView>
 
-            {selectedReason === 'other' && (
+            {selectedReason === OTHER_SHORT_NAME && (
               <View style={styles.customReasonContainer}>
                 <Text style={styles.customReasonLabel}>{t('bookings.customReason')}</Text>
                 <TextInput
@@ -473,9 +484,9 @@ export default function BookingDetailScreen() {
             )}
 
             <TouchableOpacity
-              style={[styles.confirmButton, (!selectedReason || (selectedReason === 'other' && !customReason.trim()) || isCancelling) && styles.disabledButton]}
+              style={[styles.confirmButton, (!selectedReason || (selectedReason === OTHER_SHORT_NAME && !customReason.trim()) || isCancelling) && styles.disabledButton]}
               onPress={handleCancellationConfirm}
-              disabled={!selectedReason || (selectedReason === 'other' && !customReason.trim()) || isCancelling}
+              disabled={!selectedReason || (selectedReason === OTHER_SHORT_NAME && !customReason.trim()) || isCancelling}
             >
               <Text style={styles.confirmButtonText}>{t('common.confirm')}</Text>
             </TouchableOpacity>

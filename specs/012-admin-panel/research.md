@@ -8,7 +8,7 @@
 
 **Decision**: Add `approvalStatus` as a field on the `User` entity (not on `MaintenanceCenter`).
 
-**Rationale**: The approval gate applies to the person registering, not to a center they might create later. A CENTER_OWNER is approved as a user before they can set up any center. Keeping it on `User` also allows `AuthenticationService` to read it during login without any joins.
+**Rationale**: The approval gate applies to the person registering, not to a center they might create later. A OWNER is approved as a user before they can set up any center. Keeping it on `User` also allows `AuthenticationService` to read it during login without any joins.
 
 **Alternatives considered**:
 - Field on `MaintenanceCenter` — rejected: center may not exist yet at approval time; registration precedes center creation.
@@ -83,11 +83,11 @@
 
 ---
 
-## Decision 8 — approvalStatus in AuthenticationResponse for non-CENTER_OWNER
+## Decision 8 — approvalStatus in AuthenticationResponse for non-OWNER
 
-**Decision**: Return `approvalStatus = null` for CUSTOMER and ADMIN logins. The field is included in the response object but is `null` for non-CENTER_OWNER accounts.
+**Decision**: Return `approvalStatus = null` for CUSTOMER and ADMIN logins. The field is included in the response object but is `null` for non-OWNER accounts.
 
-**Rationale**: The frontend only acts on `approvalStatus` for CENTER_OWNER flows. Returning `null` for other types is simpler than a separate response shape. The frontend already guards this with `if (approvalStatus === 'PENDING_APPROVAL')`.
+**Rationale**: The frontend only acts on `approvalStatus` for OWNER flows. Returning `null` for other types is simpler than a separate response shape. The frontend already guards this with `if (approvalStatus === 'PENDING_APPROVAL')`.
 
 ---
 

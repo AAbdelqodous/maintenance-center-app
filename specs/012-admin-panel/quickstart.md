@@ -46,7 +46,7 @@ Copy the token for the steps below.
 
 ---
 
-## 3. Register a CENTER_OWNER (trigger the approval flow)
+## 3. Register a OWNER (trigger the approval flow)
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/register \
@@ -56,7 +56,7 @@ curl -X POST http://localhost:8080/api/v1/auth/register \
     "lastname":"Almutairi",
     "email":"fahd@test.com",
     "password":"Test@12345",
-    "userType":"CENTER_OWNER"
+    "userType":"OWNER"
   }'
 ```
 
@@ -70,7 +70,7 @@ SELECT id, email, approval_status FROM _user WHERE email = 'fahd@test.com';
 
 ---
 
-## 4. CENTER_OWNER login returns PENDING_APPROVAL
+## 4. OWNER login returns PENDING_APPROVAL
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/authenticate \
@@ -138,7 +138,7 @@ Expected: `403 Forbidden` with `businessErrorCode: 305`
 ## 9. Test non-admin access is blocked
 
 ```bash
-# Use a CENTER_OWNER or CUSTOMER JWT:
+# Use a OWNER or CUSTOMER JWT:
 curl http://localhost:8080/api/v1/admin/users/pending \
   -H "Authorization: Bearer <owner-jwt>"
 ```

@@ -45,7 +45,7 @@
 
 **Decision**: Add `GET /users/me/memberships` returning all `ACTIVE` memberships for the authenticated user, each containing `centerId`, `centerNameAr`, `centerNameEn`, `centerLogoUrl`, `role`, `status`. This replaces the existing `GET /centers/my` as the data source for the center selector in `branch-select.tsx`.
 
-**Rationale**: Research confirmed `branch-select.tsx` currently uses `useGetMyCentersQuery()` which hits `GET /centers/my` — an ownership-based query that won't return centers where the user is a staff member (not owner). The new endpoint covers all cases: CENTER_OWNER (via their OWNER membership), CUSTOMER with staff memberships, and both simultaneously. The existing `GET /centers/my` is preserved for the profile editor (which is owner-scoped).
+**Rationale**: Research confirmed `branch-select.tsx` currently uses `useGetMyCentersQuery()` which hits `GET /centers/my` — an ownership-based query that won't return centers where the user is a staff member (not owner). The new endpoint covers all cases: OWNER (via their OWNER membership), CUSTOMER with staff memberships, and both simultaneously. The existing `GET /centers/my` is preserved for the profile editor (which is owner-scoped).
 
 **Alternatives considered**:
 - Augmenting `GET /centers/my` to also return staff memberships: breaks the endpoint's ownership semantics and complicates the response type. Rejected.
@@ -82,7 +82,7 @@
 **Decision**: Run migrations in this order before code deployment:
 1. `V011_1__create_center_membership.sql` — create table + unique partial index
 2. `V011_2__create_staff_invitation.sql` — create table + token_hash index
-3. `V011_3__backfill_owner_memberships.sql` — INSERT OWNER memberships for all `APPROVED` CENTER_OWNER users
+3. `V011_3__backfill_owner_memberships.sql` — INSERT OWNER memberships for all `APPROVED` OWNER users
 4. `V011_4__add_booking_status_history.sql` — create audit side-table
 5. Code deployment (new Spring Boot version)
 

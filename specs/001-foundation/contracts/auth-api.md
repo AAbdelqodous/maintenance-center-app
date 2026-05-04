@@ -18,7 +18,7 @@ Registers a new center owner. Account starts in `PENDING_APPROVAL` state.
   "lastname": "Al-Rashid",
   "email": "owner@example.com",
   "password": "SecurePass123!",
-  "userType": "CENTER_OWNER"
+  "userType": "OWNER"
 }
 ```
 
@@ -103,7 +103,7 @@ Returns the current authenticated user's profile and approval status.
   "email": "owner@example.com",
   "firstname": "Ahmed",
   "lastname": "Al-Rashid",
-  "userType": "CENTER_OWNER",
+  "userType": "OWNER",
   "approvalStatus": "APPROVED"
 }
 ```

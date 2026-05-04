@@ -17,6 +17,7 @@ export default function AcceptInviteScreen() {
   const [declineInvitation, { isLoading: isDeclining }] = useDeclineInvitationMutation();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isWrongAccount, setIsWrongAccount] = useState(false);
 
   const { data: invitationDetails, isLoading, error } = useGetInvitationDetailsQuery(token || '', {
     skip: !token,
@@ -49,13 +50,14 @@ export default function AcceptInviteScreen() {
       }, 1500);
     } catch (err: any) {
       console.error('Accept invitation error:', err);
-      let msg = err?.data?.businessErrorDescription || err?.data?.message;
-      if (!msg) {
-        msg = err?.status === 409
-          ? t('staff.invite_accept.alreadyMember')
-          : t('staff.invite_accept.error');
+      const description: string = err?.data?.businessErrorDescription || err?.data?.message || '';
+      const emailMismatch = err?.status === 409 && description.toLowerCase().includes('different email');
+      if (emailMismatch) {
+        setIsWrongAccount(true);
+        setErrorMessage(t('staff.invite_auth.wrongAccountGeneric'));
+      } else {
+        setErrorMessage(description || (err?.status === 409 ? t('staff.invite_accept.alreadyMember') : t('staff.invite_accept.error')));
       }
-      setErrorMessage(msg);
     }
   };
 
@@ -148,6 +150,15 @@ export default function AcceptInviteScreen() {
           <Text style={styles.errorBannerText}>{errorMessage}</Text>
         </View>
       )}
+      {isWrongAccount && (
+        <TouchableOpacity
+          style={[styles.button, styles.switchAccountButton]}
+          onPress={() => router.push(`/(auth)/login?redirect=${encodeURIComponent(`/accept-invite?token=${token}`)}` as any)}
+        >
+          <Ionicons name="swap-horizontal-outline" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+          <Text style={styles.buttonText}>{t('staff.invite_auth.switchAccount')}</Text>
+        </TouchableOpacity>
+      )}
       {successMessage && (
         <View style={styles.successBanner}>
           <Text style={styles.successBannerText}>{successMessage}</Text>
@@ -203,6 +214,19 @@ export default function AcceptInviteScreen() {
               <Text style={styles.buttonSecondaryText}>{t('staff.invite_auth.createAccount')}</Text>
             </TouchableOpacity>
           </View>
+        ) : invitationDetails.targetEmail && session.email.toLowerCase() !== invitationDetails.targetEmail.toLowerCase() ? (
+          <View style={styles.wrongAccountPrompt}>
+            <Ionicons name="warning-outline" size={32} color="#F59E0B" />
+            <Text style={styles.wrongAccountText}>
+              {t('staff.invite_auth.wrongAccount', { email: invitationDetails.targetEmail })}
+            </Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => router.push('/(auth)/login')}
+            >
+              <Text style={styles.buttonText}>{t('staff.invite_auth.switchAccount')}</Text>
+            </TouchableOpacity>
+          </View>
         ) : (
           <View style={styles.actions}>
             <TouchableOpacity
@@ -211,9 +235,9 @@ export default function AcceptInviteScreen() {
               disabled={isAccepting || isDeclining}
             >
               {isDeclining ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color="#6B7280" />
               ) : (
-                <Text style={styles.buttonText}>{t('staff.invite_accept.decline')}</Text>
+                <Text style={styles.buttonDeclineText}>{t('staff.invite_accept.decline')}</Text>
               )}
             </TouchableOpacity>
             <TouchableOpacity
@@ -411,6 +435,29 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#D1D5DB',
+  },
+  buttonDeclineText: {
+    color: '#374151',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  wrongAccountPrompt: {
+    alignItems: 'center',
+    paddingVertical: 24,
+    gap: 12,
+  },
+  wrongAccountText: {
+    fontSize: 14,
+    color: '#4B5563',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  switchAccountButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#374151',
+    marginBottom: 12,
   },
   buttonAccept: {
     backgroundColor: '#4F46E5',

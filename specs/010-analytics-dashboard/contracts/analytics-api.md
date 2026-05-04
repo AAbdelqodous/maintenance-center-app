@@ -202,5 +202,5 @@ All endpoints share the same error contract as the existing backend:
 |-------------|-----------|
 | `400` | Invalid date format or `startDate > endDate` |
 | `401` | Missing or expired JWT |
-| `403` | JWT does not belong to a CENTER_OWNER or the center is inactive |
+| `403` | JWT does not belong to a OWNER or the center is inactive |
 | `500` | Unexpected server error |

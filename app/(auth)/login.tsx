@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '@/store';
 import { setSession } from '@/store/authSlice';
@@ -12,6 +12,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
+  const { redirect } = useLocalSearchParams<{ redirect?: string }>();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,6 +33,8 @@ export default function LoginScreen() {
       dispatch(setSession({ token: result.token, email }));
       if (result.approvalStatus === 'PENDING_APPROVAL') {
         router.replace('/pending-approval');
+      } else if (redirect) {
+        router.replace(redirect as any);
       } else {
         router.replace('/(app)/(tabs)/');
       }

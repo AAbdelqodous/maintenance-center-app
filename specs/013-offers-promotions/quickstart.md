@@ -8,11 +8,11 @@
 
 - Backend running: `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`
 - Frontend running: `npx expo start --web`
-- Logged in as an approved CENTER_OWNER
+- Logged in as an approved OWNER
 
 ---
 
-## 1. Get a CENTER_OWNER JWT
+## 1. Get a OWNER JWT
 
 ```bash
 curl -s -X POST http://localhost:8080/api/v1/auth/authenticate \

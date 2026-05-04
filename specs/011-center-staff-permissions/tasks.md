@@ -70,7 +70,7 @@
 ### Frontend State Extensions
 
 - [ ] T020 Modify `store/centerSlice.ts` — add `activeUserRole: CenterRole | null` and `activePermissions: CenterPermission[]` to `CenterState`; add `setActiveCenter(state, action: PayloadAction<{ centerId: number; role: CenterRole; permissions: CenterPermission[] }>)` action; update `clearCenter` to reset new fields; import types from `types/staff.ts` (depends on T004)
-- [ ] T021 [P] Modify `store/authSlice.ts` — add `userType: 'CUSTOMER' | 'CENTER_OWNER' | 'ADMIN' | null` to the `session` shape; update `setSession` action and `clearSession` action accordingly; ensure existing login flow populates `userType` from the auth response
+- [ ] T021 [P] Modify `store/authSlice.ts` — add `userType: 'CUSTOMER' | 'OWNER' | 'ADMIN' | null` to the `session` shape; update `setSession` action and `clearSession` action accordingly; ensure existing login flow populates `userType` from the auth response
 
 **Checkpoint**: Database tables exist, enums and entities compiled, `CenterPermissionService` wired, Redux state extended. No user story work can begin before this checkpoint.
 
@@ -199,7 +199,7 @@
 
 ## Phase 6: User Story 4 — Multi-Center Selector & Migration (P1)
 
-**Goal**: A user with memberships at multiple centers sees a center selector with their role displayed per center. Existing CENTER_OWNER accounts are unaffected (they have auto-created OWNER memberships from the Flyway backfill). A CUSTOMER with no memberships who reaches the app sees a "no access" screen.
+**Goal**: A user with memberships at multiple centers sees a center selector with their role displayed per center. Existing OWNER accounts are unaffected (they have auto-created OWNER memberships from the Flyway backfill). A CUSTOMER with no memberships who reaches the app sees a "no access" screen.
 
 **Independent Test (ST-01, ST-02, ST-11 from quickstart.md)**: Existing owner logs in → no change in behaviour, dashboard reached. A user with 2 memberships logs in → center selector shows both centers with role labels. CUSTOMER with no memberships logs into center owner app → "No Center Access" screen.
 

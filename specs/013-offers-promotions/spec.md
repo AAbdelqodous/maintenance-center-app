@@ -67,12 +67,12 @@ An owner decides to run an Eid promotion. They open the Offers screen, tap "Add 
 
 **Acceptance Scenarios**:
 
-1. **Given** a CENTER_OWNER on the Add Offer screen, **When** they submit valid data (titleAr, titleEn, discountType=PERCENTAGE, discountValue=15, startDate=tomorrow, endDate=next week), **Then** the offer is saved and appears in the list as SCHEDULED.
-2. **Given** a CENTER_OWNER submitting an offer, **When** startDate is today and the current time is before midnight, **Then** the offer is immediately ACTIVE.
-3. **Given** a CENTER_OWNER submitting a PERCENTAGE offer, **When** discountValue > 100, **Then** the form shows a validation error and does not submit.
-4. **Given** a CENTER_OWNER submitting an offer, **When** endDate is in the past, **Then** the form shows a validation error.
-5. **Given** a CENTER_OWNER who already has 10 SCHEDULED or ACTIVE offers, **When** they attempt to create another, **Then** they receive an error explaining the limit and cannot save.
-6. **Given** a CENTER_OWNER creating an offer with applicableServiceTypes = [REPAIR, MAINTENANCE], **When** the offer is saved, **Then** only those two service types are shown as applicable on the offer detail.
+1. **Given** a OWNER on the Add Offer screen, **When** they submit valid data (titleAr, titleEn, discountType=PERCENTAGE, discountValue=15, startDate=tomorrow, endDate=next week), **Then** the offer is saved and appears in the list as SCHEDULED.
+2. **Given** a OWNER submitting an offer, **When** startDate is today and the current time is before midnight, **Then** the offer is immediately ACTIVE.
+3. **Given** a OWNER submitting a PERCENTAGE offer, **When** discountValue > 100, **Then** the form shows a validation error and does not submit.
+4. **Given** a OWNER submitting an offer, **When** endDate is in the past, **Then** the form shows a validation error.
+5. **Given** a OWNER who already has 10 SCHEDULED or ACTIVE offers, **When** they attempt to create another, **Then** they receive an error explaining the limit and cannot save.
+6. **Given** a OWNER creating an offer with applicableServiceTypes = [REPAIR, MAINTENANCE], **When** the offer is saved, **Then** only those two service types are shown as applicable on the offer detail.
 
 ---
 
@@ -158,11 +158,11 @@ An owner wants to know how effective a promotion has been — how many customers
 
 ### Functional Requirements
 
-- **FR-001** The system MUST allow a CENTER_OWNER to create an offer with the following fields: `titleAr` (required), `titleEn` (required), `descriptionAr` (optional), `descriptionEn` (optional), `discountType` (PERCENTAGE or FIXED_AMOUNT, required), `discountValue` (required, > 0), `applicableServiceTypes` (optional list of ServiceType values — empty means all services), `startDate` (required), `endDate` (required), `maxRedemptions` (optional positive integer).
+- **FR-001** The system MUST allow a OWNER to create an offer with the following fields: `titleAr` (required), `titleEn` (required), `descriptionAr` (optional), `descriptionEn` (optional), `discountType` (PERCENTAGE or FIXED_AMOUNT, required), `discountValue` (required, > 0), `applicableServiceTypes` (optional list of ServiceType values — empty means all services), `startDate` (required), `endDate` (required), `maxRedemptions` (optional positive integer).
 - **FR-002** The system MUST compute `offerStatus` automatically based on the current date: `SCHEDULED` if startDate is in the future, `ACTIVE` if today is within the date range, `EXPIRED` if endDate has passed, `CANCELLED` if manually cancelled. Status is never set manually by the owner.
 - **FR-003** The system MUST validate at creation and edit time: `endDate > startDate`, `discountValue > 0`, `discountValue ≤ 100` when `discountType = PERCENTAGE`, `endDate` must be in the future.
 - **FR-004** The system MUST prevent a center from having more than 10 simultaneous offers in SCHEDULED or ACTIVE status. Attempts to create a new offer that would exceed this limit MUST be rejected with a clear bilingual error.
-- **FR-005** The system MUST allow CENTER_OWNERs to retrieve their offer list paginated, with an optional status filter.
+- **FR-005** The system MUST allow OWNERs to retrieve their offer list paginated, with an optional status filter.
 - **FR-006** The system MUST allow editing of SCHEDULED offers with no field restrictions.
 - **FR-007** The system MUST allow editing of ACTIVE offers with the following restrictions: `discountType`, `discountValue`, `startDate`, and `applicableServiceTypes` are immutable; `endDate` may only be extended (moved to a later date, never earlier); `titleAr`, `titleEn`, `descriptionAr`, `descriptionEn` remain freely editable.
 - **FR-008** The system MUST reject edits to EXPIRED or CANCELLED offers with a clear error.

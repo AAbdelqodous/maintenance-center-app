@@ -19,11 +19,11 @@ Updated to accept optional `userType`.
   "lastname": "Almutairi",
   "email": "fahd@example.com",
   "password": "P@ssw0rd1",
-  "userType": "CENTER_OWNER"
+  "userType": "OWNER"
 }
 ```
 
-`userType` is optional. Accepted values: `CUSTOMER`, `CENTER_OWNER`. Values `ADMIN` and `SUPER_ADMIN` are silently overridden to `CUSTOMER`. Omitting the field defaults to `CUSTOMER`.
+`userType` is optional. Accepted values: `CUSTOMER`, `OWNER`. Values `ADMIN` and `SUPER_ADMIN` are silently overridden to `CUSTOMER`. Omitting the field defaults to `CUSTOMER`.
 
 **Response**: `202 Accepted` (unchanged)
 
@@ -50,12 +50,12 @@ Updated response to include `approvalStatus`.
 ```
 
 `approvalStatus` values:
-- `"PENDING_APPROVAL"` — CENTER_OWNER awaiting admin review
-- `"APPROVED"` — CENTER_OWNER approved
+- `"PENDING_APPROVAL"` — OWNER awaiting admin review
+- `"APPROVED"` — OWNER approved
 - `"REJECTED"` — never returned (login blocked, see below)
 - `null` — CUSTOMER or ADMIN accounts
 
-**Response `403 Forbidden`** — REJECTED CENTER_OWNER attempts login
+**Response `403 Forbidden`** — REJECTED OWNER attempts login
 ```json
 {
   "businessErrorCode": 305,
@@ -82,7 +82,7 @@ Used by the frontend on session restore to re-check approval state.
   "firstname": "Fahd",
   "lastname": "Almutairi",
   "email": "fahd@example.com",
-  "userType": "CENTER_OWNER",
+  "userType": "OWNER",
   "approvalStatus": "PENDING_APPROVAL",
   "enabled": true,
   "createdDate": "2026-04-30T10:09:29"
@@ -93,7 +93,7 @@ Used by the frontend on session restore to re-check approval state.
 
 ### GET /admin/users/pending
 
-Returns paginated CENTER_OWNER accounts with `approvalStatus = PENDING_APPROVAL`, ordered by `createdDate` ascending.
+Returns paginated OWNER accounts with `approvalStatus = PENDING_APPROVAL`, ordered by `createdDate` ascending.
 
 **Auth**: `ROLE_ADMIN` required.
 
@@ -113,7 +113,7 @@ Returns paginated CENTER_OWNER accounts with `approvalStatus = PENDING_APPROVAL`
       "firstname": "Fahd",
       "lastname": "Almutairi",
       "email": "fahd@example.com",
-      "userType": "CENTER_OWNER",
+      "userType": "OWNER",
       "approvalStatus": "PENDING_APPROVAL",
       "enabled": true,
       "createdDate": "2026-04-30T10:09:29"
@@ -132,7 +132,7 @@ Returns paginated CENTER_OWNER accounts with `approvalStatus = PENDING_APPROVAL`
 
 ### PUT /admin/users/{id}/approve
 
-Sets `approvalStatus = APPROVED` for the given CENTER_OWNER.
+Sets `approvalStatus = APPROVED` for the given OWNER.
 
 **Auth**: `ROLE_ADMIN` required.
 
@@ -147,17 +147,17 @@ Sets `approvalStatus = APPROVED` for the given CENTER_OWNER.
   "firstname": "Fahd",
   "lastname": "Almutairi",
   "email": "fahd@example.com",
-  "userType": "CENTER_OWNER",
+  "userType": "OWNER",
   "approvalStatus": "APPROVED",
   "enabled": true,
   "createdDate": "2026-04-30T10:09:29"
 }
 ```
 
-**Response `400 Bad Request`** — target user is not CENTER_OWNER
+**Response `400 Bad Request`** — target user is not OWNER
 ```json
 {
-  "businessErrorDescription": "Only CENTER_OWNER accounts can be approved",
+  "businessErrorDescription": "Only OWNER accounts can be approved",
   "error": "Invalid user type"
 }
 ```
@@ -168,7 +168,7 @@ Sets `approvalStatus = APPROVED` for the given CENTER_OWNER.
 
 ### PUT /admin/users/{id}/reject
 
-Sets `approvalStatus = REJECTED` for the given CENTER_OWNER.
+Sets `approvalStatus = REJECTED` for the given OWNER.
 
 **Auth**: `ROLE_ADMIN` required.
 
@@ -188,7 +188,7 @@ Sets `approvalStatus = REJECTED` for the given CENTER_OWNER.
   "firstname": "Fahd",
   "lastname": "Almutairi",
   "email": "fahd@example.com",
-  "userType": "CENTER_OWNER",
+  "userType": "OWNER",
   "approvalStatus": "REJECTED",
   "rejectionReason": "Incomplete documents submitted",
   "enabled": true,
@@ -196,7 +196,7 @@ Sets `approvalStatus = REJECTED` for the given CENTER_OWNER.
 }
 ```
 
-**Response `400 Bad Request`** — target user is not CENTER_OWNER
+**Response `400 Bad Request`** — target user is not OWNER
 
 **Response `404 Not Found`** — user ID does not exist
 
@@ -212,7 +212,7 @@ Returns all users, optionally filtered by `userType`.
 
 | Param | Type | Default | Notes |
 |-------|------|---------|-------|
-| `type` | `UserType` | (none) | Optional. Values: `CUSTOMER`, `CENTER_OWNER`, `ADMIN`, etc. |
+| `type` | `UserType` | (none) | Optional. Values: `CUSTOMER`, `OWNER`, `ADMIN`, etc. |
 | `page` | int | `0` | |
 | `size` | int | `20` | |
 

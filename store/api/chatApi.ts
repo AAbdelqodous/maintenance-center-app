@@ -4,7 +4,7 @@ import { RootState } from '../index';
 
 export enum SenderType {
   CUSTOMER = 'CUSTOMER',
-  CENTER_STAFF = 'CENTER_STAFF',
+  STAFF = 'STAFF',
   SYSTEM = 'SYSTEM',
 }
 

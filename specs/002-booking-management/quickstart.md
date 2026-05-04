@@ -9,7 +9,7 @@
 - Phase 1 (Foundation) working — login, session, dashboard
 - Docker Compose running: `docker-compose up -d`
 - Spring Boot backend running: `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`
-- At least one CENTER_OWNER account approved and logged in
+- At least one OWNER account approved and logged in
 
 ---
 

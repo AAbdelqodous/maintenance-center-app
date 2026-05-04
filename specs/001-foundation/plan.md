@@ -28,7 +28,7 @@ The Foundation phase establishes the entire structural skeleton of the center ow
 | II. Bilingual First | ✅ Pass | i18n configured from day 1; all strings via keys; RTL layout |
 | III. Component-Driven UI | ✅ Pass | `AppText`, `RatingStars` base components introduced |
 | IV. API Contract Adherence | ✅ Pass | RTK Query from the start; `baseApi` with JWT auth header |
-| V. Owner-Context Awareness | ✅ Pass | Login gated to CENTER_OWNER user type |
+| V. Owner-Context Awareness | ✅ Pass | Login gated to OWNER user type |
 | VI. Security & Privacy | ✅ Pass | JWT in expo-secure-store; never in AsyncStorage |
 | VII. Production Readiness | ✅ Pass | No placeholder screens shipped |
 

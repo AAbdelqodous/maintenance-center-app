@@ -21,7 +21,7 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
   };
 
   const getSenderName = () => {
-    if (message.senderType === SenderType.CENTER_STAFF) {
+    if (message.senderType === SenderType.STAFF) {
       return t('profile.title') || 'You';
     }
     return message.senderName || t('chat.customer') || 'Customer';

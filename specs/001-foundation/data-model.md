@@ -26,7 +26,7 @@ interface UserResponse {
   email: string;
   firstname: string;
   lastname: string;
-  userType: 'CENTER_OWNER' | 'CUSTOMER';
+  userType: 'OWNER' | 'CUSTOMER';
   approvalStatus: 'APPROVED' | 'PENDING_APPROVAL' | 'REJECTED';
 }
 ```

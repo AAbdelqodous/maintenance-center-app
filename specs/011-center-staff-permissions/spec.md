@@ -21,7 +21,7 @@
 
 ## 1. Summary
 
-Today, every maintenance center on the platform is operated by exactly one person — the registered `CENTER_OWNER`. In reality, real centers in Kuwait and the GCC are run by teams: an owner, one or more branch managers, technicians on the floor, a receptionist taking calls, sometimes a part-time accountant.
+Today, every maintenance center on the platform is operated by exactly one person — the registered `OWNER`. In reality, real centers in Kuwait and the GCC are run by teams: an owner, one or more branch managers, technicians on the floor, a receptionist taking calls, sometimes a part-time accountant.
 
 This feature introduces **center staff**: the ability for a center owner to invite other people to help run their center(s) under specific, restricted roles. Each staff member sees only what their role allows, takes only the actions their role permits, and the owner retains full control of who is on the team.
 
@@ -63,7 +63,7 @@ The feature does **not** introduce a new app or a new login model. Staff use the
 | Term | Meaning in this spec |
 |---|---|
 | **User** | A registered platform account, identified by email. |
-| **UserType** | The persona chosen at registration. Existing values: `CUSTOMER`, `CENTER_OWNER`. New: `ADMIN` (created internally only). Set once, effectively immutable. |
+| **UserType** | The persona chosen at registration. Existing values: `CUSTOMER`, `OWNER`. New: `ADMIN` (created internally only). Set once, effectively immutable. |
 | **Center** | A `MaintenanceCenter` — a single physical branch. |
 | **Owner** | The user whose `id` appears in `MaintenanceCenter.owner_id`. There is exactly one Owner per center. The Owner is also automatically a member with the `OWNER` role. |
 | **Membership** | A relationship linking one User to one Center with one Role and a status. A user can have many memberships across many centers. |
@@ -78,7 +78,7 @@ Each scenario is written as a Given / When / Then to be directly turnable into a
 
 ### 5.1 Owner invites a new technician (happy path)
 
-- **Given** a CENTER_OWNER, Ahmed, signed into the center owner app with an active center selected
+- **Given** a OWNER, Ahmed, signed into the center owner app with an active center selected
 - **When** Ahmed opens the Staff screen and submits an invite for `mohammed@example.com` with role `TECHNICIAN`
 - **Then** an invitation email is sent in the recipient's preferred language (defaulting to Arabic)
 - **And** the staff list shows Mohammed with status `INVITED` and role `TECHNICIAN`
@@ -151,9 +151,9 @@ Each scenario is written as a Given / When / Then to be directly turnable into a
 - **And** picking center #5 grants him only Technician permissions for that session
 - **And** picking center #9 grants him only Receptionist permissions for that session
 
-### 5.10 Existing CENTER_OWNER migration
+### 5.10 Existing OWNER migration
 
-- **Given** an existing `APPROVED` CENTER_OWNER who currently owns one or more centers
+- **Given** an existing `APPROVED` OWNER who currently owns one or more centers
 - **When** this feature is deployed
 - **Then** for every center they own, an `ACTIVE` membership row is created automatically with role `OWNER`
 - **And** the user notices no behavioural change — they see exactly what they saw before
@@ -189,7 +189,7 @@ Each requirement is testable. IDs are stable and referenced by future task docum
 
 ### Identity & membership
 
-- **FR-001** The system MUST support exactly three values of UserType: `CUSTOMER`, `CENTER_OWNER`, `ADMIN`.
+- **FR-001** The system MUST support exactly three values of UserType: `CUSTOMER`, `OWNER`, `ADMIN`.
 - **FR-002** The system MUST allow a single User to hold zero or more memberships across centers, simultaneously.
 - **FR-003** Each membership MUST link exactly one User to exactly one Center with exactly one Role and one Status.
 - **FR-004** Membership Status MUST be one of: `INVITED`, `INVITATION_EXPIRED`, `INVITATION_DECLINED`, `ACTIVE`, `SUSPENDED`, `REMOVED`.
@@ -269,7 +269,7 @@ Each requirement is testable. IDs are stable and referenced by future task docum
 
 ## 9. Edge cases
 
-- **EC-1** Invitee email matches an existing `CENTER_OWNER` account from a different center.  → allowed; they keep their UserType and gain a new membership.
+- **EC-1** Invitee email matches an existing `OWNER` account from a different center.  → allowed; they keep their UserType and gain a new membership.
 - **EC-2** Invitee email matches an existing `ADMIN` account.  → forbidden; admins do not become center staff.
 - **EC-3** Invitee email matches a `CUSTOMER` who has been banned for fraud or repeated complaints `[NEEDS CLARIFICATION: do we have a ban concept yet? if yes, banned customers cannot accept invitations]`.
 - **EC-4** Two simultaneous invitations sent to the same email for the same center.  → second invitation supersedes the first; first is auto-cancelled.
@@ -305,7 +305,7 @@ Measurable outcomes by which this feature is judged done and useful:
 - **SC-3** Zero permission-bypass incidents found in a security review of all center-scoped endpoints.
 - **SC-4** Owner-reported "shared password" usage drops to zero in user-research interviews 30 days post-launch.
 - **SC-5** No degradation of p95 latency on existing booking, review, or chat endpoints (NFR-001 verified in load test).
-- **SC-6** Existing `CENTER_OWNER` users experience no change in their day-to-day flow on the deploy day (FR scenario 5.10 verified in production with zero support tickets in the first 24 hours).
+- **SC-6** Existing `OWNER` users experience no change in their day-to-day flow on the deploy day (FR scenario 5.10 verified in production with zero support tickets in the first 24 hours).
 
 ## 12. Dependencies & assumptions
 

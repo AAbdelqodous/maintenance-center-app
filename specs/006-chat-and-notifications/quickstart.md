@@ -27,7 +27,7 @@ npx expo start              # native (requires emulator)
 ## Testing Chat (requires two sessions)
 
 Open two browser tabs:
-1. Log in as CENTER_OWNER in tab 1
+1. Log in as OWNER in tab 1
 2. Log in as CUSTOMER in tab 2 (or use a separate customer app session)
 3. Customer sends a message → verify it appears in center's chat in real time
 

@@ -389,7 +389,7 @@ interface AuthState {
   session: {
     token: string;
     email: string;
-    userType: 'CUSTOMER' | 'CENTER_OWNER' | 'ADMIN' | null;  // NEW
+    userType: 'CUSTOMER' | 'OWNER' | 'ADMIN' | null;  // NEW
   } | null;
 }
 ```

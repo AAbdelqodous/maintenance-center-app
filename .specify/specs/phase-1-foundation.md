@@ -152,7 +152,7 @@ When the JWT expires (2.4 hours), any navigation to a protected screen redirects
 - Center owner accounts are created by the platform admin via the backend — there is no self-registration flow in this app.
 - The Spring Boot backend is running and reachable at the configured API base URL during testing.
 - Email delivery uses MailDev in development; production email config is out of scope for this phase.
-- The `UserType` enum on the backend distinguishes center owners from customers — only `CENTER_OWNER` type accounts should be able to log in to this app.
+- The `UserType` enum on the backend distinguishes center owners from customers — only `OWNER` type accounts should be able to log in to this app.
 - Password reset / forgot password is out of scope for Phase 1 (planned for Phase 3 — Center Profile).
 - The dashboard summary data (counts, rating) is fetched from backend endpoints that will be built alongside this phase.
 - Bottom tab navigation shell is part of this phase — tabs for: Dashboard, Bookings, Profile, Notifications.

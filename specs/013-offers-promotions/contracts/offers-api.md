@@ -2,7 +2,7 @@
 
 **Branch**: `013-offers-promotions` | **Date**: 2026-05-03
 **Base path**: `/api/v1/`
-**Auth**: All endpoints require `Authorization: Bearer <jwt>` (CENTER_OWNER role).
+**Auth**: All endpoints require `Authorization: Bearer <jwt>` (OWNER role).
 
 ---
 

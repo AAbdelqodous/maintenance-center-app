@@ -5,7 +5,7 @@
 
 ## Summary
 
-Center owners need to delegate access to their maintenance center to named staff members (Branch Managers, Receptionists, Technicians, Accountants) without sharing passwords or compromising the audit trail. This plan introduces a `center_membership` table and a `staff_invitation` table on the backend, a `CenterPermissionService` with a 60-second Caffeine cache for per-request authorization, Flyway migrations that backfill OWNER memberships for all existing CENTER_OWNER users, a new `GET /users/me/memberships` endpoint powering the updated center selector, and a React Native staff management UI (Staff tab, Invite form, Accept-invite deep-link screen, PermissionGate component) backed by a new `staffApi` RTK slice.
+Center owners need to delegate access to their maintenance center to named staff members (Branch Managers, Receptionists, Technicians, Accountants) without sharing passwords or compromising the audit trail. This plan introduces a `center_membership` table and a `staff_invitation` table on the backend, a `CenterPermissionService` with a 60-second Caffeine cache for per-request authorization, Flyway migrations that backfill OWNER memberships for all existing OWNER users, a new `GET /users/me/memberships` endpoint powering the updated center selector, and a React Native staff management UI (Staff tab, Invite form, Accept-invite deep-link screen, PermissionGate component) backed by a new `staffApi` RTK slice.
 
 ---
 
@@ -162,7 +162,7 @@ lib/i18n/locales/
 
 ### 1. Migration-First Deployment
 
-Run all four Flyway scripts before deploying the new code. The backfill script creates OWNER memberships for all existing `APPROVED` CENTER_OWNER users atomically. When the new code starts, every center already has an OWNER membership — no fallback shim needed.
+Run all four Flyway scripts before deploying the new code. The backfill script creates OWNER memberships for all existing `APPROVED` OWNER users atomically. When the new code starts, every center already has an OWNER membership — no fallback shim needed.
 
 ### 2. `CenterPermissionService` as the Authorization Source of Truth
 

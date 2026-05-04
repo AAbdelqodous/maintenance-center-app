@@ -19,7 +19,9 @@
     "justNow": "Just now",
     "ok": "OK",
     "custom": "Custom",
-    "apply": "Apply"
+    "apply": "Apply",
+    "select": "Select...",
+    "search": "Search..."
   },
   "auth": {
     "login": "Login",
@@ -379,6 +381,41 @@
     "responseNotes": "Customer notes",
     "discountError": "Discount cannot exceed the subtotal"
   },
+  "admin": {
+    "dashboard": {
+      "greeting": "Admin Panel",
+      "roleLabel": "Platform Administrator",
+      "overview": "Overview",
+      "quickActions": "Quick Actions",
+      "statPending": "Pending Approval",
+      "statApproved": "Approved Centers",
+      "statOwners": "Center Owners",
+      "statStaff": "Staff / Customers",
+      "actionPending": "Pending Approvals",
+      "actionPendingDesc": "{{count}} account(s) awaiting review",
+      "actionUsers": "All Users",
+      "actionUsersDesc": "Browse and search all registered users"
+    },
+    "users": {
+      "searchPlaceholder": "Search by name or email…",
+      "filterALL": "All",
+      "filterOWNER": "Owners",
+      "filterCUSTOMER": "Staff",
+      "showing": "Showing {{count}} of {{total}}",
+      "noResults": "No users found"
+    },
+    "title": "Pending Approvals",
+    "pendingCount": "{{count}} account(s) awaiting approval",
+    "registeredOn": "Registered {{date}}",
+    "approve": "Approve",
+    "reject": "Reject",
+    "confirmReject": "Confirm Reject",
+    "rejectReasonPlaceholder": "Rejection reason (optional)",
+    "noPending": "No pending accounts — all caught up!",
+    "approved": "{{name}}'s account has been approved",
+    "rejected": "{{name}}'s account has been rejected",
+    "actionFailed": "Action failed. Please try again."
+  },
   "analytics": {
     "title": "Analytics",
     "period": {
@@ -501,7 +538,10 @@
     "invite_auth": {
       "signInPrompt": "Please sign in or create an account to accept this invitation.",
       "signIn": "Sign In",
-      "createAccount": "Create Account"
+      "createAccount": "Create Account",
+      "wrongAccount": "This invitation was sent to {{email}}. Please sign in with that account to accept it.",
+      "wrongAccountGeneric": "This invitation is for a different email address. Please sign in with the account that received the invite.",
+      "switchAccount": "Sign In with Different Account"
     },
     "noAccess": {
       "title": "No Center Access",

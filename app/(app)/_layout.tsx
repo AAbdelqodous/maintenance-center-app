@@ -55,17 +55,25 @@ export default function AppLayout() {
 
           const me = await meResponse.json();
 
-          // Treat legacy null userType as CENTER_OWNER
-          const userType = me.userType ?? 'CENTER_OWNER';
+          // Treat legacy null userType as OWNER
+          const userType = me.userType ?? 'OWNER';
 
-          // Approval gate — only CENTER_OWNER accounts require admin approval
-          if (userType === 'CENTER_OWNER' && me.approvalStatus === 'PENDING_APPROVAL') {
+          // Admin users skip all center logic — dispatch session type and proceed
+          if (userType === 'ADMIN') {
+            dispatch(setSession({ token, email: saved.email, userType: 'ADMIN' }));
+            return;
+          }
+
+          // Approval gate — only OWNER accounts require admin approval
+          if (userType === 'OWNER' && me.approvalStatus === 'PENDING_APPROVAL') {
+            dispatch(setSession({ token, email: saved.email, userType: 'OWNER' }));
             setIsPendingApproval(true);
             return;
           }
 
-          if (userType === 'CUSTOMER') {
-            // Staff member — resolve center via memberships, not ownership
+          // STAFF: invited staff member — resolve center via memberships
+          if (userType === 'STAFF') {
+            dispatch(setSession({ token, email: saved.email, userType: 'STAFF' }));
             const membershipsRes = await fetch(`${API_BASE_URL}users/me/memberships`, {
               headers: { 'Authorization': `Bearer ${token}` },
             });
@@ -87,7 +95,8 @@ export default function AppLayout() {
             return;
           }
 
-          // CENTER_OWNER flow
+          // OWNER flow
+          dispatch(setSession({ token, email: saved.email, userType: 'OWNER' }));
           const [centersResponse, membershipsResponse] = await Promise.all([
             fetch(`${API_BASE_URL}centers/my`, { headers: { 'Authorization': `Bearer ${token}` } }),
             fetch(`${API_BASE_URL}users/me/memberships`, { headers: { 'Authorization': `Bearer ${token}` } }),
@@ -169,15 +178,19 @@ export default function AppLayout() {
 
   if (!session) return <Redirect href="/(auth)/login" />;
 
-  if (isPendingApproval) return <Redirect href="/pending-approval" />;
+  if (isPendingApproval && !pathname.includes('pending-approval')) {
+    return <Redirect href="/pending-approval" />;
+  }
 
-  if (noAccessError) return <Redirect href="/(app)/no-center-access" />;
+  if (noAccessError && !pathname.includes('no-center-access')) {
+    return <Redirect href="/(app)/no-center-access" />;
+  }
 
-  if (hasCheckedCenters && noCentersError && !activeCenterId && !pathname.includes('setup-center')) {
+  if (session?.userType !== 'ADMIN' && hasCheckedCenters && noCentersError && !activeCenterId && !pathname.includes('setup-center')) {
     return <Redirect href="/(app)/setup-center" />;
   }
 
-  if (hasCheckedCenters && centersCount > 1 && !activeCenterId) {
+  if (session?.userType !== 'ADMIN' && hasCheckedCenters && centersCount > 1 && !activeCenterId && !pathname.includes('branch-select')) {
     return <Redirect href="/(app)/branch-select" />;
   }
 

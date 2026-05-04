@@ -151,8 +151,8 @@ service-center/src/main/java/com/maintainance/service_center/
 ```
 POST  /api/v1/auth/register           → 202 Accepted (sends OTP email)
                                          Body: { firstname, lastname, email, password, userType? }
-                                         userType: "CUSTOMER" (default) | "CENTER_OWNER"
-                                         CENTER_OWNER starts with approvalStatus=PENDING_APPROVAL
+                                         userType: "CUSTOMER" (default) | "OWNER"
+                                         OWNER starts with approvalStatus=PENDING_APPROVAL
 
 POST  /api/v1/auth/authenticate       → 200 { "token": "<jwt>", "approvalStatus": "APPROVED|PENDING_APPROVAL" }
                                          REJECTED owners receive 500 (blocked at login)
@@ -161,7 +161,7 @@ GET   /api/v1/auth/activate-account   → ?token=XXXXXX
 ```
 
 ### Owner Approval Flow
-- New CENTER_OWNER registers → `approvalStatus = PENDING_APPROVAL`
+- New OWNER registers → `approvalStatus = PENDING_APPROVAL`
 - Admin calls `PUT /admin/users/{id}/approve` → `approvalStatus = APPROVED`
 - After login, `approvalStatus` is returned in the auth response
 - `(app)/_layout.tsx` also calls `GET /users/me` on session restore to re-check approval status
@@ -186,7 +186,7 @@ GET   /api/v1/auth/activate-account   → ?token=XXXXXX
 
 **Auth**
 ```
-POST  /auth/register                  → 202 (CENTER_OWNER self-registration)
+POST  /auth/register                  → 202 (OWNER self-registration)
 POST  /auth/authenticate              → { token, approvalStatus }
 GET   /auth/activate-account          → ?token=XXXXXX
 ```
@@ -200,7 +200,7 @@ PUT   /admin/users/{id}/reject        → UserResponse
 
 **Admin** (ROLE_ADMIN only — Phase 6.0, NOT YET BUILT on backend)
 ```
-GET   /admin/users/pending            → Page<UserResponse> (pending CENTER_OWNER accounts)
+GET   /admin/users/pending            → Page<UserResponse> (pending OWNER accounts)
 PUT   /admin/users/{id}/approve       → UserResponse
 PUT   /admin/users/{id}/reject        → { reason? } → UserResponse
 GET   /admin/users?page=&size=&type=  → Page<UserResponse> (all users, filterable by UserType)
@@ -316,7 +316,7 @@ maintenance-center-app/
 │   ├── (auth)/
 │   │   ├── _layout.tsx
 │   │   ├── login.tsx                 # Login screen
-│   │   ├── register.tsx              # CENTER_OWNER self-registration form
+│   │   ├── register.tsx              # OWNER self-registration form
 │   │   └── verify-otp.tsx            # OTP verification after registration
 │   └── (app)/
 │       ├── _layout.tsx               # Auth guard + session restore + approval check
@@ -451,7 +451,7 @@ npx expo start              # native (needs emulator)
 - [x] Notifications list + mark read
 - [x] Push notifications (expo-notifications + FCM token registration)
 - [x] Multi-branch support (branch selector after login, centerSlice in Redux)
-- [x] CENTER_OWNER self-registration + email OTP verification
+- [x] OWNER self-registration + email OTP verification
 - [x] Admin approval gate — pending-approval screen, approvalStatus checked on login + session restore
 
 ### Phase 2.5 — Production Hardening ⏳ Pending
@@ -511,9 +511,9 @@ npx expo start              # native (needs emulator)
 - [ ] `AdminController` + `AdminService` — approve/reject/list center owners (backend)
 - [ ] `ADMIN` role seeding + default admin user bootstrapped on startup (backend)
 - [ ] `SecurityConfig`: protect `/admin/**` with `ROLE_ADMIN`
-- [ ] `RegistrationRequest`: add optional `userType` field for CENTER_OWNER self-registration
+- [ ] `RegistrationRequest`: add optional `userType` field for OWNER self-registration
 - [ ] `AuthenticationResponse`: return `approvalStatus` so the app can gate pending owners
-- [ ] `AuthenticationService`: set PENDING_APPROVAL on CENTER_OWNER register; block REJECTED at login
+- [ ] `AuthenticationService`: set PENDING_APPROVAL on OWNER register; block REJECTED at login
 
 ---
 

@@ -96,7 +96,7 @@ export default function ChatDetailScreen() {
       id: Date.now(),
       conversationId: Number(id),
       senderId: 0,
-      senderType: SenderType.CENTER_STAFF,
+      senderType: SenderType.STAFF,
       senderName: 'You',
       content: messageText,
       read: false,
@@ -140,7 +140,7 @@ export default function ChatDetailScreen() {
   }
 
   const renderMessage = ({ item }: { item: Message }) => {
-    const isOwn = item.senderType === SenderType.CENTER_STAFF;
+    const isOwn = item.senderType === SenderType.STAFF;
     return <MessageBubble message={item} isOwn={isOwn} />;
   };
 

@@ -8,6 +8,9 @@ import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import type { CenterOffer, DiscountType, OfferStatus } from '@/types/offers';
 import DatePickerInput from './DatePickerInput';
+import LookupChipGroup from '@/components/ui/LookupChipGroup';
+import { useLookup } from '@/lib/hooks/useLookup';
+import { LOOKUP_PARAMS } from '@/types/lookup';
 
 const offerSchema = z.object({
   titleAr: z.string().min(1, 'Arabic title is required'),
@@ -27,11 +30,6 @@ const offerSchema = z.object({
 
 export type OfferFormValues = z.infer<typeof offerSchema>;
 
-const SERVICE_TYPES = [
-  'REPAIR', 'MAINTENANCE', 'INSPECTION', 'INSTALLATION',
-  'CONSULTATION', 'EMERGENCY', 'WARRANTY', 'OTHER',
-];
-
 interface Props {
   defaultValues?: Partial<OfferFormValues>;
   onSubmit: (values: OfferFormValues) => Promise<void>;
@@ -45,6 +43,7 @@ export default function OfferForm({
 }: Props) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
+  const { getLabel: getServiceTypeLabel } = useLookup(LOOKUP_PARAMS.SERVICE_TYPE);
 
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<OfferFormValues>({
     resolver: zodResolver(offerSchema),
@@ -63,14 +62,6 @@ export default function OfferForm({
   const today = new Date().toISOString().split('T')[0];
 
   const isLocked = (field: string) => lockedFields.includes(field);
-
-  const toggleServiceType = (type: string) => {
-    const current = selectedServiceTypes;
-    const next = current.includes(type)
-      ? current.filter(t => t !== type)
-      : [...current, type];
-    setValue('applicableServiceTypes', next);
-  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -192,26 +183,15 @@ export default function OfferForm({
           <Text style={styles.lockedValue}>
             {selectedServiceTypes.length === 0
               ? t('offers.allServices')
-              : selectedServiceTypes.join(', ')}
+              : selectedServiceTypes.map((st) => getServiceTypeLabel(st)).join(', ')}
           </Text>
         ) : (
           <>
-            <View style={styles.chipGrid}>
-              {SERVICE_TYPES.map(type => {
-                const selected = selectedServiceTypes.includes(type);
-                return (
-                  <TouchableOpacity
-                    key={type}
-                    style={[styles.chip, selected && styles.chipSelected]}
-                    onPress={() => toggleServiceType(type)}
-                  >
-                    <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
-                      {type.replace(/_/g, ' ')}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+            <LookupChipGroup
+              parameter={LOOKUP_PARAMS.SERVICE_TYPE}
+              value={selectedServiceTypes}
+              onChange={(selected) => setValue('applicableServiceTypes', selected)}
+            />
             <Text style={styles.hint}>
               {selectedServiceTypes.length === 0 ? t('offers.allServices') : ''}
             </Text>
@@ -308,15 +288,6 @@ const styles = StyleSheet.create({
   toggleBtnActive: { backgroundColor: '#2196F3', borderColor: '#2196F3' },
   toggleText: { fontSize: 14, color: '#666666' },
   toggleTextActive: { color: '#FFFFFF', fontWeight: '600' },
-  chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: {
-    paddingHorizontal: 12, paddingVertical: 8,
-    borderRadius: 20, borderWidth: 1, borderColor: '#E0E0E0',
-    backgroundColor: '#FAFAFA',
-  },
-  chipSelected: { backgroundColor: '#2196F3', borderColor: '#2196F3' },
-  chipText: { fontSize: 13, color: '#666666' },
-  chipTextSelected: { color: '#FFFFFF', fontWeight: '600' },
   lockedHint: {
     backgroundColor: '#FFF8E1', borderRadius: 8,
     padding: 12, marginBottom: 16,

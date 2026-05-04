@@ -28,9 +28,17 @@ function StaffScreen() {
   React.useEffect(() => {
     if (staffData) {
       if (page === 0) {
-        setAllStaff(staffData.content);
+        const seen = new Set<number>();
+        setAllStaff(staffData.content.filter(s => {
+          if (seen.has(s.id)) return false;
+          seen.add(s.id);
+          return true;
+        }));
       } else {
-        setAllStaff(prev => [...prev, ...staffData.content]);
+        setAllStaff(prev => {
+          const existingIds = new Set(prev.map(s => s.id));
+          return [...prev, ...staffData.content.filter(s => !existingIds.has(s.id))];
+        });
       }
       setHasMore(!staffData.last);
       setIsFetchingMore(false);

@@ -44,7 +44,7 @@ npx expo start              # native (requires emulator)
 - [ ] Open app → Login screen appears (no onboarding)
 - [ ] Submit empty form → inline validation errors appear (email required, password required)
 - [ ] Submit wrong credentials → "Username and/or password is incorrect" error shown
-- [ ] Submit valid CENTER_OWNER credentials → navigate to Dashboard
+- [ ] Submit valid OWNER credentials → navigate to Dashboard
 
 ### Session Restore
 - [ ] After login, close and reopen app → Dashboard loads without re-login

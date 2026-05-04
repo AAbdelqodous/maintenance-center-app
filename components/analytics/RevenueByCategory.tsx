@@ -29,7 +29,7 @@ export function RevenueByCategory({ data, isLoading }: RevenueByCategoryProps) {
   }
 
   const colors = ['#2196F3', '#4CAF50', '#FF9800', '#9C27B0', '#F44336', '#00BCD4', '#795548'];
-  const totalBookings = data.reduce((sum, item) => sum + item.completedBookings, 0);
+  const totalBookings = data.reduce((sum, item) => sum + (item.completedBookings ?? 0), 0);
 
   const pieData = data.slice(0, 5).map((item, index) => ({
     value: item.completedBookings || 0,

@@ -66,7 +66,7 @@
 **Decision**: `app/(app)/setup-center.tsx` shown when `GET /centers/my/profile` returns 404 (center not yet created).
 
 **Rationale**:
-- New CENTER_OWNER accounts may not have a center profile yet.
+- New OWNER accounts may not have a center profile yet.
 - `(app)/_layout.tsx` checks for 404 on session restore and redirects to `setup-center`.
 - Same form as profile editor but uses `POST /centers/my` instead of `PUT /centers/my`.
 

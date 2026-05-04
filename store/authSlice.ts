@@ -1,7 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+type UserType = 'CUSTOMER' | 'OWNER' | 'STAFF' | 'ADMIN';
+
 interface AuthState {
-  session: { token: string; email: string; userType: 'CUSTOMER' | 'CENTER_OWNER' | 'ADMIN' } | null;
+  session: { token: string; email: string; userType?: UserType } | null;
 }
 
 const initialState: AuthState = { session: null };
@@ -10,7 +12,7 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setSession(state, action: PayloadAction<{ token: string; email: string; userType: 'CUSTOMER' | 'CENTER_OWNER' | 'ADMIN' }>) {
+    setSession(state, action: PayloadAction<{ token: string; email: string; userType?: UserType }>) {
       state.session = action.payload;
     },
     clearSession(state) {

@@ -64,6 +64,7 @@ export interface InvitationDetails {
   centerNameEn: string;
   centerLogoUrl?: string;
   inviterName: string;
+  targetEmail: string;
   targetRole: CenterRole;
   roleAr: string;
   roleEn: string;

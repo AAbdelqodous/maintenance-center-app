@@ -19,7 +19,9 @@
     "justNow": "الآن",
     "ok": "حسناً",
     "custom": "مخصص",
-    "apply": "تطبيق"
+    "apply": "تطبيق",
+    "select": "اختر...",
+    "search": "بحث..."
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -376,6 +378,41 @@
     "responseNotes": "ملاحظات العميل",
     "discountError": "الخصم لا يمكن أن يتجاوز المجموع الجزئي"
   },
+  "admin": {
+    "dashboard": {
+      "greeting": "لوحة الإدارة",
+      "roleLabel": "مدير المنصة",
+      "overview": "نظرة عامة",
+      "quickActions": "إجراءات سريعة",
+      "statPending": "بانتظار الموافقة",
+      "statApproved": "مراكز معتمدة",
+      "statOwners": "أصحاب المراكز",
+      "statStaff": "الموظفون / العملاء",
+      "actionPending": "الطلبات المعلقة",
+      "actionPendingDesc": "{{count}} حساب بانتظار المراجعة",
+      "actionUsers": "جميع المستخدمين",
+      "actionUsersDesc": "تصفح وبحث في جميع المستخدمين المسجلين"
+    },
+    "users": {
+      "searchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني…",
+      "filterALL": "الكل",
+      "filterOWNER": "الملاك",
+      "filterCUSTOMER": "الموظفون",
+      "showing": "عرض {{count}} من {{total}}",
+      "noResults": "لا يوجد مستخدمون"
+    },
+    "title": "الحسابات المعلقة",
+    "pendingCount": "{{count}} حساب بانتظار الموافقة",
+    "registeredOn": "تاريخ التسجيل: {{date}}",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "confirmReject": "تأكيد الرفض",
+    "rejectReasonPlaceholder": "سبب الرفض (اختياري)",
+    "noPending": "لا توجد حسابات معلقة",
+    "approved": "تمت الموافقة على حساب {{name}}",
+    "rejected": "تم رفض حساب {{name}}",
+    "actionFailed": "فشل الإجراء. يرجى المحاولة مرة أخرى."
+  },
   "analytics": {
     "title": "التحليلات",
     "period": {
@@ -498,7 +535,10 @@
     "invite_auth": {
       "signInPrompt": "يرجى تسجيل الدخول أو إنشاء حساب لقبول هذه الدعوة.",
       "signIn": "تسجيل الدخول",
-      "createAccount": "إنشاء حساب"
+      "createAccount": "إنشاء حساب",
+      "wrongAccount": "هذه الدعوة مرسلة إلى {{email}}. يرجى تسجيل الدخول بذلك الحساب لقبولها.",
+      "wrongAccountGeneric": "هذه الدعوة مخصصة لعنوان بريد إلكتروني مختلف. يرجى تسجيل الدخول بالحساب الذي استلم الدعوة.",
+      "switchAccount": "تسجيل الدخول بحساب آخر"
     },
     "noAccess": {
       "title": "لا يوجد صلاحية وصول",

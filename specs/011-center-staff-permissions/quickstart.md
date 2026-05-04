@@ -10,7 +10,7 @@
 2. `npx expo start --web` running on `http://localhost:8081`
 3. MailDev UI open at `http://localhost:1080` (to inspect invitation emails)
 4. Two test accounts ready:
-   - **Owner**: an `APPROVED` `CENTER_OWNER` with at least one active center
+   - **Owner**: an `APPROVED` `OWNER` with at least one active center
    - **Invitee**: a `CUSTOMER` account (or a fresh email for a new-user flow)
 
 ---
@@ -20,7 +20,7 @@
 After running Flyway migrations, verify the backfill ran:
 
 ```sql
--- Should return one ACTIVE OWNER row per center for each CENTER_OWNER
+-- Should return one ACTIVE OWNER row per center for each OWNER
 SELECT cm.user_id, cm.center_id, cm.role, cm.status
 FROM center_membership cm
 WHERE cm.role = 'OWNER' AND cm.status = 'ACTIVE';

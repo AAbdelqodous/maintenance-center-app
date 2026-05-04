@@ -45,7 +45,7 @@
 
 ## Phase 3: User Story 1 â€” Create an Offer (Priority: P1) ðŸŽ¯ MVP
 
-**Goal**: A CENTER_OWNER can create a new promotional offer via both the API and the app form.
+**Goal**: A OWNER can create a new promotional offer via both the API and the app form.
 
 **Independent Test**: `POST /centers/my/offers` with valid payload returns `201` with correct `status` field; offer appears in DB; add.tsx form submits and navigates back.
 
@@ -62,7 +62,7 @@
 
 ## Phase 4: User Story 2 â€” View Offers List (Priority: P1)
 
-**Goal**: CENTER_OWNER can see all their offers with status badges and filter by status.
+**Goal**: OWNER can see all their offers with status badges and filter by status.
 
 **Independent Test**: Seed 3 offers with different statuses in DB â†’ `GET /centers/my/offers` returns all 3 â†’ filter by `?status=ACTIVE` returns only 1 â†’ list screen renders correctly with filter tabs and FAB.
 
