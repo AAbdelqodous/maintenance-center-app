@@ -40,6 +40,15 @@ export const reviewsApi = createApi({
   endpoints: (builder) => ({
     getReviews: builder.query<ReviewsResponse, { page?: number; size?: number }>({
       query: (params) => ({ url: 'reviews/center', params }),
+      transformResponse: (raw: any): ReviewsResponse => ({
+        content: raw.content ?? [],
+        totalElements: raw.page?.totalElements ?? raw.totalElements ?? 0,
+        totalPages: raw.page?.totalPages ?? raw.totalPages ?? 0,
+        number: raw.page?.number ?? raw.number ?? 0,
+        size: raw.page?.size ?? raw.size ?? 0,
+        first: raw.first ?? true,
+        last: raw.last ?? true,
+      }),
       providesTags: ['Review'],
     }),
     replyToReview: builder.mutation<Review, { id: number; reply: string }>({

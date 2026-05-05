@@ -13,13 +13,13 @@ interface StatCardProps {
   icon: string;
   iconColor: string;
   bg: string;
-  value: number | string;
+  value: number | string | null;
   label: string;
 }
 
-function StatCard({ icon, iconColor, bg, value, label }: StatCardProps) {
+function StatCard({ icon, iconColor, bg, value, label, fullWidth }: StatCardProps & { fullWidth?: boolean }) {
   return (
-    <View style={[styles.statCard, { backgroundColor: bg }]}>
+    <View style={[styles.statCard, { backgroundColor: bg }, fullWidth && styles.statCardFull]}>
       <Ionicons name={icon as any} size={28} color={iconColor} />
       <Text style={[styles.statValue, { color: iconColor }]}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
@@ -123,22 +123,16 @@ export default function AdminDashboard() {
             icon="checkmark-circle-outline"
             iconColor="#10B981"
             bg="#ECFDF5"
-            value={stats?.approvedCenters ?? 0}
+            value={stats?.approvedCenters ?? '—'}
             label={t('admin.dashboard.statApproved')}
           />
           <StatCard
             icon="storefront-outline"
             iconColor="#6366F1"
             bg="#EEF2FF"
-            value={stats?.totalCenterOwners ?? 0}
+            value={stats?.totalCenterOwners ?? '—'}
             label={t('admin.dashboard.statOwners')}
-          />
-          <StatCard
-            icon="people-outline"
-            iconColor="#0EA5E9"
-            bg="#F0F9FF"
-            value={stats?.totalCustomers ?? 0}
-            label={t('admin.dashboard.statStaff')}
+            fullWidth
           />
         </View>
       )}
@@ -212,6 +206,7 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 28,
   },
+  statCardFull: { width: '100%' },
   statCard: {
     width: '47%',
     borderRadius: 14,

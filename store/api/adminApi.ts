@@ -16,9 +16,8 @@ export interface AdminUserResponse {
 
 export interface AdminStats {
   pendingApprovals: number;
-  totalCenterOwners: number;
-  totalCustomers: number;
-  approvedCenters: number;
+  totalCenterOwners: number | null;
+  approvedCenters: number | null;
 }
 
 interface PageResponse<T> {
@@ -27,6 +26,16 @@ interface PageResponse<T> {
   totalPages: number;
   number: number;
   size: number;
+}
+
+function flattenPage<T>(raw: any): PageResponse<T> {
+  return {
+    content: raw.content ?? [],
+    totalElements: raw.page?.totalElements ?? raw.totalElements ?? 0,
+    totalPages: raw.page?.totalPages ?? raw.totalPages ?? 0,
+    number: raw.page?.number ?? raw.number ?? 0,
+    size: raw.page?.size ?? raw.size ?? 0,
+  };
 }
 
 export const adminApi = createApi({
@@ -44,6 +53,7 @@ export const adminApi = createApi({
     getPendingUsers: builder.query<PageResponse<AdminUserResponse>, { page?: number; size?: number }>({
       query: ({ page = 0, size = 20 } = {}) =>
         `admin/users/pending?page=${page}&size=${size}`,
+      transformResponse: (raw: any) => flattenPage<AdminUserResponse>(raw),
       providesTags: ['PendingUsers'],
     }),
     getAllUsers: builder.query<PageResponse<AdminUserResponse>, { page?: number; size?: number; type?: string }>({
@@ -52,26 +62,28 @@ export const adminApi = createApi({
         if (type) params.append('type', type);
         return `admin/users?${params}`;
       },
+      transformResponse: (raw: any) => flattenPage<AdminUserResponse>(raw),
       providesTags: ['AllUsers'],
     }),
     getAdminStats: builder.query<AdminStats, void>({
       async queryFn(_arg, _api, _extraOptions, baseQuery) {
-        const [pending, owners, customers] = await Promise.all([
+        const [pending, owners, centers] = await Promise.all([
           baseQuery('admin/users/pending?page=0&size=1'),
           baseQuery('admin/users?page=0&size=1&type=OWNER'),
-          baseQuery('admin/users?page=0&size=1&type=CUSTOMER'),
+          baseQuery('admin/centers?page=0&size=1'),
         ]);
         if (pending.error) return { error: pending.error };
-        const p = pending.data as PageResponse<AdminUserResponse>;
-        const o = owners.data as PageResponse<AdminUserResponse>;
-        const c = customers.data as PageResponse<AdminUserResponse>;
-        const approvedCenters = (o?.totalElements ?? 0) - (p?.totalElements ?? 0);
+        const p = pending.data as any;
+        const o = owners.data as any;
+        const c = centers.data as any;
+        const pendingCount = p?.page?.totalElements ?? p?.totalElements ?? 0;
+        const ownerCount = owners.error ? null : (o?.page?.totalElements ?? o?.totalElements ?? 0);
+        const centerCount = centers.error ? null : (c?.page?.totalElements ?? c?.totalElements ?? 0);
         return {
           data: {
-            pendingApprovals: p?.totalElements ?? 0,
-            totalCenterOwners: o?.totalElements ?? 0,
-            totalCustomers: c?.totalElements ?? 0,
-            approvedCenters: approvedCenters < 0 ? 0 : approvedCenters,
+            pendingApprovals: pendingCount,
+            totalCenterOwners: ownerCount,
+            approvedCenters: centerCount,
           },
         };
       },

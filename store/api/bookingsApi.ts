@@ -107,12 +107,30 @@ export const bookingsApi = createApi({
   endpoints: (builder) => ({
     getBookings: builder.query<BookingsResponse, BookingsQueryParams>({
       query: (params) => ({ url: 'bookings', params }),
+      transformResponse: (raw: any): BookingsResponse => ({
+        content: raw.content ?? [],
+        totalElements: raw.page?.totalElements ?? raw.totalElements ?? 0,
+        totalPages: raw.page?.totalPages ?? raw.totalPages ?? 0,
+        number: raw.page?.number ?? raw.number ?? 0,
+        size: raw.page?.size ?? raw.size ?? 0,
+        first: raw.first ?? true,
+        last: raw.last ?? true,
+      }),
       providesTags: ['Booking'],
     }),
     getCenterBookings: builder.query<BookingsResponse, CenterBookingsQueryParams>({
       query: ({ page, size, status }) => ({
         url: 'bookings',
         params: { page, size, ...(status && { status }) },
+      }),
+      transformResponse: (raw: any): BookingsResponse => ({
+        content: raw.content ?? [],
+        totalElements: raw.page?.totalElements ?? raw.totalElements ?? 0,
+        totalPages: raw.page?.totalPages ?? raw.totalPages ?? 0,
+        number: raw.page?.number ?? raw.number ?? 0,
+        size: raw.page?.size ?? raw.size ?? 0,
+        first: raw.first ?? true,
+        last: raw.last ?? true,
       }),
       providesTags: ['Booking'],
     }),

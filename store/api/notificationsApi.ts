@@ -42,7 +42,7 @@ export const notificationsApi = createApi({
       providesTags: ['Notification'],
       transformResponse: (response: any) => ({
         content: response.content ?? [],
-        totalElements: response.totalElements ?? 0,
+        totalElements: response.page?.totalElements ?? response.totalElements ?? 0,
         unreadCount: response.unreadCount ?? 0,
       }),
     }),

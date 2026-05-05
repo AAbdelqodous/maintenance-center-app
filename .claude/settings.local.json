@@ -61,7 +61,12 @@
       "Bash(curl -s -X PUT http://localhost:8080/api/v1/admin/users/10/approve -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJmdWxsTmFtZSI6IkFkbWluIFN5c3RlbSIsInN1YiI6ImFkbWluQGV4cGVyaWVuY2UuY29tIiwiaWF0IjoxNzc3Nzg0OTM0LCJleHAiOjE3Nzc3OTM1NzQsImF1dGhvcml0aWVzIjpbIlJPTEVfQURNSU4iXX0.0lVLPCOtyxxWHuou5M3hJjakaxYyR5Ik-MGqKGqtA9z8uy_t53IHApdXOaIQawAv2HiNdatuZEAmSS2yBaykAQ')",
       "PowerShell(& \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\create-new-feature.ps1\" \"Phase 3.6 - Offers and Promotions\" -Json -ShortName \"offers-promotions\")",
       "PowerShell(& \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
-      "Bash(powershell -Command \"\\(Get-Content tasks.md\\) -replace '\\\\[x\\\\] - \\\\[ \\\\] ', '[x] ' | Set-Content tasks.md -Encoding utf8\")"
+      "Bash(powershell -Command \"\\(Get-Content tasks.md\\) -replace '\\\\[x\\\\] - \\\\[ \\\\] ', '[x] ' | Set-Content tasks.md -Encoding utf8\")",
+      "PowerShell(Get-Process -Id 27880)",
+      "PowerShell(netstat -ano)",
+      "PowerShell(Get-Process -Id 47604 | Select-Object Id, Name, Path; \\(Get-WmiObject Win32_Process -Filter \"ProcessId=47604\"\\).CommandLine)",
+      "PowerShell(Get-Process -Id 47604)",
+      "PowerShell(\\(Get-WmiObject Win32_Process -Filter \"ProcessId=47604\" -ComputerName localhost\\).CommandLine)"
     ]
   }
 }

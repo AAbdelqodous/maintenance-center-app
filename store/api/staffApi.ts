@@ -37,6 +37,13 @@ export const staffApi = createApi({
         if (status) params.append('status', status);
         return `centers/my/staff?${params.toString()}`;
       },
+      transformResponse: (raw: any): PageResponse<CenterMembership> => ({
+        content: raw.content ?? [],
+        totalElements: raw.page?.totalElements ?? raw.totalElements ?? 0,
+        totalPages: raw.page?.totalPages ?? raw.totalPages ?? 0,
+        number: raw.page?.number ?? raw.number ?? 0,
+        size: raw.page?.size ?? raw.size ?? 0,
+      }),
       providesTags: ['Staff'],
     }),
 
