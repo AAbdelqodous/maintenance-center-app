@@ -7,6 +7,7 @@ import type {
   InvitationDetails,
   InviteStaffRequest,
 } from '@/types/staff';
+import type { ReviewsResponse } from './reviewsApi';
 
 interface PageResponse<T> {
   content: T[];
@@ -14,6 +15,14 @@ interface PageResponse<T> {
   totalPages: number;
   size: number;
   number: number;
+}
+
+export interface StaffDashboardResponse {
+  assignedTotal: number;
+  assignedActive: number;
+  assignedCompleted: number;
+  assignedThisWeek: number;
+  avgRating: number;
 }
 
 export const staffApi = createApi({
@@ -115,6 +124,32 @@ export const staffApi = createApi({
       query: () => 'users/me/memberships',
       providesTags: ['Staff'],
     }),
+
+    getStaffDashboard: builder.query<StaffDashboardResponse, void>({
+      query: () => 'bookings/stats',
+      transformResponse: (raw: any): StaffDashboardResponse => ({
+        assignedTotal: raw.total ?? 0,
+        assignedActive: (raw.pending ?? 0) + (raw.confirmed ?? 0) + (raw.inProgress ?? 0),
+        assignedCompleted: raw.completed ?? 0,
+        assignedThisWeek: 0,
+        avgRating: 0,
+      }),
+      providesTags: ['Staff'],
+    }),
+
+    getMyAssignedReviews: builder.query<ReviewsResponse, { page?: number; size?: number }>({
+      query: (params) => ({ url: 'reviews/center', params }),
+      transformResponse: (raw: any): ReviewsResponse => ({
+        content: raw.content ?? [],
+        totalElements: raw.page?.totalElements ?? raw.totalElements ?? 0,
+        totalPages: raw.page?.totalPages ?? raw.totalPages ?? 0,
+        number: raw.page?.number ?? raw.number ?? 0,
+        size: raw.page?.size ?? raw.size ?? 0,
+        first: raw.first ?? true,
+        last: raw.last ?? true,
+      }),
+      providesTags: ['Staff'],
+    }),
   }),
 });
 
@@ -131,4 +166,6 @@ export const {
   useDeclineInvitationMutation,
   useResendInvitationMutation,
   useGetMyMembershipsQuery,
+  useGetStaffDashboardQuery,
+  useGetMyAssignedReviewsQuery,
 } = staffApi;

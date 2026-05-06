@@ -6,10 +6,14 @@ import { useRouter, Stack } from 'expo-router';
 import { useGetMyCenterQuery, useUpdateCenterMutation, useUploadCenterImageMutation, useDeleteCenterImageMutation, useGetCategoriesQuery } from '@/store/api/centerApi';
 import * as ImagePicker from 'expo-image-picker';
 import { resolveImageUrl } from '@/lib/constants/config';
-import { useAppDispatch } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import { clearSession } from '@/store/authSlice';
+import { clearActiveCenter } from '@/store/centerSlice';
 import { storage } from '@/lib/storage';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
+import { useGetMyMembershipsQuery } from '@/store/api/staffApi';
+import { RoleBadge } from '@/components/staff/RoleBadge';
+import type { CenterRole } from '@/types/staff';
 
 function ProfileScreen() {
   const { t, i18n } = useTranslation();
@@ -431,6 +435,15 @@ function ProfileScreen() {
           <Text style={styles.menuRowText}>{t('offers.title')}</Text>
           <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.menuRow, isRTL && styles.rowRtl]}
+          onPress={() => router.push('/(app)/(tabs)/profile/staff' as any)}
+        >
+          <Ionicons name="people-outline" size={20} color="#009688" />
+          <Text style={styles.menuRowText}>{t('staff.title')}</Text>
+          <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
+        </TouchableOpacity>
       </View>
 
       <TouchableOpacity
@@ -445,10 +458,125 @@ function ProfileScreen() {
   );
 }
 
+function MemberProfileScreen() {
+  const { t, i18n } = useTranslation();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const isRTL = i18n.dir() === 'rtl';
+
+  const session = useAppSelector((state) => state.auth.session);
+  const activeUserRole = useAppSelector((state) => state.center.activeUserRole);
+
+  const { data: memberships, isLoading } = useGetMyMembershipsQuery();
+  const membership = memberships?.[0];
+
+  const centerName = membership
+    ? (i18n.language === 'ar' ? membership.centerNameAr : membership.centerNameEn)
+    : null;
+
+  const initials = [session?.firstname, session?.email?.charAt(0).toUpperCase()]
+    .filter(Boolean)
+    .map((s) => s!.charAt(0).toUpperCase())
+    .join('');
+
+  const doLogout = async () => {
+    await storage.clearAll();
+    dispatch(clearSession());
+    dispatch(clearActiveCenter());
+    router.replace('/(auth)/login');
+  };
+
+  const handleLogout = () => {
+    if (Platform.OS === 'web') {
+      if (window.confirm(t('settings.logoutConfirm'))) doLogout();
+    } else {
+      Alert.alert(t('auth.logout'), t('settings.logoutConfirm'), [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('auth.logout'), style: 'destructive', onPress: doLogout },
+      ]);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <View style={memberStyles.center}>
+        <ActivityIndicator size="large" color="#2196F3" />
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView style={memberStyles.container} contentContainerStyle={memberStyles.content}>
+      {/* Avatar */}
+      <View style={memberStyles.avatarSection}>
+        <View style={memberStyles.avatar}>
+          <Text style={memberStyles.avatarText}>{initials}</Text>
+        </View>
+        <Text style={memberStyles.name}>{session?.firstname ?? session?.email}</Text>
+        <Text style={memberStyles.email}>{session?.email}</Text>
+        {activeUserRole && (
+          <View style={memberStyles.badgeRow}>
+            <RoleBadge role={activeUserRole as CenterRole} />
+          </View>
+        )}
+      </View>
+
+      {/* Center info */}
+      {centerName && (
+        <View style={memberStyles.section}>
+          <Text style={[memberStyles.sectionTitle, isRTL && memberStyles.rtl]}>{t('profile.member.center')}</Text>
+          <View style={memberStyles.infoRow}>
+            <Ionicons name="business-outline" size={20} color="#6B7280" />
+            <Text style={[memberStyles.infoText, isRTL && memberStyles.rtl]}>{centerName}</Text>
+          </View>
+        </View>
+      )}
+
+      {/* Logout */}
+      <TouchableOpacity style={memberStyles.logoutButton} onPress={handleLogout}>
+        <Ionicons name="log-out-outline" size={20} color="#F44336" />
+        <Text style={memberStyles.logoutText}>{t('auth.logout')}</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+
+const memberStyles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#F5F5F5' },
+  content: { padding: 24, paddingTop: 40 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  avatarSection: { alignItems: 'center', marginBottom: 32 },
+  avatar: {
+    width: 88, height: 88, borderRadius: 44,
+    backgroundColor: '#BBDEFB', justifyContent: 'center', alignItems: 'center',
+    marginBottom: 14,
+  },
+  avatarText: { fontSize: 32, fontWeight: '700', color: '#1565C0' },
+  name: { fontSize: 22, fontWeight: '700', color: '#111827', marginBottom: 4 },
+  email: { fontSize: 14, color: '#6B7280', marginBottom: 12 },
+  badgeRow: { marginTop: 4 },
+  section: {
+    backgroundColor: '#FFFFFF', borderRadius: 12, padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06, shadowRadius: 3, elevation: 2,
+  },
+  sectionTitle: { fontSize: 12, color: '#9CA3AF', fontWeight: '600', marginBottom: 10, textTransform: 'uppercase' },
+  infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  infoText: { fontSize: 15, color: '#111827', fontWeight: '500' },
+  rtl: { textAlign: 'right' },
+  logoutButton: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 8, padding: 16, marginTop: 8,
+  },
+  logoutText: { color: '#F44336', fontSize: 16, fontWeight: '600' },
+});
+
 export default function ProfileScreenWrapper() {
+  const userType = useAppSelector((state) => state.auth.session?.userType);
   return (
     <ErrorBoundary>
-      <ProfileScreen />
+      {userType === 'STAFF' ? <MemberProfileScreen /> : <ProfileScreen />}
     </ErrorBoundary>
   );
 }

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { Redirect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { useGetBookingStatsQuery, useGetCenterBookingsQuery } from '@/store/api/bookingsApi';
+import { useGetCenterBookingStatsQuery, useGetCenterBookingsQuery } from '@/store/api/bookingsApi';
 import { useGetMyCenterQuery } from '@/store/api/centerApi';
 import { useGetReviewsQuery } from '@/store/api/reviewsApi';
 import { useAppSelector } from '@/store';
@@ -17,14 +17,17 @@ function DashboardScreen() {
   const isRTL = i18n.dir() === 'rtl';
 
   const activeCenterId = useAppSelector((state) => state.center.activeCenterId);
-  const isAdmin = useAppSelector((state) => state.auth.session?.userType) === 'ADMIN';
+  const userType = useAppSelector((state) => state.auth.session?.userType);
+  const isAdmin = userType === 'ADMIN';
+  const isStaff = userType === 'STAFF';
+  const firstname = useAppSelector((state) => state.auth.session?.firstname ?? '');
 
   // All queries skip for admin — admin has no center, bookings, or reviews
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetBookingStatsQuery(undefined, { skip: isAdmin, refetchOnFocus: true });
+  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetCenterBookingStatsQuery(undefined, { skip: isAdmin || !activeCenterId, refetchOnFocus: true });
   const { data: centerData, isLoading: centerLoading } = useGetMyCenterQuery(undefined, { skip: isAdmin });
   const { data: reviewsData } = useGetReviewsQuery({ size: 1 }, { skip: isAdmin });
   const { data: bookingsData, isLoading: bookingsLoading, refetch: refetchBookings } = useGetCenterBookingsQuery(
-    { page: 0, size: 5 },
+    { centerId: activeCenterId!, page: 0, size: 5 },
     { skip: isAdmin || !activeCenterId, refetchOnFocus: true }
   );
 
@@ -64,7 +67,7 @@ function DashboardScreen() {
       contentContainerStyle={styles.contentContainer}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
-      <Text style={styles.welcome}>{t('dashboard.welcome', { name: centerData?.nameEn || 'Owner' })}</Text>
+      <Text style={styles.welcome}>{t('dashboard.welcome', { name: firstname || centerData?.nameEn || '' })}</Text>
 
       <View style={styles.statsGrid}>
         <StatCard title={t('dashboard.totalBookings')} value={stats?.total ?? 0} icon="calendar" color="#2196F3" />
@@ -108,14 +111,16 @@ function DashboardScreen() {
           <Ionicons name="calendar" size={24} color="#2196F3" />
           <Text style={styles.actionText}>{t('bookings.title')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/(tabs)/chat/' as any)}>
-          <Ionicons name="chatbubbles" size={24} color="#2196F3" />
-          <Text style={styles.actionText}>{t('chat.title')}</Text>
+        <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/(tabs)/reviews/index' as any)}>
+          <Ionicons name="star" size={24} color="#2196F3" />
+          <Text style={styles.actionText}>{t('reviews.title')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/(tabs)/profile/' as any)}>
-          <Ionicons name="person" size={24} color="#2196F3" />
-          <Text style={styles.actionText}>{t('profile.title')}</Text>
-        </TouchableOpacity>
+        {!isStaff && (
+          <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/(tabs)/profile/' as any)}>
+            <Ionicons name="business" size={24} color="#2196F3" />
+            <Text style={styles.actionText}>{t('profile.title')}</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </ScrollView>
   );

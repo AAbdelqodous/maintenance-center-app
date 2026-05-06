@@ -23,6 +23,11 @@
     "select": "اختر...",
     "search": "بحث..."
   },
+  "profile": {
+    "member": {
+      "center": "المركز"
+    }
+  },
   "auth": {
     "login": "تسجيل الدخول",
     "email": "البريد الإلكتروني",
@@ -52,7 +57,13 @@
     "passwordMismatch": "كلمتا المرور غير متطابقتين",
     "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
     "registerButton": "إنشاء حساب",
-    "registerSubtitle": "سجّل مركز الصيانة الخاص بك",
+    "registerSubtitle": "سجّل حسابك",
+    "accountType": "نوع الحساب",
+    "roleOwner": "صاحب مركز",
+    "roleStaff": "موظف",
+    "roleOwnerHint": "سجّل لإدارة مركز صيانتك الخاص",
+    "roleStaffHint": "سجّل للانضمام إلى مركز كموظف مدعو",
+    "roleInviteHint": "لقد تمت دعوتك للانضمام كموظف. نوع الحساب ثابت.",
     "registerSuccess": "تم إنشاء الحساب! يرجى التحقق من بريدك الإلكتروني للمتابعة.",
     "registerStaffSuccess": "تم إنشاء الحساب! يرجى تسجيل الدخول للمتابعة.",
     "registerError": "فشل التسجيل. الرجاء المحاولة مرة أخرى.",
@@ -397,7 +408,8 @@
       "searchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني…",
       "filterALL": "الكل",
       "filterOWNER": "الملاك",
-      "filterCUSTOMER": "الموظفون",
+      "filterSTAFF": "الموظفون",
+      "filterCUSTOMER": "العملاء",
       "showing": "عرض {{count}} من {{total}}",
       "noResults": "لا يوجد مستخدمون"
     },
@@ -466,6 +478,48 @@
   },
   "staff": {
     "title": "الموظفون",
+    "dashboard": {
+      "title": "لوحة الموظف",
+      "greeting": "مرحباً، {{name}}",
+      "assignedTotal": "إجمالي المعيّنة",
+      "assignedActive": "نشطة",
+      "assignedCompleted": "مكتملة",
+      "assignedThisWeek": "هذا الأسبوع",
+      "avgRating": "متوسط التقييم"
+    },
+    "bookings": {
+      "empty": "ستظهر الحجوزات المعيّنة هنا"
+    },
+    "reviews": {
+      "title": "التقييمات",
+      "empty": "لا توجد تقييمات بعد"
+    },
+    "profile": {
+      "title": "ملفي الشخصي",
+      "center": "المركز",
+      "personalInfo": "المعلومات الشخصية",
+      "firstname": "الاسم الأول",
+      "lastname": "اسم العائلة",
+      "phone": "رقم الهاتف",
+      "dateOfBirth": "تاريخ الميلاد",
+      "language": "اللغة المفضلة",
+      "languageAr": "العربية",
+      "languageEn": "الإنجليزية",
+      "address": "العنوان",
+      "governorate": "المحافظة",
+      "changePassword": "تغيير كلمة المرور",
+      "currentPassword": "كلمة المرور الحالية",
+      "newPassword": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور الجديدة",
+      "saveProfile": "حفظ الملف الشخصي",
+      "saved": "تم تحديث الملف الشخصي بنجاح",
+      "saveError": "فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى.",
+      "passwordChanged": "تم تغيير كلمة المرور بنجاح",
+      "passwordMismatch": "كلمتا المرور غير متطابقتين",
+      "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+      "passwordError": "فشل تغيير كلمة المرور. تحقق من كلمة المرور الحالية.",
+      "nameRequired": "الاسم الأول واسم العائلة مطلوبان"
+    },
     "emptyState": "لا يوجد موظفين بعد. اضغط على 'دعوة موظف' لإضافة أول عضو في الفريق.",
     "roles": {
       "OWNER": "مالك",

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useGetAllUsersQuery, AdminUserResponse } from '@/store/api/adminApi';
 
-const TYPE_FILTERS = ['ALL', 'OWNER', 'CUSTOMER'] as const;
+const TYPE_FILTERS = ['ALL', 'OWNER', 'STAFF', 'CUSTOMER'] as const;
 type TypeFilter = typeof TYPE_FILTERS[number];
 
 const STATUS_COLOR: Record<string, { bg: string; text: string; label: string }> = {

@@ -69,6 +69,7 @@ export interface BookingsQueryParams {
 }
 
 export interface CenterBookingsQueryParams {
+  centerId: number;
   page?: number;
   size?: number;
   status?: BookingStatus;
@@ -119,8 +120,8 @@ export const bookingsApi = createApi({
       providesTags: ['Booking'],
     }),
     getCenterBookings: builder.query<BookingsResponse, CenterBookingsQueryParams>({
-      query: ({ page, size, status }) => ({
-        url: 'bookings',
+      query: ({ centerId, page, size, status }) => ({
+        url: `bookings/center/${centerId}`,
         params: { page, size, ...(status && { status }) },
       }),
       transformResponse: (raw: any): BookingsResponse => ({
@@ -140,6 +141,10 @@ export const bookingsApi = createApi({
     }),
     getBookingStats: builder.query<BookingStats, void>({
       query: () => 'bookings/stats',
+      providesTags: ['Booking'],
+    }),
+    getCenterBookingStats: builder.query<BookingStats, void>({
+      query: () => 'bookings/center/stats',
       providesTags: ['Booking'],
     }),
     confirmBooking: builder.mutation<Booking, number>({
@@ -166,6 +171,7 @@ export const {
   useGetCenterBookingsQuery,
   useGetBookingByIdQuery,
   useGetBookingStatsQuery,
+  useGetCenterBookingStatsQuery,
   useConfirmBookingMutation,
   useStartServiceMutation,
   useCompleteBookingMutation,

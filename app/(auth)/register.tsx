@@ -14,12 +14,16 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useRegisterOwnerMutation, useRegisterStaffMutation } from '@/store/api/authApi';
 
+type AccountRole = 'OWNER' | 'STAFF';
+
 export default function RegisterScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const isRTL = i18n.dir() === 'rtl';
-  const { staff, email: prefillEmail } = useLocalSearchParams<{ staff?: string; email?: string }>();
-  const isStaffRegistration = staff === 'true';
+  const { staff, email: prefillEmail, token: inviteToken } = useLocalSearchParams<{ staff?: string; email?: string; token?: string }>();
+  const fromInvite = staff === 'true';
+
+  const [role, setRole] = useState<AccountRole>(fromInvite ? 'STAFF' : 'OWNER');
 
   const [registerOwner, { isLoading: ownerLoading }] = useRegisterOwnerMutation();
   const [registerStaff, { isLoading: staffLoading }] = useRegisterStaffMutation();
@@ -58,12 +62,16 @@ export default function RegisterScreen() {
     }
 
     try {
-      const register = isStaffRegistration ? registerStaff : registerOwner;
+      const isStaff = role === 'STAFF';
+      const register = isStaff ? registerStaff : registerOwner;
       await register({ firstname, lastname, email, password }).unwrap();
-      setSuccessMessage(isStaffRegistration ? t('auth.registerStaffSuccess') : t('auth.registerSuccess'));
+      setSuccessMessage(isStaff ? t('auth.registerStaffSuccess') : t('auth.registerSuccess'));
       setTimeout(() => {
-        if (isStaffRegistration) {
-          router.replace('/(auth)/login');
+        if (isStaff) {
+          const redirect = inviteToken
+            ? `/accept-invite?token=${inviteToken}`
+            : '/(app)/(tabs)/';
+          router.replace(`/(auth)/login?redirect=${encodeURIComponent(redirect)}` as any);
         } else {
           router.replace('/(auth)/verify-otp?email=' + encodeURIComponent(email));
         }
@@ -82,7 +90,34 @@ export default function RegisterScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.content}>
           <Text style={styles.title}>{t('auth.createAccount')}</Text>
-          <Text style={styles.subtitle}>{t('auth.registerSubtitle')}</Text>
+
+          {/* Role selector */}
+          <View style={styles.roleSection}>
+            <Text style={[styles.roleLabel, isRTL && styles.textRtl]}>{t('auth.accountType')}</Text>
+            <View style={[styles.roleToggle, fromInvite && styles.roleToggleLocked]}>
+              <TouchableOpacity
+                style={[styles.roleOption, role === 'OWNER' && styles.roleOptionActive]}
+                onPress={() => !fromInvite && setRole('OWNER')}
+                activeOpacity={fromInvite ? 1 : 0.8}
+              >
+                <Text style={[styles.roleOptionText, role === 'OWNER' && styles.roleOptionTextActive]}>
+                  {t('auth.roleOwner')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.roleOption, role === 'STAFF' && styles.roleOptionActive]}
+                onPress={() => !fromInvite && setRole('STAFF')}
+                activeOpacity={fromInvite ? 1 : 0.8}
+              >
+                <Text style={[styles.roleOptionText, role === 'STAFF' && styles.roleOptionTextActive]}>
+                  {t('auth.roleStaff')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={[styles.roleHint, isRTL && styles.textRtl]}>
+              {fromInvite ? t('auth.roleInviteHint') : (role === 'OWNER' ? t('auth.roleOwnerHint') : t('auth.roleStaffHint'))}
+            </Text>
+          </View>
 
           <View style={styles.row}>
             <View style={[styles.inputContainer, styles.halfWidth]}>
@@ -198,14 +233,49 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#333333',
-    marginBottom: 8,
+    marginBottom: 20,
     textAlign: 'center',
   },
-  subtitle: {
+  roleSection: {
+    marginBottom: 24,
+  },
+  roleLabel: {
     fontSize: 14,
-    color: '#888888',
-    textAlign: 'center',
-    marginBottom: 32,
+    color: '#666666',
+    marginBottom: 10,
+    fontWeight: '600',
+  },
+  roleToggle: {
+    flexDirection: 'row',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    overflow: 'hidden',
+  },
+  roleToggleLocked: {
+    opacity: 0.75,
+  },
+  roleOption: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    backgroundColor: '#FAFAFA',
+  },
+  roleOptionActive: {
+    backgroundColor: '#2196F3',
+  },
+  roleOptionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666666',
+  },
+  roleOptionTextActive: {
+    color: '#FFFFFF',
+  },
+  roleHint: {
+    fontSize: 12,
+    color: '#9E9E9E',
+    marginTop: 8,
   },
   row: {
     flexDirection: 'row',

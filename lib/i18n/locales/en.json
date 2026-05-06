@@ -23,6 +23,11 @@
     "select": "Select...",
     "search": "Search..."
   },
+  "profile": {
+    "member": {
+      "center": "Center"
+    }
+  },
   "auth": {
     "login": "Login",
     "email": "Email",
@@ -52,7 +57,13 @@
     "passwordMismatch": "Passwords do not match",
     "passwordTooShort": "Password must be at least 8 characters",
     "registerButton": "Create Account",
-    "registerSubtitle": "Register your maintenance center",
+    "registerSubtitle": "Register your account",
+    "accountType": "Account Type",
+    "roleOwner": "Center Owner",
+    "roleStaff": "Staff Member",
+    "roleOwnerHint": "Register to manage your own maintenance center",
+    "roleStaffHint": "Register to join a center as an invited staff member",
+    "roleInviteHint": "You were invited to join as a staff member. Account type is fixed.",
     "registerSuccess": "Account created! Please verify your email to continue.",
     "registerStaffSuccess": "Account created! Please sign in to continue.",
     "registerError": "Registration failed. Please try again.",
@@ -400,7 +411,8 @@
       "searchPlaceholder": "Search by name or email…",
       "filterALL": "All",
       "filterOWNER": "Owners",
-      "filterCUSTOMER": "Staff",
+      "filterSTAFF": "Staff",
+      "filterCUSTOMER": "Customers",
       "showing": "Showing {{count}} of {{total}}",
       "noResults": "No users found"
     },
@@ -469,6 +481,48 @@
   },
   "staff": {
     "title": "Staff",
+    "dashboard": {
+      "title": "Staff Dashboard",
+      "greeting": "Hello, {{name}}",
+      "assignedTotal": "Total Assigned",
+      "assignedActive": "Active",
+      "assignedCompleted": "Completed",
+      "assignedThisWeek": "This Week",
+      "avgRating": "Avg Rating"
+    },
+    "bookings": {
+      "empty": "Assigned bookings will appear here"
+    },
+    "reviews": {
+      "title": "Reviews",
+      "empty": "No reviews yet"
+    },
+    "profile": {
+      "title": "My Profile",
+      "center": "Center",
+      "personalInfo": "Personal Information",
+      "firstname": "First Name",
+      "lastname": "Last Name",
+      "phone": "Phone Number",
+      "dateOfBirth": "Date of Birth",
+      "language": "Preferred Language",
+      "languageAr": "Arabic",
+      "languageEn": "English",
+      "address": "Address",
+      "governorate": "Governorate",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "saveProfile": "Save Profile",
+      "saved": "Profile updated successfully",
+      "saveError": "Failed to update profile. Please try again.",
+      "passwordChanged": "Password changed successfully",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordError": "Failed to change password. Check your current password.",
+      "nameRequired": "First and last name are required"
+    },
     "emptyState": "No staff yet. Tap 'Invite Staff' to add your first team member.",
     "roles": {
       "OWNER": "Owner",

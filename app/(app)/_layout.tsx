@@ -57,23 +57,24 @@ export default function AppLayout() {
 
           // Treat legacy null userType as OWNER
           const userType = me.userType ?? 'OWNER';
+          const firstname: string = me.firstname ?? '';
 
           // Admin users skip all center logic — dispatch session type and proceed
           if (userType === 'ADMIN') {
-            dispatch(setSession({ token, email: saved.email, userType: 'ADMIN' }));
+            dispatch(setSession({ token, email: saved.email, userType: 'ADMIN', firstname }));
             return;
           }
 
           // Approval gate — only OWNER accounts require admin approval
           if (userType === 'OWNER' && me.approvalStatus === 'PENDING_APPROVAL') {
-            dispatch(setSession({ token, email: saved.email, userType: 'OWNER' }));
+            dispatch(setSession({ token, email: saved.email, userType: 'OWNER', firstname }));
             setIsPendingApproval(true);
             return;
           }
 
           // STAFF: invited staff member — resolve center via memberships
           if (userType === 'STAFF') {
-            dispatch(setSession({ token, email: saved.email, userType: 'STAFF' }));
+            dispatch(setSession({ token, email: saved.email, userType: 'STAFF', firstname }));
             const membershipsRes = await fetch(`${API_BASE_URL}users/me/memberships`, {
               headers: { 'Authorization': `Bearer ${token}` },
             });
@@ -96,7 +97,7 @@ export default function AppLayout() {
           }
 
           // OWNER flow
-          dispatch(setSession({ token, email: saved.email, userType: 'OWNER' }));
+          dispatch(setSession({ token, email: saved.email, userType: 'OWNER', firstname }));
           const [centersResponse, membershipsResponse] = await Promise.all([
             fetch(`${API_BASE_URL}centers/my`, { headers: { 'Authorization': `Bearer ${token}` } }),
             fetch(`${API_BASE_URL}users/me/memberships`, { headers: { 'Authorization': `Bearer ${token}` } }),
@@ -176,14 +177,18 @@ export default function AppLayout() {
     );
   }
 
-  if (!session) return <Redirect href="/(auth)/login" />;
+  if (!session && !pathname.includes('accept-invite')) return <Redirect href="/(auth)/login" />;
 
   if (isPendingApproval && !pathname.includes('pending-approval')) {
     return <Redirect href="/pending-approval" />;
   }
 
-  if (noAccessError && !pathname.includes('no-center-access')) {
+  if (noAccessError && !activeCenterId && !pathname.includes('no-center-access') && !pathname.includes('accept-invite')) {
     return <Redirect href="/(app)/no-center-access" />;
+  }
+
+  if (session?.userType === 'STAFF' && hasCheckedCenters && activeCenterId && !pathname.startsWith('/staff')) {
+    return <Redirect href="/staff/dashboard" />;
   }
 
   if (session?.userType !== 'ADMIN' && hasCheckedCenters && noCentersError && !activeCenterId && !pathname.includes('setup-center')) {

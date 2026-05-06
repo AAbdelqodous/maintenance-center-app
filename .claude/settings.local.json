@@ -66,7 +66,11 @@
       "PowerShell(netstat -ano)",
       "PowerShell(Get-Process -Id 47604 | Select-Object Id, Name, Path; \\(Get-WmiObject Win32_Process -Filter \"ProcessId=47604\"\\).CommandLine)",
       "PowerShell(Get-Process -Id 47604)",
-      "PowerShell(\\(Get-WmiObject Win32_Process -Filter \"ProcessId=47604\" -ComputerName localhost\\).CommandLine)"
+      "PowerShell(\\(Get-WmiObject Win32_Process -Filter \"ProcessId=47604\" -ComputerName localhost\\).CommandLine)",
+      "Bash(Get-ChildItem -Recurse \"C:\\\\Users\\\\ahmed.elsayed\\\\IdeaProjects\\\\life-experience-app\\\\service-center\\\\src\\\\main\\\\java\" -Filter \"*.java\")",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(netstat -ano)",
+      "PowerShell($p = Get-WmiObject Win32_Process -Filter \"ProcessId=30420\"; $p.CommandLine)"
     ]
   }
 }

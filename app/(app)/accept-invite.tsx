@@ -5,7 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useGetInvitationDetailsQuery, useAcceptInvitationMutation, useDeclineInvitationMutation } from '@/store/api/staffApi';
 import { RoleBadge } from '@/components/staff/RoleBadge';
 import { Ionicons } from '@expo/vector-icons';
-import { useAppSelector } from '@/store';
+import { useAppSelector, useAppDispatch } from '@/store';
+import { setActiveCenter } from '@/store/centerSlice';
+import { storage } from '@/lib/storage';
+import { ROLE_PERMISSIONS, CenterRole } from '@/types/staff';
 
 export default function AcceptInviteScreen() {
   const { token } = useLocalSearchParams<{ token: string }>();
@@ -13,6 +16,7 @@ export default function AcceptInviteScreen() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
 
+  const dispatch = useAppDispatch();
   const [acceptInvitation, { isLoading: isAccepting }] = useAcceptInvitationMutation();
   const [declineInvitation, { isLoading: isDeclining }] = useDeclineInvitationMutation();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -43,10 +47,16 @@ export default function AcceptInviteScreen() {
     setSuccessMessage(null);
 
     try {
-      await acceptInvitation(token).unwrap();
+      const result = await acceptInvitation(token).unwrap();
+      dispatch(setActiveCenter({
+        centerId: result.centerId,
+        role: result.role as CenterRole,
+        permissions: ROLE_PERMISSIONS[result.role as CenterRole],
+      }));
+      await storage.saveActiveCenterId(result.centerId);
       setSuccessMessage(t('staff.invite_accept.success'));
       setTimeout(() => {
-        router.replace('/branch-select');
+        router.replace('/(app)/(tabs)/');
       }, 1500);
     } catch (err: any) {
       console.error('Accept invitation error:', err);
@@ -203,13 +213,13 @@ export default function AcceptInviteScreen() {
             </Text>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => router.push('/login')}
+              onPress={() => router.push(`/(auth)/login?redirect=${encodeURIComponent(`/accept-invite?token=${token}`)}` as any)}
             >
               <Text style={styles.buttonText}>{t('staff.invite_auth.signIn')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.buttonSecondary}
-              onPress={() => router.push(`/(auth)/register?staff=true&email=${encodeURIComponent(invitationDetails?.targetEmail ?? '')}` as any)}
+              onPress={() => router.push(`/(auth)/register?staff=true&email=${encodeURIComponent(invitationDetails?.targetEmail ?? '')}&token=${token}` as any)}
             >
               <Text style={styles.buttonSecondaryText}>{t('staff.invite_auth.createAccount')}</Text>
             </TouchableOpacity>

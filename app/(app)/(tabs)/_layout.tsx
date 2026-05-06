@@ -46,7 +46,7 @@ export default function TabLayout() {
         name="chat"
         options={{
           title: 'Messages',
-          href: isAdmin ? null : canManageChat ? undefined : null,
+          href: null,
           tabBarIcon: ({ color, size }) => <Ionicons name="chatbubbles" size={size} color={color} />,
         }}
       />
@@ -79,7 +79,7 @@ export default function TabLayout() {
         name="staff"
         options={{
           title: 'Staff',
-          href: isAdmin ? null : canManageStaff ? undefined : null,
+          href: null,
           tabBarIcon: ({ color, size }) => <Ionicons name="people" size={size} color={color} />,
         }}
       />
@@ -96,6 +96,7 @@ export default function TabLayout() {
       <Tabs.Screen name="profile/trust" options={{ href: null }} />
       <Tabs.Screen name="profile/pricing" options={{ href: null }} />
       <Tabs.Screen name="profile/offers" options={{ href: null }} />
+      <Tabs.Screen name="profile/staff" options={{ href: null }} />
 
       {/* ── Admin-only tab ── */}
       <Tabs.Screen

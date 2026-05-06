@@ -22,7 +22,7 @@ function BookingsScreen() {
   const activeCenterId = useAppSelector((state) => state.center.activeCenterId);
   const statusParam = selectedStatus === 'ALL' ? undefined : selectedStatus;
   const { data: bookingsData, isLoading, isFetching, refetch } = useGetCenterBookingsQuery(
-    { page, size: 20, status: statusParam },
+    { centerId: activeCenterId!, page, size: 20, status: statusParam },
     { skip: !activeCenterId }
   );
 

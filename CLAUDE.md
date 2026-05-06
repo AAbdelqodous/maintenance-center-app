@@ -838,3 +838,240 @@ cd ~/IdeaProjects/life-experience-app/service-center && ./mvnw test
 - `service-center` — Spring Boot backend at `~/IdeaProjects/life-experience-app/service-center/`
 - `maintenance-customer-app` — React Native customer app (in progress, ~90% complete)
 - `maintenance-center-app` — React Native center owner app (this repo, complete)
+
+
+
+# CLAUDE.md additions — Frontend (`maintenance-center-app`)
+
+> Append these sections to `maintenance-center-app/CLAUDE.md`. Existing content stays.
+> The Owner experience is **frozen** for this phase — only add Staff variants alongside,
+> never modify Owner screens.
+
+---
+
+## 👥 Two User Types in One App (Phase 2.6)
+
+This app now serves two distinct roles authenticated against the same backend:
+
+| Role          | `userType` from API | Approval gate | Branch selector |
+|---------------|---------------------|---------------|-----------------|
+| Center Owner  | `CENTER_OWNER`      | ✅ existing   | ✅ if >1 branch |
+| Center Staff  | `STAFF`             | ❌ skipped    | ❌ skipped (single `affiliatedCenterId`) |
+
+`AuthResponse` and `GET /users/me` now return `userType` and (for staff)
+`affiliatedCenterId`. Both are persisted in `authSlice`.
+
+---
+
+## 🧭 Navigation Strategy — Parallel Layouts
+
+Use **separate route groups** in `app/(app)/`. Do **not** put `if (isOwner)` checks
+inside Owner screens. The router decides which tab bar loads.
+
+```
+app/
+├── (auth)/                           # unchanged
+└── (app)/
+    ├── _layout.tsx                   # auth guard + role gate
+    ├── pending-approval.tsx          # owner-only (unchanged)
+    ├── (owner)/                      # ← rename existing tabs into here
+    │   ├── _layout.tsx               # 5-tab bar — UNCHANGED behavior
+    │   ├── dashboard.tsx
+    │   ├── bookings/
+    │   ├── reviews/
+    │   ├── notifications.tsx
+    │   ├── analytics.tsx
+    │   ├── profile/                  # CenterProfileScreen + EditCenterScreen
+    │   └── staff/                    # ← NEW: owner-only staff management
+    │       ├── index.tsx             # list of staff at center
+    │       ├── invite.tsx            # invite form
+    │       └── [id].tsx              # edit / deactivate
+    └── (staff)/                      # ← NEW group
+        ├── _layout.tsx               # 5-tab bar — staff variant
+        ├── dashboard.tsx             # StaffDashboardScreen
+        ├── bookings/
+        │   ├── index.tsx             # only assigned bookings
+        │   └── [id].tsx              # status update allowed if assigned
+        ├── reviews.tsx               # read-only, no Reply button
+        ├── notifications.tsx         # personal (same data, different screen file)
+        ├── analytics.tsx             # StaffAnalyticsScreen (no revenue)
+        └── profile.tsx               # MemberProfileScreen (user, not center)
+```
+
+### Role-gate logic (in `app/(app)/_layout.tsx`)
+
+```tsx
+const { token, userType, approvalStatus, hydrated } = useSelector(s => s.auth);
+
+if (!hydrated) return <Splash />;
+if (!token) return <Redirect href="/(auth)/login" />;
+
+if (userType === 'CENTER_OWNER') {
+  if (approvalStatus === 'PENDING_APPROVAL') return <Redirect href="/(app)/pending-approval" />;
+  if (approvalStatus === 'REJECTED')         return <Redirect href="/(auth)/login" />;
+  return <Redirect href="/(app)/(owner)/dashboard" />;
+}
+
+if (userType === 'STAFF') {
+  return <Redirect href="/(app)/(staff)/dashboard" />;
+}
+
+// CUSTOMER somehow logged into the wrong app
+return <Redirect href="/(auth)/login?error=wrong-app" />;
+```
+
+> **Why redirect not Slot?** Expo Router resolves Slot lazily and we want the URL
+> to reflect the active role (helpful for deep links and debugging).
+
+---
+
+## 🎨 Staff Tab Bar — Spec
+
+5 tabs, in this order, mirroring the Owner layout for muscle memory:
+
+| Tab           | Icon (lucide)    | Screen                            | Notes |
+|---------------|------------------|-----------------------------------|-------|
+| Dashboard     | `LayoutDashboard`| `StaffDashboardScreen`            | Stats card grid (4 cards) + recent assigned bookings list. **No Center Profile shortcut.** Quick-action buttons: "My Bookings", "My Reviews", "My Profile". |
+| Bookings      | `CalendarCheck`  | `StaffBookingsScreen`             | Same card layout as owner; data source is `useGetMyAssignedBookingsQuery`. Filters by status. |
+| Reviews       | `Star`           | `StaffReviewsScreen`              | Read-only `ReviewCard` variant — `ReviewCard.tsx` accepts `showReply: boolean = true`; pass `false` here. |
+| Notifications | `Bell`           | `StaffNotificationsScreen`        | Identical UI to owner (personal notifications). Reuse `NotificationsList` component. |
+| Profile       | `User`           | `MemberProfileScreen`             | Edits `_user` fields (firstname, lastname, phone, dateOfBirth, language, password change). **No center fields.** |
+
+**Hidden for staff** vs owner:
+- ❌ "Center Profile" quick action on dashboard
+- ❌ "Reply" button on review cards
+- ❌ Center editor / images / hours / categories
+- ❌ Staff management screen
+- ❌ Center-wide analytics & revenue numbers
+
+---
+
+## 🗂️ Redux — `authSlice` changes
+
+Extend the existing slice; do not create a new one.
+
+```ts
+interface AuthState {
+  token: string | null;
+  user: UserResponse | null;
+  approvalStatus: ApprovalStatus | null;
+  userType: 'CENTER_OWNER' | 'STAFF' | 'CUSTOMER' | null;   // ← new
+  affiliatedCenterId: number | null;                         // ← new
+  hydrated: boolean;
+}
+```
+
+Persist all fields via `expo-secure-store` (native) and `localStorage` (web)
+using the existing keys + `lex.userType` and `lex.affiliatedCenterId`.
+
+### `centerSlice` interaction
+- For **OWNER**: `activeCenterId` is set by branch-selector flow (unchanged).
+- For **STAFF**: on login, copy `affiliatedCenterId` → `centerSlice.activeCenterId`
+  immediately. Skip the branch selector entirely.
+
+---
+
+## 🌐 RTK Query — New Endpoints
+
+Add to `services/centerApi.ts` (or wherever your `createApi` lives):
+
+```ts
+// Owner-side staff management
+getCenterStaff:    builder.query<Page<CenterStaffResponse>, { active?: boolean; page?: number }>({...})
+inviteStaff:       builder.mutation<CenterStaffResponse, StaffInviteRequest>({...})
+updateStaff:       builder.mutation<CenterStaffResponse, { id: number } & StaffUpdateRequest>({...})
+deactivateStaff:   builder.mutation<void, number>({...})
+assignBooking:     builder.mutation<BookingResponse, { bookingId: number; staffUserId: number | null }>({...})
+
+// Staff-side
+getMyAssignedBookings: builder.query<Page<BookingResponse>, { status?: BookingStatus; page?: number }>({...})
+getMyAssignedReviews:  builder.query<Page<ReviewResponse>, { page?: number }>({...})
+getStaffDashboard:     builder.query<StaffDashboardResponse, void>({...})
+getStaffAnalytics:     builder.query<StaffAnalyticsResponse, { period: 'WEEK'|'MONTH'|'QUARTER'|'YEAR' }>({...})
+
+// Public
+activateStaff:     builder.mutation<AuthResponse, { token: string; password: string }>({...})
+```
+
+Tag invalidation: `'Staff'`, `'Booking'`, `'Review'` — mutations that affect
+the other party (e.g. `assignBooking`) must invalidate `Booking` for both
+the owner and (when WebSocket-pushed) the staff session.
+
+---
+
+## 🧩 Reusable Components — Variants Needed
+
+| Component             | Change                                                       |
+|-----------------------|--------------------------------------------------------------|
+| `ReviewCard`          | Add prop `showReplyAction?: boolean = true`. When false, hide owner-reply UI. |
+| `BookingCard`         | Add prop `showAssignedTo?: boolean = false`. Owner uses true to show "Assigned: <staff>". Staff list passes false. |
+| `BookingDetailScreen` | Owner sees an "Assign to staff" picker; staff sees just an assignee badge. Branch on `userType` from authSlice. |
+| `StatCard`            | No change — just instantiate with different titles/values. |
+| `QuickActionButton`   | No change — just render a different set per role. |
+
+---
+
+## 🔁 Push Notifications
+
+`expo-notifications` token registration is unchanged — same `PUT /users/me/push-token`.
+Backend will route notifications based on the user (not role), so:
+- New assigned booking → push to `assigned_staff_id`'s token
+- New review on assigned booking → push to that staff member
+- New booking arriving at center (any) → push to owner
+
+No frontend change beyond ensuring staff users register their token on login
+just like owners do.
+
+---
+
+## 🌍 i18n — New Keys
+
+Add to `locales/en.json` and `locales/ar.json` (always both):
+
+```
+staff.dashboard.title
+staff.dashboard.assignedTotal
+staff.dashboard.assignedActive
+staff.dashboard.assignedCompleted
+staff.dashboard.assignedThisWeek
+staff.dashboard.avgRating
+staff.bookings.empty
+staff.reviews.title
+staff.reviews.empty
+staff.profile.title
+staff.profile.memberSince
+staff.profile.jobTitle
+staff.analytics.title
+staff.analytics.completionRate
+staff.analytics.onTimeRate
+staff.activate.title
+staff.activate.setPassword
+owner.staff.title
+owner.staff.invite
+owner.staff.inviteSuccess
+owner.staff.deactivate
+owner.staff.deactivateConfirm
+owner.bookings.assignTo
+owner.bookings.unassign
+```
+
+---
+
+## 🚀 Phase Tracker — Add Entry
+
+Append under "Development Phases":
+
+```
+### Phase 2.6 — Center Staff (Frontend) ⏳ Pending
+- [ ] authSlice: userType + affiliatedCenterId persisted
+- [ ] (app)/_layout.tsx role gate (OWNER vs STAFF redirect)
+- [ ] (owner)/ route group — move existing tabs without behavior changes
+- [ ] (owner)/staff — list, invite, edit/deactivate screens
+- [ ] (owner) BookingDetail — assign/unassign UI
+- [ ] (staff)/ route group — 5 tabs as specified
+- [ ] StaffDashboard, StaffBookings, StaffReviews, StaffAnalytics, MemberProfile
+- [ ] ReviewCard.showReplyAction prop, BookingCard.showAssignedTo prop
+- [ ] /activate-account?staff=true flow → POST /auth/staff/activate
+- [ ] i18n keys added in en + ar
+- [ ] Visual smoke test: login as staff → cannot navigate to (owner)/* via deep link
+```

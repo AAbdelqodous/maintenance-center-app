@@ -4,17 +4,22 @@ import { useTranslation } from 'react-i18next';
 import { Review } from '../../store/api/reviewsApi';
 import { RatingStars } from '../ui/RatingStars';
 import { useReplyToReviewMutation } from '../../store/api/reviewsApi';
+import { useAppSelector } from '../../store';
 
 interface ReviewCardProps {
   review: Review;
+  showReplyAction?: boolean;
 }
 
-export function ReviewCard({ review }: ReviewCardProps) {
+export function ReviewCard({ review, showReplyAction = true }: ReviewCardProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
   const [reply, setReply] = useState('');
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [submitReply, { isLoading }] = useReplyToReviewMutation();
+  const canReply = useAppSelector((state) =>
+    state.center.activePermissions.includes('RESPOND_REVIEWS')
+  );
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -52,20 +57,20 @@ export function ReviewCard({ review }: ReviewCardProps) {
       </View>
       <Text style={styles.comment}>{review.comment}</Text>
 
-      {review.ownerReply ? (
+      {review.ownerReply && (
         <View style={[styles.replyContainer, isRTL && styles.replyRtl]}>
           <Text style={styles.replyLabel}>{t('reviews.reply')}:</Text>
           <Text style={styles.replyText}>{review.ownerReply}</Text>
         </View>
-      ) : (
-        !showReplyForm && (
-          <TouchableOpacity style={styles.replyButton} onPress={() => setShowReplyForm(true)}>
-            <Text style={styles.replyButtonText}>{t('reviews.reply')}</Text>
-          </TouchableOpacity>
-        )
       )}
 
-      {showReplyForm && !review.ownerReply && (
+      {showReplyAction && !review.ownerReply && canReply && !showReplyForm && (
+        <TouchableOpacity style={styles.replyButton} onPress={() => setShowReplyForm(true)}>
+          <Text style={styles.replyButtonText}>{t('reviews.reply')}</Text>
+        </TouchableOpacity>
+      )}
+
+      {showReplyAction && canReply && showReplyForm && !review.ownerReply && (
         <View style={styles.replyFormContainer}>
           <TextInput
             style={[styles.replyInput, isRTL && styles.rtlInput]}

@@ -1,0 +1,56 @@
+import React from 'react';
+import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useGetNotificationsQuery } from '@/store/api/notificationsApi';
+
+export default function StaffTabLayout() {
+  const { data: notificationsData } = useGetNotificationsQuery({ page: 0, size: 100 });
+  const unreadCount = notificationsData?.unreadCount ?? 0;
+
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#4F46E5',
+        tabBarInactiveTintColor: '#9E9E9E',
+      }}
+    >
+      <Tabs.Screen
+        name="dashboard"
+        options={{
+          title: 'Dashboard',
+          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="bookings"
+        options={{
+          title: 'Bookings',
+          tabBarIcon: ({ color, size }) => <Ionicons name="calendar" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="reviews"
+        options={{
+          title: 'Reviews',
+          tabBarIcon: ({ color, size }) => <Ionicons name="star" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: 'Notifications',
+          tabBarIcon: ({ color, size }) => <Ionicons name="notifications" size={size} color={color} />,
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
+        }}
+      />
+    </Tabs>
+  );
+}
