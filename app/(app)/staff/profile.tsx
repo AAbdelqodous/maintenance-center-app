@@ -18,6 +18,7 @@ import {
   useChangePasswordMutation,
 } from '@/store/api/userApi';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
+import { DatePickerField } from '@/components/ui/DatePickerField';
 import type { CenterRole } from '@/types/staff';
 
 function InputField({
@@ -256,12 +257,10 @@ function MemberProfileScreen() {
           autoCapitalize="none"
           isRTL={isRTL}
         />
-        <InputField
+        <DatePickerField
           label={t('staff.profile.dateOfBirth')}
           value={dateOfBirth}
-          onChangeText={setDateOfBirth}
-          placeholder="YYYY-MM-DD"
-          autoCapitalize="none"
+          onChange={setDateOfBirth}
           isRTL={isRTL}
         />
         {/* Language toggle */}

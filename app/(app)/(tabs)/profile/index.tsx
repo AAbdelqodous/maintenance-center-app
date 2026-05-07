@@ -11,6 +11,7 @@ import { clearSession } from '@/store/authSlice';
 import { clearActiveCenter } from '@/store/centerSlice';
 import { storage } from '@/lib/storage';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
+import { TimePickerField } from '@/components/ui/TimePickerField';
 import { useGetMyMembershipsQuery } from '@/store/api/staffApi';
 import { RoleBadge } from '@/components/staff/RoleBadge';
 import type { CenterRole } from '@/types/staff';
@@ -266,17 +267,17 @@ function ProfileScreen() {
           keyboardType="email-address"
           autoCapitalize="none"
         />
-        <InputField
+        <TimePickerField
           label={t('profile.openingTime')}
           value={openingTime}
-          onChangeText={setOpeningTime}
-          placeholder="09:00:00"
+          onChange={setOpeningTime}
+          isRTL={isRTL}
         />
-        <InputField
+        <TimePickerField
           label={t('profile.closingTime')}
           value={closingTime}
-          onChangeText={setClosingTime}
-          placeholder="21:00:00"
+          onChange={setClosingTime}
+          isRTL={isRTL}
         />
         <View style={[styles.switchRow, isRTL && styles.rowRtl]}>
           <Text style={styles.switchLabel}>{center?.isActive ? t('profile.isOpen') : t('profile.isClosed')}</Text>

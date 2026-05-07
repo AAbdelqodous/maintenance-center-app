@@ -22,13 +22,16 @@ function DashboardScreen() {
   const isStaff = userType === 'STAFF';
   const firstname = useAppSelector((state) => state.auth.session?.firstname ?? '');
 
-  // All queries skip for admin and staff — neither role uses the owner dashboard
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetCenterBookingStatsQuery(undefined, { skip: isAdmin || isStaff || !activeCenterId, refetchOnFocus: true });
-  const { data: centerData, isLoading: centerLoading } = useGetMyCenterQuery(undefined, { skip: isAdmin || isStaff });
-  const { data: reviewsData } = useGetReviewsQuery({ size: 1 }, { skip: isAdmin || isStaff });
+  // Only run owner-specific queries when userType is explicitly OWNER.
+  // Skipping on undefined guards against the hydration window where the token
+  // is in Redux but userType hasn't been resolved from /users/me yet.
+  const isOwner = userType === 'OWNER';
+  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetCenterBookingStatsQuery(undefined, { skip: !isOwner || !activeCenterId, refetchOnFocus: true });
+  const { data: centerData, isLoading: centerLoading } = useGetMyCenterQuery(undefined, { skip: !isOwner });
+  const { data: reviewsData } = useGetReviewsQuery({ size: 1 }, { skip: !isOwner });
   const { data: bookingsData, isLoading: bookingsLoading, refetch: refetchBookings } = useGetCenterBookingsQuery(
     { centerId: activeCenterId!, page: 0, size: 5 },
-    { skip: isAdmin || isStaff || !activeCenterId, refetchOnFocus: true }
+    { skip: !isOwner || !activeCenterId, refetchOnFocus: true }
   );
 
   const [refreshing, setRefreshing] = React.useState(false);

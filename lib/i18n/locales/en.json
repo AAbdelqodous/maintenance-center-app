@@ -535,7 +535,8 @@
       "passwordMismatch": "Passwords do not match",
       "passwordTooShort": "Password must be at least 8 characters",
       "passwordError": "Failed to change password. Check your current password.",
-      "nameRequired": "First and last name are required"
+      "nameRequired": "First and last name are required",
+      "dateOfBirthFormat": "Date of birth must be in YYYY-MM-DD format (e.g. 1990-05-15)"
     },
     "emptyState": "No staff yet. Tap 'Invite Staff' to add your first team member.",
     "roles": {
