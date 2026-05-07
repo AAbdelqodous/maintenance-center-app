@@ -1,12 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, Alert } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useGetCenterBookingStatsQuery, useGetCenterBookingsQuery } from '@/store/api/bookingsApi';
 import { useGetMyCenterQuery } from '@/store/api/centerApi';
 import { useGetReviewsQuery } from '@/store/api/reviewsApi';
-import { useAppSelector } from '@/store';
+import { useAppSelector, useAppDispatch } from '@/store';
+import { clearSession } from '@/store/authSlice';
+import { clearActiveCenter } from '@/store/centerSlice';
+import { storage } from '@/lib/storage';
 import { BookingCard } from '@/components/bookings/BookingCard';
 import { RatingStars } from '@/components/ui/RatingStars';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
@@ -14,7 +17,26 @@ import ErrorBoundary from '@/components/ui/ErrorBoundary';
 function DashboardScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const isRTL = i18n.dir() === 'rtl';
+
+  const doLogout = async () => {
+    await storage.clearAll();
+    dispatch(clearSession());
+    dispatch(clearActiveCenter());
+    router.replace('/(auth)/login');
+  };
+
+  const handleLogout = () => {
+    if (Platform.OS === 'web') {
+      if (window.confirm(t('settings.logoutConfirm'))) doLogout();
+    } else {
+      Alert.alert(t('auth.logout'), t('settings.logoutConfirm'), [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('auth.logout'), style: 'destructive', onPress: doLogout },
+      ]);
+    }
+  };
 
   const activeCenterId = useAppSelector((state) => state.center.activeCenterId);
   const userType = useAppSelector((state) => state.auth.session?.userType);
@@ -70,7 +92,12 @@ function DashboardScreen() {
       contentContainerStyle={styles.contentContainer}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
-      <Text style={styles.welcome}>{t('dashboard.welcome', { name: firstname || centerData?.nameEn || '' })}</Text>
+      <View style={[styles.headerRow, isRTL && styles.rowRtl]}>
+        <Text style={styles.welcome}>{t('dashboard.welcome', { name: firstname || centerData?.nameEn || '' })}</Text>
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={24} color="#EF4444" />
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.statsGrid}>
         <StatCard title={t('dashboard.totalBookings')} value={stats?.total ?? 0} icon="calendar" color="#2196F3" />
@@ -150,11 +177,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  logoutBtn: { padding: 6 },
   welcome: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333333',
-    marginBottom: 20,
+    flex: 1,
   },
   statsGrid: {
     flexDirection: 'row',

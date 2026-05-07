@@ -51,6 +51,9 @@ export default function StaffTabLayout() {
           tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
         }}
       />
+      {/* Hidden screens — navigated to from dashboard quick actions */}
+      <Tabs.Screen name="pricing" options={{ href: null }} />
+      <Tabs.Screen name="offers"  options={{ href: null }} />
     </Tabs>
   );
 }
