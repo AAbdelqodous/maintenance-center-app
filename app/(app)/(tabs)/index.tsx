@@ -22,13 +22,13 @@ function DashboardScreen() {
   const isStaff = userType === 'STAFF';
   const firstname = useAppSelector((state) => state.auth.session?.firstname ?? '');
 
-  // All queries skip for admin — admin has no center, bookings, or reviews
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetCenterBookingStatsQuery(undefined, { skip: isAdmin || !activeCenterId, refetchOnFocus: true });
-  const { data: centerData, isLoading: centerLoading } = useGetMyCenterQuery(undefined, { skip: isAdmin });
-  const { data: reviewsData } = useGetReviewsQuery({ size: 1 }, { skip: isAdmin });
+  // All queries skip for admin and staff — neither role uses the owner dashboard
+  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetCenterBookingStatsQuery(undefined, { skip: isAdmin || isStaff || !activeCenterId, refetchOnFocus: true });
+  const { data: centerData, isLoading: centerLoading } = useGetMyCenterQuery(undefined, { skip: isAdmin || isStaff });
+  const { data: reviewsData } = useGetReviewsQuery({ size: 1 }, { skip: isAdmin || isStaff });
   const { data: bookingsData, isLoading: bookingsLoading, refetch: refetchBookings } = useGetCenterBookingsQuery(
     { centerId: activeCenterId!, page: 0, size: 5 },
-    { skip: isAdmin || !activeCenterId, refetchOnFocus: true }
+    { skip: isAdmin || isStaff || !activeCenterId, refetchOnFocus: true }
   );
 
   const [refreshing, setRefreshing] = React.useState(false);

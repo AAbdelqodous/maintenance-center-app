@@ -5,15 +5,17 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useActivateAccountMutation, useResendOtpMutation } from '../../store/api/authApi';
+import { useResetPasswordMutation, useForgotPasswordMutation } from '@/store/api/authApi';
 
-export default function VerifyOTPScreen() {
+export default function ResetPasswordScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const isRTL = i18n.dir() === 'rtl';
-  const { email } = useLocalSearchParams<{ email: string }>();
+  const { email } = useLocalSearchParams<{ email?: string }>();
 
   const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [cooldown, setCooldown] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -21,8 +23,8 @@ export default function VerifyOTPScreen() {
 
   const hiddenInputRef = useRef<TextInput>(null);
 
-  const [activateAccount, { isLoading }] = useActivateAccountMutation();
-  const [resendOtp, { isLoading: resendLoading }] = useResendOtpMutation();
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
+  const [forgotPassword, { isLoading: resendLoading }] = useForgotPasswordMutation();
 
   useEffect(() => {
     const timer = setTimeout(() => hiddenInputRef.current?.focus(), 150);
@@ -37,7 +39,13 @@ export default function VerifyOTPScreen() {
     return () => clearInterval(interval);
   }, [cooldown]);
 
-  const handleVerify = async () => {
+  const handleOtpChange = (value: string) => {
+    setOtp(value.replace(/\D/g, '').slice(0, 6));
+  };
+
+  const activeBoxIndex = Math.min(otp.length, 5);
+
+  const handleReset = async () => {
     setErrorMessage('');
     setSuccessMessage('');
 
@@ -45,13 +53,25 @@ export default function VerifyOTPScreen() {
       setErrorMessage(t('auth.invalidOTP'));
       return;
     }
+    if (!newPassword || !confirmPassword) {
+      setErrorMessage(t('common.fillRequired'));
+      return;
+    }
+    if (newPassword.length < 8) {
+      setErrorMessage(t('auth.passwordTooShort'));
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setErrorMessage(t('auth.passwordMismatch'));
+      return;
+    }
 
     try {
-      await activateAccount({ token: otp }).unwrap();
-      setSuccessMessage(t('auth.accountActivated'));
+      await resetPassword({ token: otp, newPassword }).unwrap();
+      setSuccessMessage(t('auth.resetPasswordSuccess'));
       setTimeout(() => router.replace('/(auth)/login'), 1500);
-    } catch (error: any) {
-      setErrorMessage(error?.data?.error || t('auth.activationFailed'));
+    } catch {
+      setErrorMessage(t('auth.resetPasswordError'));
     }
   };
 
@@ -59,9 +79,8 @@ export default function VerifyOTPScreen() {
     if (cooldown > 0 || !email) return;
     setErrorMessage('');
     setSuccessMessage('');
-
     try {
-      await resendOtp({ email }).unwrap();
+      await forgotPassword({ email }).unwrap();
       setSuccessMessage(t('auth.otpResent'));
       setCooldown(60);
     } catch {
@@ -69,28 +88,19 @@ export default function VerifyOTPScreen() {
     }
   };
 
-  const handleOtpChange = (value: string) => {
-    const digits = value.replace(/\D/g, '').slice(0, 6);
-    setOtp(digits);
-  };
-
-  // The active (cursor) box is the next empty slot, capped at index 5
-  const activeBoxIndex = Math.min(otp.length, 5);
-
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.content}>
-          <Text style={styles.title}>{t('auth.verifyOTP')}</Text>
-          <Text style={styles.subtitle}>{t('auth.otpSent')}</Text>
+          <Text style={styles.title}>{t('auth.resetPasswordTitle')}</Text>
+          <Text style={[styles.subtitle, isRTL && styles.textRtl]}>{t('auth.resetPasswordSubtitle')}</Text>
 
-          {/* Tap anywhere on the box row to focus the hidden input */}
+          <Text style={[styles.label, { marginBottom: 12 }]}>{t('auth.resetCode')}</Text>
           <TouchableOpacity
             style={styles.otpContainer}
             onPress={() => hiddenInputRef.current?.focus()}
             activeOpacity={1}
           >
-            {/* Single hidden input — captures typing, backspace, and paste */}
             <TextInput
               ref={hiddenInputRef}
               style={styles.hiddenInput}
@@ -104,8 +114,6 @@ export default function VerifyOTPScreen() {
               autoComplete="one-time-code"
               textContentType="oneTimeCode"
             />
-
-            {/* Visual digit boxes */}
             {[0, 1, 2, 3, 4, 5].map((index) => {
               const isActive = isFocused && index === activeBoxIndex;
               const isFilled = !!otp[index];
@@ -125,6 +133,32 @@ export default function VerifyOTPScreen() {
             })}
           </TouchableOpacity>
 
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>{t('auth.newPassword')}</Text>
+            <TextInput
+              style={[styles.input, isRTL && styles.rtlInput]}
+              value={newPassword}
+              onChangeText={setNewPassword}
+              placeholder="••••••••"
+              placeholderTextColor="#9E9E9E"
+              secureTextEntry
+              textContentType="newPassword"
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>{t('auth.confirmPassword')}</Text>
+            <TextInput
+              style={[styles.input, isRTL && styles.rtlInput]}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="••••••••"
+              placeholderTextColor="#9E9E9E"
+              secureTextEntry
+              textContentType="newPassword"
+            />
+          </View>
+
           {errorMessage ? (
             <View style={styles.errorBox}>
               <Text style={[styles.errorText, isRTL && styles.textRtl]}>{errorMessage}</Text>
@@ -139,28 +173,34 @@ export default function VerifyOTPScreen() {
 
           <TouchableOpacity
             style={[styles.button, (isLoading || otp.length !== 6) && styles.buttonDisabled]}
-            onPress={handleVerify}
+            onPress={handleReset}
             disabled={isLoading || otp.length !== 6}
           >
             {isLoading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.buttonText}>{t('auth.verifyButton')}</Text>
+              <Text style={styles.buttonText}>{t('auth.resetPasswordButton')}</Text>
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.resendButton, (cooldown > 0 || resendLoading) && styles.resendButtonDisabled]}
-            onPress={handleResend}
-            disabled={cooldown > 0 || resendLoading}
-          >
-            {resendLoading ? (
-              <ActivityIndicator color="#2196F3" />
-            ) : (
-              <Text style={[styles.resendButtonText, cooldown > 0 && styles.resendButtonTextDisabled]}>
-                {cooldown > 0 ? t('auth.resendIn', { seconds: cooldown }) : t('auth.resendOTP')}
-              </Text>
-            )}
+          {email ? (
+            <TouchableOpacity
+              style={[styles.resendButton, (cooldown > 0 || resendLoading) && styles.resendButtonDisabled]}
+              onPress={handleResend}
+              disabled={cooldown > 0 || resendLoading}
+            >
+              {resendLoading ? (
+                <ActivityIndicator color="#2196F3" />
+              ) : (
+                <Text style={[styles.resendButtonText, cooldown > 0 && styles.resendButtonTextDisabled]}>
+                  {cooldown > 0 ? t('auth.resendIn', { seconds: cooldown }) : t('auth.resendOTP')}
+                </Text>
+              )}
+            </TouchableOpacity>
+          ) : null}
+
+          <TouchableOpacity style={styles.backLink} onPress={() => router.replace('/(auth)/login')}>
+            <Text style={styles.backLinkText}>{t('auth.backToLogin')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -189,17 +229,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#666666',
-    marginBottom: 40,
+    marginBottom: 32,
     textAlign: 'center',
+    lineHeight: 22,
+  },
+  label: {
+    fontSize: 14,
+    color: '#666666',
+    marginBottom: 8,
   },
   otpContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 32,
+    marginBottom: 28,
   },
-  // Completely invisible but focusable — positioned behind the boxes
   hiddenInput: {
     position: 'absolute',
     width: 1,
@@ -226,13 +271,28 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333333',
   },
-  // Blinking cursor shown in the active empty box
   cursor: {
     position: 'absolute',
     width: 2,
     height: 28,
     backgroundColor: '#2196F3',
     borderRadius: 1,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  input: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    color: '#333333',
+    backgroundColor: '#FAFAFA',
+  },
+  rtlInput: {
+    textAlign: 'right',
   },
   errorBox: {
     backgroundColor: '#FFEBEE',
@@ -289,5 +349,15 @@ const styles = StyleSheet.create({
   },
   resendButtonTextDisabled: {
     color: '#999999',
+  },
+  backLink: {
+    padding: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  backLinkText: {
+    fontSize: 14,
+    color: '#666666',
   },
 });

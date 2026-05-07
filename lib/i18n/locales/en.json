@@ -70,7 +70,21 @@
     "emailAlreadyExists": "This email is already registered. Please sign in instead.",
     "pendingTitle": "Account Pending Approval",
     "pendingMessage": "Your center owner account is under review. Our team will approve it shortly.",
-    "pendingInfo": "You will be notified by email once your account is approved and you can start managing your center."
+    "pendingInfo": "You will be notified by email once your account is approved and you can start managing your center.",
+    "forgotPassword": "Forgot Password?",
+    "forgotPasswordTitle": "Reset Password",
+    "forgotPasswordSubtitle": "Enter your email address and we'll send you a 6-digit reset code.",
+    "forgotPasswordButton": "Send Reset Code",
+    "forgotPasswordSuccess": "If this email is registered, a reset code has been sent.",
+    "forgotPasswordError": "Failed to send reset code. Please try again.",
+    "resetPasswordTitle": "New Password",
+    "resetPasswordSubtitle": "Enter the 6-digit code sent to your email and choose a new password.",
+    "resetCode": "Reset Code",
+    "newPassword": "New Password",
+    "resetPasswordButton": "Reset Password",
+    "resetPasswordSuccess": "Password reset successfully! You can now sign in.",
+    "resetPasswordError": "Invalid or expired reset code. Please try again.",
+    "backToLogin": "Back to Login"
   },
   "dashboard": {
     "title": "Dashboard",

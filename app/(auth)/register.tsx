@@ -151,7 +151,7 @@ export default function RegisterScreen() {
             <TextInput
               style={[styles.input, isRTL && styles.rtlInput]}
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => setEmail(text.trim().toLowerCase())}
               placeholder="email@example.com"
               placeholderTextColor="#9E9E9E"
               autoCapitalize="none"

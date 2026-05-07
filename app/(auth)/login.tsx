@@ -62,7 +62,7 @@ export default function LoginScreen() {
             <TextInput
               style={[styles.input, isRTL && styles.rtlInput]}
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => setEmail(text.trim().toLowerCase())}
               placeholder="email@example.com"
               placeholderTextColor="#9E9E9E"
               autoCapitalize="none"
@@ -83,6 +83,10 @@ export default function LoginScreen() {
               textContentType="password"
             />
           </View>
+
+          <TouchableOpacity style={styles.forgotLink} onPress={() => router.push('/(auth)/forgot-password')}>
+            <Text style={styles.forgotLinkText}>{t('auth.forgotPassword')}</Text>
+          </TouchableOpacity>
 
           {errorMessage ? (
             <View style={styles.errorBox}>
@@ -194,6 +198,14 @@ const styles = StyleSheet.create({
   },
   textRtl: {
     textAlign: 'right',
+  },
+  forgotLink: {
+    alignSelf: 'flex-end',
+    marginBottom: 4,
+  },
+  forgotLinkText: {
+    fontSize: 13,
+    color: '#2196F3',
   },
   verifyLink: {
     marginTop: 8,

@@ -52,6 +52,12 @@ export const authApi = createApi({
     resendOtp: builder.mutation<void, { email: string }>({
       query: (body) => ({ url: 'auth/resend-otp', method: 'POST', body }),
     }),
+    forgotPassword: builder.mutation<void, { email: string }>({
+      query: (body) => ({ url: 'auth/forgot-password', method: 'POST', body }),
+    }),
+    resetPassword: builder.mutation<void, { token: string; newPassword: string }>({
+      query: (body) => ({ url: 'auth/reset-password', method: 'POST', body }),
+    }),
   }),
 });
 
@@ -61,4 +67,6 @@ export const {
   useRegisterStaffMutation,
   useActivateAccountMutation,
   useResendOtpMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
 } = authApi;
