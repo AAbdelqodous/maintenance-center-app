@@ -97,6 +97,7 @@ export default function TabLayout() {
       <Tabs.Screen name="profile/pricing" options={{ href: null }} />
       <Tabs.Screen name="profile/offers" options={{ href: null }} />
       <Tabs.Screen name="profile/staff" options={{ href: null }} />
+      <Tabs.Screen name="profile/services" options={{ href: null }} />
 
       {/* ── Admin-only tab ── */}
       <Tabs.Screen

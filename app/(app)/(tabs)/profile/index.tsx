@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Activi
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, Stack } from 'expo-router';
-import { useGetMyCenterQuery, useUpdateCenterMutation, useUploadCenterImageMutation, useDeleteCenterImageMutation, useGetCategoriesQuery } from '@/store/api/centerApi';
+import { useGetMyCenterQuery, useUpdateCenterMutation, useUploadCenterImageMutation, useDeleteCenterImageMutation, useGetMyCenterServicesQuery } from '@/store/api/centerApi';
+import type { ServiceCategory } from '@/store/api/centerApi';
 import * as ImagePicker from 'expo-image-picker';
 import { resolveImageUrl } from '@/lib/constants/config';
 import { useAppDispatch, useAppSelector } from '@/store';
@@ -23,14 +24,11 @@ function ProfileScreen() {
   const isRTL = i18n.dir() === 'rtl';
 
   const { data: center, isLoading, refetch, error: centerError } = useGetMyCenterQuery();
-  const { data: allCategories, error: categoriesError } = useGetCategoriesQuery();
+  const { data: centerServices } = useGetMyCenterServicesQuery();
   const [updateCenter, { isLoading: isUpdating, error: updateError }] = useUpdateCenterMutation();
   const [uploadImage, { isLoading: isUploading }] = useUploadCenterImageMutation();
   const [deleteImage] = useDeleteCenterImageMutation();
 
-  console.log('Debug - Center:', center, 'Error:', centerError);
-  console.log('Debug - Categories:', allCategories, 'Error:', categoriesError);
-  console.log('Debug - Update error:', updateError);
 
   const [nameAr, setNameAr] = useState('');
   const [nameEn, setNameEn] = useState('');
@@ -47,7 +45,6 @@ function ProfileScreen() {
   const [districtEn, setDistrictEn] = useState('');
   const [streetAr, setStreetAr] = useState('');
   const [streetEn, setStreetEn] = useState('');
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
 
   React.useEffect(() => {
     if (center) {
@@ -66,20 +63,17 @@ function ProfileScreen() {
       setDistrictEn(center.address?.districtEn ?? '');
       setStreetAr(center.address?.streetAr ?? '');
       setStreetEn(center.address?.streetEn ?? '');
-      setSelectedCategoryIds(center.categories?.map((c) => c.id) ?? []);
     }
   }, [center]);
 
   const handleUpdateProfile = async () => {
-    if (!nameAr || !nameEn || !phone || !cityAr || !cityEn || selectedCategoryIds.length === 0) {
+    if (!nameAr || !nameEn || !phone || !cityAr || !cityEn) {
       Alert.alert(t('common.error'), t('common.fillRequired'));
       return;
     }
 
-    console.log('Updating center with:', { nameAr, nameEn, phone, categoryIds: selectedCategoryIds });
-
     try {
-      const result = await updateCenter({
+      await updateCenter({
         nameAr,
         nameEn,
         descriptionAr,
@@ -90,14 +84,12 @@ function ProfileScreen() {
         closingTime: closingTime || undefined,
         isActive,
         address: { cityAr, cityEn, districtAr, districtEn, streetAr, streetEn },
-        categoryIds: selectedCategoryIds,
       }).unwrap();
-      console.log('Update successful:', result);
       Alert.alert(t('common.save'), t('profile.profileUpdated'));
       refetch();
-    } catch (error) {
-      console.error('Update failed:', error);
-      Alert.alert(t('common.error'), `Failed to update profile: ${JSON.stringify(error)}`);
+    } catch (error: any) {
+      const msg = error?.data?.businessErrorDescription ?? error?.data?.error ?? t('common.error');
+      Alert.alert(t('common.error'), msg);
     }
   };
 
@@ -178,6 +170,20 @@ function ProfileScreen() {
       ]);
     }
   };
+
+  const derivedCategories = React.useMemo<ServiceCategory[]>(() => {
+    if (!centerServices) return [];
+    const seen = new Set<number>();
+    return centerServices
+      .filter((s) => s.isActive)
+      .reduce<ServiceCategory[]>((acc, s) => {
+        if (!seen.has(s.category.id)) {
+          seen.add(s.category.id);
+          acc.push(s.category);
+        }
+        return acc;
+      }, []);
+  }, [centerServices]);
 
   const InputField = ({ label, value, onChangeText, placeholder, multiline = false }: any) => (
     <View style={styles.inputContainer}>
@@ -331,26 +337,19 @@ function ProfileScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('profile.categories')}</Text>
+        <Text style={styles.sectionTitle}>{t('services.categoriesServed')}</Text>
         <View style={styles.categoriesGrid}>
-          {allCategories?.map((cat) => {
-            const isSelected = selectedCategoryIds.includes(cat.id);
-            return (
-              <TouchableOpacity
-                key={cat.id}
-                style={[styles.categoryChip, isSelected && styles.categoryChipSelected]}
-                onPress={() =>
-                  setSelectedCategoryIds((prev) =>
-                    isSelected ? prev.filter((id) => id !== cat.id) : [...prev, cat.id]
-                  )
-                }
-              >
-                <Text style={[styles.categoryChipText, isSelected && styles.categoryChipTextSelected]}>
+          {derivedCategories.length === 0 ? (
+            <Text style={styles.noPhotos}>{t('services.noServices')}</Text>
+          ) : (
+            derivedCategories.map((cat) => (
+              <View key={cat.id} style={styles.categoryChipSelected}>
+                <Text style={styles.categoryChipTextSelected}>
                   {i18n.language === 'ar' ? cat.nameAr : cat.nameEn}
                 </Text>
-              </TouchableOpacity>
-            );
-          })}
+              </View>
+            ))
+          )}
         </View>
       </View>
 
@@ -412,10 +411,10 @@ function ProfileScreen() {
       <View style={styles.section}>
         <TouchableOpacity
           style={[styles.menuRow, isRTL && styles.rowRtl]}
-          onPress={() => router.push('/(app)/(tabs)/profile/pricing' as any)}
+          onPress={() => router.push('/(app)/(tabs)/profile/services' as any)}
         >
-          <Ionicons name="pricetags-outline" size={20} color="#2196F3" />
-          <Text style={styles.menuRowText}>{t('pricing.managePricing')}</Text>
+          <Ionicons name="construct-outline" size={20} color="#2196F3" />
+          <Text style={styles.menuRowText}>{t('services.manageServices')}</Text>
           <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
         </TouchableOpacity>
 

@@ -76,7 +76,14 @@
       "Bash(dir \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\life-experience-app\\\\service-center\\\\src\\\\main\\\\java\" /s /b /ad)",
       "Bash(dir \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\life-experience-app\\\\service-center\\\\src\\\\main\\\\java\\\\com\" /s /b /ad)",
       "Bash(Get-ChildItem -Recurse -Directory \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\life-experience-app\\\\service-center\\\\src\\\\main\\\\java\")",
-      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\life-experience-app\\\\service-center\\\\src\\\\main\\\\java\\\\com\\\\maintainance\\\\service_center\\\\staff\" -File | ForEach-Object { $_.Name })"
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\life-experience-app\\\\service-center\\\\src\\\\main\\\\java\\\\com\\\\maintainance\\\\service_center\\\\staff\" -File | ForEach-Object { $_.Name })",
+      "PowerShell(.specify\\\\scripts\\\\powershell\\\\create-new-feature.ps1 \"My Services screen - owner declares services & pricing per category\" -Json -ShortName \"owner-services-pricing\")",
+      "PowerShell(.specify\\\\scripts\\\\powershell\\\\setup-plan.ps1 -Json)",
+      "PowerShell(.specify\\\\scripts\\\\powershell\\\\update-agent-context.ps1 -AgentType claude)",
+      "PowerShell(.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1 -Json)",
+      "PowerShell(.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks)",
+      "Bash(powershell -Command \"\\(Get-Content 'specs\\\\014-owner-services-pricing\\\\tasks.md'\\) -replace '- \\\\[ \\\\] T010', '- [x] T010' -replace '- \\\\[ \\\\] T011', '- [x] T011' -replace '- \\\\[ \\\\] T012', '- [x] T012' -replace '- \\\\[ \\\\] T013', '- [x] T013' -replace '- \\\\[ \\\\] T014', '- [x] T014' -replace '- \\\\[ \\\\] T015', '- [x] T015' -replace '- \\\\[ \\\\] T016', '- [x] T016' -replace '- \\\\[ \\\\] T017', '- [x] T017' -replace '- \\\\[ \\\\] T018', '- [x] T018' -replace '- \\\\[ \\\\] T019', '- [x] T019' | Set-Content 'specs\\\\014-owner-services-pricing\\\\tasks.md'\")",
+      "Bash(git stash *)"
     ]
   }
 }

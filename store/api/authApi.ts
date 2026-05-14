@@ -7,6 +7,7 @@ export type ApprovalStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED';
 export interface LoginResponse {
   token: string;
   approvalStatus: ApprovalStatus;
+  userType?: string;
 }
 
 export interface RegisterOwnerRequest {

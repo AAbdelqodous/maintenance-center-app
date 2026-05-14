@@ -84,7 +84,8 @@
     "resetPasswordButton": "Reset Password",
     "resetPasswordSuccess": "Password reset successfully! You can now sign in.",
     "resetPasswordError": "Invalid or expired reset code. Please try again.",
-    "backToLogin": "Back to Login"
+    "backToLogin": "Back to Login",
+    "wrongApp": "This app is for center owners and staff. Customer accounts cannot sign in here."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -664,5 +665,43 @@
       "scheduled": "Scheduled",
       "expired": "Expired"
     }
+  },
+  "services": {
+    "title": "My Services",
+    "manageServices": "Manage Services",
+    "addService": "Add Service",
+    "addFirstService": "Add Your First Service",
+    "noServices": "No services added yet",
+    "noServicesSubtitle": "Add the services your center performs to let customers know what you offer.",
+    "step1Title": "Select Category",
+    "step2Title": "Select Service",
+    "step3Title": "Pricing & Details (Optional)",
+    "alreadyAdded": "Already added",
+    "priceOnRequest": "Price on request",
+    "minPrice": "Min Price (KD)",
+    "maxPrice": "Max Price (KD)",
+    "duration": "Typical Duration (minutes)",
+    "descriptionAr": "Description (Arabic, optional)",
+    "descriptionEn": "Description (English, optional)",
+    "categoriesServed": "Categories You Serve",
+    "next": "Next",
+    "back": "Back",
+    "save": "Save",
+    "deleteConfirmTitle": "Remove Service",
+    "deleteConfirmMessage": "Stop offering this service? Customers won't see it on your booking page.",
+    "deleteConfirmWeb": "Stop offering this service? Customers won't see it on your booking page.",
+    "saved": "Service saved",
+    "deleted": "Service removed",
+    "errorSave": "Failed to save. Please try again.",
+    "errorDelete": "Failed to remove. Please try again.",
+    "errorLoad": "Could not load services. Tap to retry.",
+    "maxPriceError": "Max price must be ≥ min price",
+    "durationError": "Duration must be at least 1 minute",
+    "charCount": "{{count}}/500",
+    "editService": "Edit Service",
+    "category": "Category",
+    "service": "Service",
+    "addingForCategory": "Adding service for: {{name}}",
+    "noCategoriesError": "Your center has no registered categories. Please contact support."
   }
 }

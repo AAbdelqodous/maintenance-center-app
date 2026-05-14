@@ -1075,3 +1075,329 @@ Append under "Development Phases":
 - [ ] i18n keys added in en + ar
 - [ ] Visual smoke test: login as staff → cannot navigate to (owner)/* via deep link
 ```
+
+
+
+# Phase 3.5 (Revised) — Service Hierarchy & Pricing
+
+> **This revises the existing "Phase 3.5 — Trust MVP" entry in
+> `maintenance-center-app/CLAUDE.md`. The original entry assumed the flat
+> `ServiceType` model; the backend has since moved to a Category → Service
+> hierarchy with pricing merged into the offering record. Replace the existing
+> Phase 3.5 entry with the content below, and apply the small section-by-section
+> edits noted at the bottom.**
+
+---
+
+## 🎯 Goal
+
+Build the owner-side **My Services** screen that lets an owner declare, per
+category their center serves, which services they offer plus optional pricing,
+duration, and bilingual descriptions.
+
+This **supersedes** the original Phase 3.5 plan ("Service pricing management
+screen" + "Pricing CRUD operations" against the old flat `ServiceType` enum).
+Services and pricing are now one concept: a row in `center_services`.
+
+After this phase ships:
+- The Profile editor's existing "Categories" multi-select is **removed** —
+  categories a center serves are now derived server-side from `center_services`
+- The Profile editor instead shows a **read-only category list** with a
+  "Manage services" link/button that navigates to the new screen
+
+---
+
+## 📐 Locked Design Decisions (see backend Phase 3.6 for full rationale)
+
+1. Service catalog is **global** (admin-curated, 7 services) — clients consume read-only
+2. A center declares `(category, service)` pairs; backend rejects pairs not in `category_services`
+3. Pricing fields are nullable — supports "price on request"
+4. `center_categories` table is dropped server-side; categories are derived
+5. The deprecated `ServiceType` enum still appears in some legacy responses;
+   new code paths must not depend on it
+
+---
+
+## 🔌 New Endpoints (already documented under "API Design")
+
+Append to "Working Endpoints (center owner app)":
+
+```
+**Services & Center Services**
+GET   /services                                      → ServiceResponse[]
+GET   /categories                                    → ServiceCategoryResponse[]  (existing)
+GET   /categories/{id}/services                      → ServiceResponse[]
+GET   /centers/my/services                           → CenterServiceResponse[]
+POST  /centers/my/services                           → CenterServiceResponse
+                                                       Body: { categoryId, serviceId,
+                                                               minPrice?, maxPrice?,
+                                                               typicalDurationMinutes?,
+                                                               descriptionAr?, descriptionEn? }
+PUT   /centers/my/services/{id}                      → CenterServiceResponse
+                                                       Body: same fields, all optional
+DELETE /centers/my/services/{id}                     → 204 (soft delete)
+```
+
+Append to "Key Response Field Names (do not rename)":
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `service.code` | string | enum-like global key (REPAIR, MAINTENANCE, ...) |
+| `service.nameAr` / `service.nameEn` | string | bilingual catalog name |
+| `category.id` / `category.nameAr` / `category.nameEn` | nested | embedded in CenterServiceResponse |
+| `minPrice` / `maxPrice` | number \| null | KD with 3 decimals; null = price on request |
+| `typicalDurationMinutes` | number \| null | optional |
+
+---
+
+## 🗂️ RTK Query Tag Types — Update
+
+In the existing `tagTypes` array (currently includes `'Pricing'` as a Phase 3.5
+placeholder):
+
+```ts
+tagTypes: [
+  'Bookings', 'Reviews', 'Notifications', 'Conversations',
+  'CenterProfile', 'CenterImages',
+  'Services',       // ← rename from 'Pricing' (Phase 3.5 — this revision)
+  'ServiceCatalog', // ← new — for the read-only catalog and category-services lists
+  'WorkProgress',   // Phase 4.0
+  'Quotes',         // Phase 4.0
+  'Analytics',      // Phase 5.0
+]
+```
+
+The `'ServiceCatalog'` tag is for the global read-only data
+(`/services`, `/categories/{id}/services`); `'Services'` is for the owner's
+own offerings (`/centers/my/services`). Mutations on `/centers/my/services/**`
+invalidate `'Services'` only.
+
+---
+
+## 📂 New & Modified Files
+
+```
+app/(app)/(tabs)/
+├── _layout.tsx                          # MODIFIED — add "Services" tab (or drawer item)
+├── services/                             # NEW route group
+│   ├── _layout.tsx                       # NEW — Stack header
+│   ├── index.tsx                         # NEW — MyServicesScreen (grouped by category)
+│   ├── add.tsx                           # NEW — AddCenterServiceScreen (3-step form)
+│   └── [id].tsx                          # NEW — EditCenterServiceScreen
+├── profile/
+│   └── index.tsx                         # MODIFIED — remove categories multi-select,
+│                                         # add read-only category list + "Manage services" link
+
+components/
+├── services/                             # NEW
+│   ├── CategorySection.tsx               # NEW — collapsible group header
+│   ├── ServiceCard.tsx                   # NEW — name, price, duration, swipe-to-edit
+│   ├── PriceRangeInput.tsx               # NEW — min/max KD inputs (RHF + Zod)
+│   └── BilingualDescriptionFields.tsx    # NEW — Ar+En textarea pair (or reuse existing)
+
+store/api/
+├── centerApi.ts                          # MODIFIED — add 7 new endpoints (see below)
+```
+
+The existing centralized RTK Query lives in `store/api/centerApi.ts` per the
+"Frontend App Structure" section. **Do not** create a new `servicesApi.ts` —
+stay consistent with the existing pattern.
+
+---
+
+## 🌐 RTK Query — New Endpoints (in `centerApi.ts`)
+
+```ts
+// Read-only catalog (cached aggressively — invalidated by 'ServiceCatalog')
+getServiceCatalog: builder.query<ServiceResponse[], void>({
+  query: () => '/services',
+  providesTags: ['ServiceCatalog'],
+}),
+getServicesForCategory: builder.query<ServiceResponse[], number>({
+  query: (categoryId) => `/categories/${categoryId}/services`,
+  providesTags: ['ServiceCatalog'],
+}),
+
+// Owner's offerings — invalidated by 'Services'
+getMyServices: builder.query<CenterServiceResponse[], void>({
+  query: () => '/centers/my/services',
+  providesTags: ['Services'],
+}),
+addMyService: builder.mutation<CenterServiceResponse, CreateCenterServiceRequest>({
+  query: (body) => ({ url: '/centers/my/services', method: 'POST', body }),
+  invalidatesTags: ['Services'],
+}),
+updateMyService: builder.mutation<
+  CenterServiceResponse,
+  { id: number; body: UpdateCenterServiceRequest }
+>({
+  query: ({ id, body }) => ({ url: `/centers/my/services/${id}`, method: 'PUT', body }),
+  invalidatesTags: ['Services'],
+}),
+deleteMyService: builder.mutation<void, number>({
+  query: (id) => ({ url: `/centers/my/services/${id}`, method: 'DELETE' }),
+  invalidatesTags: ['Services'],
+}),
+```
+
+---
+
+## 🖼️ Screen Behaviors
+
+### `MyServicesScreen` (`app/(app)/(tabs)/services/index.tsx`)
+- Calls `useGetMyServicesQuery()`
+- Groups results by `category.id`; renders one `CategorySection` per category,
+  each containing `ServiceCard`s for the services in that category
+- Empty state: "No services yet — add your first" + CTA → `/services/add`
+- Each card: service name (i18n via `nameAr`/`nameEn` based on locale),
+  price label (`5 - 12 KD`, `From 5 KD`, or i18n key `services.priceOnRequest`
+  if both null), duration if set
+- Swipe-to-edit / long-press → `/services/[id]`
+- Pull-to-refresh re-fetches
+- FAB or header button "Add service" → `/services/add`
+
+### `AddCenterServiceScreen` (`app/(app)/(tabs)/services/add.tsx`)
+
+Three-step form (using React Hook Form + Zod, matching the existing form pattern):
+
+1. **Category** — `useGetCategoriesQuery()` (existing); show only categories
+   the center already offers OR the full list (UX clarification — see Spec Kit)
+2. **Service** — `useGetServicesForCategoryQuery(categoryId)`; **disable** services
+   already in `getMyServices` for that category to prevent duplicates client-side
+3. **Optional pricing & description** — `PriceRangeInput`,
+   `typicalDurationMinutes` (number input), `BilingualDescriptionFields`
+
+Zod schema:
+```ts
+const addServiceSchema = z.object({
+  categoryId: z.number().int().positive(),
+  serviceId: z.number().int().positive(),
+  minPrice: z.number().nonnegative().optional(),
+  maxPrice: z.number().nonnegative().optional(),
+  typicalDurationMinutes: z.number().int().positive().optional(),
+  descriptionAr: z.string().max(500).optional(),
+  descriptionEn: z.string().max(500).optional(),
+}).refine(
+  (d) => d.minPrice == null || (d.maxPrice != null && d.maxPrice >= d.minPrice),
+  { message: 'maxPriceMustBeGreaterOrEqual', path: ['maxPrice'] }
+).refine(
+  (d) => (d.descriptionAr && d.descriptionEn) || (!d.descriptionAr && !d.descriptionEn),
+  { message: 'descriptionPairRequired', path: ['descriptionEn'] }
+);
+```
+
+Submit → `addMyService` mutation → on success, `router.back()` to list.
+
+Backend errors (e.g., duplicate `(center, category, service)`, invalid pair)
+surface via the existing toast/banner pattern.
+
+### `EditCenterServiceScreen` (`app/(app)/(tabs)/services/[id].tsx`)
+- Pre-fill from `getMyServices` result (find by `id`) — no separate detail endpoint
+- Fields: pricing, duration, descriptions, `isActive` toggle
+- `categoryId`/`serviceId` shown as **read-only labels** — to change them,
+  delete and re-add (avoids ambiguous identity changes)
+- Delete button with confirm dialog (use the `Platform.OS === 'web'`
+  `window.confirm` guard per existing convention) → `deleteMyService`
+
+---
+
+## 🧹 Profile Editor — Modify
+
+The existing `app/(app)/(tabs)/profile/index.tsx` has a **categories
+multi-select** field. After this phase:
+
+- **Remove** the categories multi-select editor (and any `categoryIds`
+  field on the form schema and `PUT /centers/my` payload)
+- **Add** a read-only display: "Categories you serve" + chip list derived from
+  `useGetMyServicesQuery()` → `Array.from(new Set(myServices.map(s => s.category.id)))`
+- **Add** a CTA: "Manage services →" that navigates to `/services`
+- **Note**: the backend's `MaintenanceCenterRequest` will likely reject
+  the `categoryIds` field after the migration — verify with backend before
+  removing client-side
+
+---
+
+## 🧭 Navigation
+
+In `app/(app)/(tabs)/_layout.tsx`:
+- Add a new tab **"Services"** with icon `Wrench` (lucide-react-native)
+- Position: between "Profile" and "Bookings" (or wherever the IA fits;
+  see Spec Kit clarify question)
+- If you're at the tab-count limit, move "Notifications" or "Reviews" into
+  a drawer / overflow menu instead — UX call
+
+---
+
+## 🌍 i18n — New Keys
+
+Add to `lib/i18n/locales/en.json` and `ar.json` (always both):
+
+```
+services.tab
+services.title
+services.empty
+services.emptyCta
+services.addCta
+services.priceOnRequest
+services.priceRange            // "{{min}} - {{max}} KD"
+services.priceFrom             // "From {{min}} KD"
+services.duration              // "{{minutes}} min"
+services.add.step1Title        // "Choose a category"
+services.add.step2Title        // "Choose a service"
+services.add.step3Title        // "Pricing & details (optional)"
+services.add.minPrice
+services.add.maxPrice
+services.add.typicalDuration
+services.add.descriptionAr
+services.add.descriptionEn
+services.errors.maxPriceMustBeGreaterOrEqual
+services.errors.descriptionPairRequired
+services.errors.alreadyOffered
+services.edit.deleteConfirm
+services.edit.deleteSuccess
+profile.categoriesYouServe
+profile.manageServices
+```
+
+---
+
+## 🚀 Phase Tracker — Replace Existing Phase 3.5 Entry
+
+```
+### Phase 3.5 — Service Hierarchy & Pricing (revised) 🆕
+- [ ] centerApi.ts: 7 new endpoints (catalog reads + my-services CRUD)
+- [ ] Tag types: rename 'Pricing' → 'Services', add 'ServiceCatalog'
+- [ ] Types: ServiceResponse, CenterServiceResponse, Create/UpdateCenterServiceRequest
+- [ ] components/services/: CategorySection, ServiceCard, PriceRangeInput, BilingualDescriptionFields
+- [ ] (tabs)/services/index.tsx — MyServicesScreen
+- [ ] (tabs)/services/add.tsx — 3-step add flow with RHF + Zod
+- [ ] (tabs)/services/[id].tsx — edit screen with read-only identity fields
+- [ ] (tabs)/_layout.tsx — add Services tab (or drawer entry)
+- [ ] profile/index.tsx — remove categories multi-select, add read-only display + nav link
+- [ ] i18n keys (en + ar)
+- [ ] RTL spot-check on all three new screens
+- [ ] Empty / loading / error states
+- [ ] Web: window.confirm fallback for delete confirmation
+- [ ] Smoke test: add service → see in list → edit pricing → delete → re-add
+```
+
+---
+
+## 🧹 Required Edits to Existing CLAUDE.md
+
+1. **In "Active Development: Phase 3.5+ Features"** at the top of the file:
+   replace `- [ ] Service pricing management` with
+   `- [ ] Service hierarchy & pricing (My Services screen)`.
+
+2. **In "Key Response Field Names (do not rename)" table:** append the
+   `service.*` and `category.*` rows shown above.
+
+3. **In "RTK Query Tag Types":** replace `'Pricing'` with `'Services'` and add
+   `'ServiceCatalog'` per the snippet above.
+
+4. **In "Working Endpoints (center owner app)":** append the new "Services &
+   Center Services" block.
+
+5. **In "Phase 3 — Customer App ~90% Complete" section's referenced** Phase 3.5
+   should now read **Phase 3.5 — Service Hierarchy & Pricing (revised) 🆕**
+   in the Development Phases list.

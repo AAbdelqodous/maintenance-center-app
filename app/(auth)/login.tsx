@@ -12,11 +12,11 @@ export default function LoginScreen() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
-  const { redirect } = useLocalSearchParams<{ redirect?: string }>();
+  const { redirect, error: errorParam } = useLocalSearchParams<{ redirect?: string; error?: string }>();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(errorParam === 'wrong-app' ? t('auth.wrongApp') : '');
   const [isNotActivated, setIsNotActivated] = useState(false);
 
   const handleLogin = async () => {
@@ -29,6 +29,12 @@ export default function LoginScreen() {
 
     try {
       const result = await login({ email, password }).unwrap();
+
+      if (result.userType === 'CUSTOMER') {
+        setErrorMessage(t('auth.wrongApp'));
+        return;
+      }
+
       await storage.saveSession(result.token, email);
       dispatch(setSession({ token: result.token, email }));
       if (result.approvalStatus === 'PENDING_APPROVAL') {
@@ -68,6 +74,7 @@ export default function LoginScreen() {
               autoCapitalize="none"
               keyboardType="email-address"
               textContentType="emailAddress"
+              autoComplete="off"
             />
           </View>
 
@@ -81,6 +88,7 @@ export default function LoginScreen() {
               placeholderTextColor="#9E9E9E"
               secureTextEntry
               textContentType="password"
+              autoComplete="off"
             />
           </View>
 

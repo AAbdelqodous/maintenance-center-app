@@ -59,6 +59,15 @@ export default function AppLayout() {
           const userType = me.userType ?? 'OWNER';
           const firstname: string = me.firstname ?? '';
 
+          // CUSTOMER accounts have no access to this app — clear and redirect to login
+          if (userType === 'CUSTOMER') {
+            await storage.clearAll();
+            dispatch(clearSession());
+            dispatch(clearActiveCenter());
+            router.replace('/(auth)/login?error=wrong-app');
+            return;
+          }
+
           // Admin users skip all center logic — dispatch session type and proceed
           if (userType === 'ADMIN') {
             dispatch(setSession({ token, email: saved.email, userType: 'ADMIN', firstname }));

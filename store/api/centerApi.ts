@@ -89,6 +89,49 @@ export interface CreateCenterRequest {
   categoryIds: number[];
 }
 
+export interface ServiceResponse {
+  id: number;
+  code: string;
+  nameAr: string;
+  nameEn: string;
+  descriptionAr?: string;
+  descriptionEn?: string;
+  iconUrl?: string;
+  isActive: boolean;
+}
+
+export interface CenterServiceResponse {
+  id: number;
+  category: ServiceCategory;
+  service: ServiceResponse;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  typicalDurationMinutes?: number | null;
+  descriptionAr?: string | null;
+  descriptionEn?: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CreateCenterServiceRequest {
+  categoryId: number;
+  serviceId: number;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  typicalDurationMinutes?: number | null;
+  descriptionAr?: string | null;
+  descriptionEn?: string | null;
+}
+
+export interface UpdateCenterServiceRequest {
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  typicalDurationMinutes?: number | null;
+  descriptionAr?: string | null;
+  descriptionEn?: string | null;
+}
+
 export const centerApi = createApi({
   reducerPath: 'centerApi',
   baseQuery: fetchBaseQuery({
@@ -99,7 +142,7 @@ export const centerApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Center'],
+  tagTypes: ['Center', 'ServiceCatalog', 'CenterServices'],
   endpoints: (builder) => ({
     createCenter: builder.mutation<CenterProfile, CreateCenterRequest>({
       query: (body) => ({ url: 'centers', method: 'POST', body }),
@@ -142,7 +185,83 @@ export const centerApi = createApi({
         return [];
       },
     }),
+    getAllServices: builder.query<ServiceResponse[], void>({
+      query: () => 'services',
+      transformResponse: (response: any): ServiceResponse[] => {
+        if (Array.isArray(response)) return response;
+        if (response?.content) return response.content;
+        return [];
+      },
+      providesTags: [{ type: 'ServiceCatalog', id: 'ALL' }],
+      keepUnusedDataFor: 3600,
+    }),
+    getServicesForCategory: builder.query<ServiceResponse[], number>({
+      query: (categoryId) => `categories/${categoryId}/services`,
+      transformResponse: (response: any): ServiceResponse[] => {
+        if (Array.isArray(response)) return response;
+        if (response?.content) return response.content;
+        return [];
+      },
+      providesTags: (_result, _error, categoryId) => [
+        { type: 'ServiceCatalog', id: `CAT-${categoryId}` },
+      ],
+      keepUnusedDataFor: 3600,
+    }),
+    getMyCenterServices: builder.query<CenterServiceResponse[], void>({
+      query: () => 'centers/my/services',
+      transformResponse: (response: any): CenterServiceResponse[] => {
+        if (Array.isArray(response)) return response;
+        if (response?.content) return response.content;
+        return [];
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'CenterServices' as const, id })),
+              { type: 'CenterServices' as const, id: 'LIST' },
+            ]
+          : [{ type: 'CenterServices' as const, id: 'LIST' }],
+    }),
+    addCenterService: builder.mutation<CenterServiceResponse, CreateCenterServiceRequest>({
+      query: (body) => ({ url: 'centers/my/services', method: 'POST', body }),
+      invalidatesTags: [{ type: 'CenterServices', id: 'LIST' }],
+    }),
+    updateCenterService: builder.mutation<
+      CenterServiceResponse,
+      { id: number; data: UpdateCenterServiceRequest }
+    >({
+      query: ({ id, data }) => ({
+        url: `centers/my/services/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'CenterServices' as const, id },
+        { type: 'CenterServices' as const, id: 'LIST' },
+      ],
+    }),
+    deleteCenterService: builder.mutation<void, number>({
+      query: (id) => ({ url: `centers/my/services/${id}`, method: 'DELETE' }),
+      invalidatesTags: (_result, _error, id) => [
+        { type: 'CenterServices' as const, id },
+        { type: 'CenterServices' as const, id: 'LIST' },
+      ],
+    }),
   }),
 });
 
-export const { useCreateCenterMutation, useGetMyCentersQuery, useGetMyCenterQuery, useUpdateCenterMutation, useUploadCenterImageMutation, useDeleteCenterImageMutation, useGetCategoriesQuery } = centerApi;
+export const {
+  useCreateCenterMutation,
+  useGetMyCentersQuery,
+  useGetMyCenterQuery,
+  useUpdateCenterMutation,
+  useUploadCenterImageMutation,
+  useDeleteCenterImageMutation,
+  useGetCategoriesQuery,
+  useGetAllServicesQuery,
+  useGetServicesForCategoryQuery,
+  useGetMyCenterServicesQuery,
+  useAddCenterServiceMutation,
+  useUpdateCenterServiceMutation,
+  useDeleteCenterServiceMutation,
+} = centerApi;
