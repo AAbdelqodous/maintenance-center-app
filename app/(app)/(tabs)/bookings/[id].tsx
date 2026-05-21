@@ -3,7 +3,9 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { useGetBookingByIdQuery, useConfirmBookingMutation, useStartServiceMutation, useCompleteBookingMutation, useCancelBookingMutation, BookingStatus, ServiceType } from '@/store/api/bookingsApi';
+import { useGetBookingByIdQuery, useConfirmBookingMutation, useStartServiceMutation, useCompleteBookingMutation, useCancelBookingMutation, useAssignTechnicianMutation, BookingStatus, ServiceType } from '@/store/api/bookingsApi';
+import { TechnicianPicker } from '@/components/bookings/TechnicianPicker';
+import { PermissionGate } from '@/components/staff/PermissionGate';
 import StageUpdateForm from '@/components/progress/StageUpdateForm';
 import ProgressTimeline from '@/components/progress/ProgressTimeline';
 import QuoteCard from '@/components/quotes/QuoteCard';
@@ -27,12 +29,14 @@ export default function BookingDetailScreen() {
   const [finalCost, setFinalCost] = useState('');
   const [completionNotes, setCompletionNotes] = useState('');
   const [actionMessage, setActionMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [showTechnicianPicker, setShowTechnicianPicker] = useState(false);
 
   const { data: booking, isLoading, refetch } = useGetBookingByIdQuery(Number(id));
   const [confirmBooking, { isLoading: isConfirming }] = useConfirmBookingMutation();
   const [startService, { isLoading: isStarting }] = useStartServiceMutation();
   const [completeBooking, { isLoading: isCompleting }] = useCompleteBookingMutation();
   const [cancelBooking, { isLoading: isCancelling }] = useCancelBookingMutation();
+  const [assignTechnician] = useAssignTechnicianMutation();
   const isUpdating = isConfirming || isStarting || isCompleting || isCancelling;
   const { data: quotes } = useGetBookingQuotesQuery(Number(id), { skip: activeTab !== 'quotes' });
   const {
@@ -40,6 +44,17 @@ export default function BookingDetailScreen() {
     getLabel: getRejectionLabel,
     isLoading: isRejectionLoading,
   } = useLookup(LOOKUP_PARAMS.REJECTION_REASON);
+
+  const handleAssign = async (membershipId: number | null) => {
+    try {
+      await assignTechnician({ bookingId: Number(id), membershipId }).unwrap();
+      showFeedback('success', t('bookings.assignSuccess'));
+      refetch();
+    } catch (err: any) {
+      const msg = err?.data?.businessErrorDescription ?? t('bookings.crossBranchError');
+      showFeedback('error', msg);
+    }
+  };
 
   const isOverdue = () => {
     if (!booking || booking.bookingStatus !== BookingStatus.PENDING) return false;
@@ -286,6 +301,26 @@ export default function BookingDetailScreen() {
               {booking.notes && <DetailRow label={t('bookings.notes')} value={booking.notes} />}
             </View>
 
+            <PermissionGate permission="ASSIGN_TECHNICIAN">
+              <View style={styles.card}>
+                <View style={[styles.header, isRTL && styles.rowRtl]}>
+                  <Text style={styles.detailLabel}>{t('bookings.assignedTo')}:</Text>
+                  <Text style={booking.assignedStaffName ? styles.detailValue : styles.unassignedText}>
+                    {booking.assignedStaffName ?? t('bookings.unassigned')}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={[styles.assignButton, isRTL && styles.rowRtl]}
+                  onPress={() => setShowTechnicianPicker(true)}
+                >
+                  <Ionicons name="person-add-outline" size={16} color="#2196F3" />
+                  <Text style={styles.assignButtonText}>
+                    {booking.assignedMembershipId ? t('bookings.reassign') : t('bookings.assignTechnician')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </PermissionGate>
+
             {(canConfirm || canStart || canComplete || canCancel) && (
               <View style={styles.actionsContainer}>
                 {canConfirm && (
@@ -389,6 +424,13 @@ export default function BookingDetailScreen() {
           </View>
         )}
       </ScrollView>
+
+      <TechnicianPicker
+        visible={showTechnicianPicker}
+        currentMembershipId={booking?.assignedMembershipId ?? null}
+        onSelect={handleAssign}
+        onClose={() => setShowTechnicianPicker(false)}
+      />
 
       <Modal
         visible={showCompleteModal}
@@ -823,5 +865,25 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     flex: 1,
     marginRight: 8,
+  },
+  unassignedText: {
+    fontSize: 14,
+    color: '#9E9E9E',
+    fontStyle: 'italic',
+    flex: 1,
+  },
+  assignButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+  },
+  assignButtonText: {
+    fontSize: 14,
+    color: '#2196F3',
+    fontWeight: '600',
   },
 });

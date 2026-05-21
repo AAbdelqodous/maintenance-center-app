@@ -47,6 +47,8 @@ export interface Booking {
   paymentMethod?: string;
   paymentStatus?: string;
   workStage?: string;
+  assignedMembershipId: number | null;
+  assignedStaffName: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -163,6 +165,18 @@ export const bookingsApi = createApi({
       query: ({ id, reason }) => ({ url: `bookings/${id}/cancel`, method: 'POST', body: { reason } }),
       invalidatesTags: (_result, _error, { id }) => ['Booking', { type: 'Booking', id }],
     }),
+    assignTechnician: builder.mutation<Booking, { bookingId: number; membershipId: number | null }>({
+      query: ({ bookingId, membershipId }) => ({
+        url: `bookings/${bookingId}/assign`,
+        method: 'PUT',
+        body: { membershipId },
+      }),
+      invalidatesTags: (_result, _error, { bookingId }) => [
+        'Booking',
+        { type: 'Booking', id: bookingId },
+        'StaffPerformance',
+      ],
+    }),
   }),
 });
 
@@ -176,4 +190,5 @@ export const {
   useStartServiceMutation,
   useCompleteBookingMutation,
   useCancelBookingMutation,
+  useAssignTechnicianMutation,
 } = bookingsApi;

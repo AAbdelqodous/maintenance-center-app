@@ -97,7 +97,42 @@
     "totalReviews": "إجمالي التقييمات",
     "averageRating": "متوسط التقييم",
     "recentBookings": "أحدث الحجوزات",
-    "quickActions": "إجراءات سريعة"
+    "quickActions": "إجراءات سريعة",
+    "pipeline": {
+      "title": "خط الإنتاج المباشر",
+      "bottleneck": "اختناق: {{stage}}",
+      "stages": {
+        "RECEIVED": "استلم",
+        "DIAGNOSING": "فحص",
+        "QUOTE_READY": "عرض",
+        "IN_PROGRESS": "تنفيذ",
+        "QUALITY_CHECK": "جودة",
+        "READY_FOR_PICKUP": "جاهز"
+      },
+      "stagesLong": {
+        "RECEIVED": "تم الاستلام",
+        "DIAGNOSING": "جاري الفحص",
+        "QUOTE_READY": "عرض السعر",
+        "IN_PROGRESS": "جاري التنفيذ",
+        "QUALITY_CHECK": "فحص الجودة",
+        "READY_FOR_PICKUP": "جاهز للاستلام"
+      }
+    },
+    "kpi": {
+      "bookingsToday": "حجوزات اليوم",
+      "bookingsTodayBaseline": "مقارنة بنفس اليوم الأسبوع الماضي",
+      "avgCompletionTime": "متوسط وقت الإنجاز",
+      "avgCompletionTimeBaseline": "مقارنة بمتوسط 30 يوم",
+      "avgCompletionTimeUnit": "{{hours}} س",
+      "onTimeRate": "معدل الالتزام بالوقت",
+      "onTimeRateBaseline": "مقارنة بالأسبوع السابق",
+      "onTimeRateTarget": "الهدف: {{target}}%",
+      "revenueToday": "إيرادات اليوم",
+      "revenueTodayBaseline": "مقارنة بمتوسط 30 يوم",
+      "revenueUnavailable": "تتبع الإيرادات غير متاح",
+      "notEnoughHistory": "لا توجد بيانات كافية بعد",
+      "noChange": "لا تغيير"
+    }
   },
   "bookings": {
     "title": "الحجوزات",
@@ -155,7 +190,14 @@
       "pending": "قيد الانتظار",
       "paid": "مدفوع",
       "failed": "فشل"
-    }
+    },
+    "assignTechnician": "تعيين فني",
+    "assignedTo": "معين إلى",
+    "unassigned": "غير معين",
+    "reassign": "إعادة التعيين",
+    "unassignConfirm": "إزالة تعيين الفني؟",
+    "assignSuccess": "تم تعيين الفني بنجاح",
+    "crossBranchError": "هذا الفني لا ينتمي إلى هذا الفرع"
   },
   "chat": {
     "title": "الرسائل",
@@ -577,7 +619,9 @@
       "confirmRemove": "هل أنت متأكد أنك تريد إزالة هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.",
       "confirmSuspend": "هل أنت متأكد أنك تريد إيقاف هذا الموظف مؤقتاً؟ سيفقدون الوصول إلى المركز.",
       "confirmLeave": "هل أنت متأكد أنك تريد مغادرة هذا المركز؟ لا يمكن التراجع عن هذا الإجراء.",
-      "selectRole": "اختر الدور الجديد"
+      "selectRole": "اختر الدور الجديد",
+      "hasActiveAssignments": "لدى هذا الموظف حجوزات نشطة. يرجى إعادة تعيينها أولاً.",
+      "viewBookings": "عرض الحجوزات"
     },
     "invite_accept": {
       "title": "تلقيت دعوة",
@@ -663,6 +707,89 @@
       "expired": "المنتهية"
     }
   },
+  "attention": {
+    "title": "يحتاج انتباهك",
+    "allClear": "كل شيء على ما يرام",
+    "allClearSubtitle": "آخر تحديث {{time}}",
+    "retry": "إعادة المحاولة",
+    "errorMessage": "تعذّر تحميل العناصر",
+    "seeAll": "عرض الكل ({{count}})",
+    "unassigned": "غير معيّن",
+    "categories": {
+      "OVERDUE_BOOKING": "حجوزات متأخرة",
+      "STALLED_BOOKING": "حجوزات متوقفة",
+      "UNASSIGNED_BOOKING": "حجوزات غير معيّنة",
+      "LOW_RATED_REVIEW": "تقييمات منخفضة",
+      "UNANSWERED_CHAT": "رسائل لم يُرد عليها"
+    },
+    "severity": {
+      "HIGH": "عالي",
+      "MEDIUM": "متوسط"
+    },
+    "bookingTitle": "حجز #{{id}}",
+    "overdue": {
+      "subtitle": "متأخر {{duration}} · {{assignedTo}}"
+    },
+    "stalled": {
+      "subtitle": "متوقف {{duration}} · {{assignedTo}}"
+    },
+    "unassignedBooking": {
+      "subtitle": "يبدأ خلال {{timeUntil}} · لا يوجد فني معيّن"
+    },
+    "review": {
+      "subtitle": "{{rating}}★ · منذ {{time}}"
+    },
+    "chat": {
+      "subtitle": "منذ {{time}} · {{count}} غير مقروء"
+    }
+  },
+  "performanceBoard": {
+    "title": "أداء الفريق",
+    "noStaff": "لا يوجد موظفون نشطون",
+    "rebalanceBtn": "إعادة توزيع",
+    "rebalance": {
+      "title": "إعادة توزيع العمل",
+      "overloadedSection": "الموظفون المثقلون",
+      "selectBooking": "اختر حجزاً لنقله",
+      "selectRecipient": "نقل إلى",
+      "confirm": "تأكيد إعادة التعيين",
+      "cancel": "إلغاء",
+      "success": "تم إعادة تعيين الحجز بنجاح",
+      "error": "فشلت إعادة التعيين. يرجى المحاولة مرة أخرى."
+    },
+    "status": {
+      "AVAILABLE": "متاح",
+      "ON_TASK": "مشغول",
+      "OVERLOADED": "مثقل",
+      "OFFLINE": "غير متصل"
+    },
+    "tier": {
+      "TOP_PERFORMER": "الأفضل أداءً",
+      "STRONG": "قوي",
+      "ON_TRACK": "على المسار",
+      "NEEDS_ATTENTION": "يحتاج متابعة",
+      "NEW": "جديد"
+    },
+    "metrics": {
+      "activeBookings": "نشط",
+      "avgRating": "التقييم",
+      "completionTime": "متوسط الوقت",
+      "onTimeRate": "في الوقت",
+      "completed": "مكتمل",
+      "minutes": "{{min}} د"
+    },
+    "drilldown": {
+      "title": "أداء {{name}}",
+      "monthlyHistory": "السجل الشهري",
+      "recentBookings": "الحجوزات الأخيرة",
+      "noHistory": "لا يوجد سجل بعد",
+      "month": "الشهر",
+      "completed": "مكتمل",
+      "rating": "التقييم",
+      "onTime": "في الوقت",
+      "accessDenied": "ليس لديك صلاحية لعرض هذا الملف الشخصي"
+    }
+  },
   "services": {
     "title": "خدماتي",
     "manageServices": "إدارة الخدمات",
@@ -700,5 +827,49 @@
     "service": "الخدمة",
     "addingForCategory": "إضافة خدمة لـ: {{name}}",
     "noCategoriesError": "مركزك لا يحتوي على فئات مسجلة. يرجى التواصل مع الدعم."
+  },
+  "trends": {
+    "sectionTitle": "الاتجاهات التاريخية",
+    "period": {
+      "8weeks": "8 أسابيع",
+      "12weeks": "12 أسبوعاً",
+      "6months": "6 أشهر"
+    },
+    "charts": {
+      "bookings": "حجم الحجوزات",
+      "rating": "متوسط التقييم",
+      "revenue": "الإيرادات (د.ك)",
+      "categoryMix": "توزيع الخدمات",
+      "peakHours": "أوقات الذروة"
+    },
+    "emptyState": "لا توجد بيانات بعد — تحقق بعد أسبوعك الأول",
+    "limitedData": "عرض {{actual}} من {{total}} أسبوعاً",
+    "export": {
+      "label": "تصدير تقرير الفرع",
+      "comingSoon": "قريباً",
+      "comingSoonMessage": "سيكون تصدير PDF متاحاً في تحديث قادم."
+    },
+    "insight": {
+      "notEnoughData": "لا توجد بيانات كافية بعد",
+      "bookingsUp": "الحجوزات ارتفعت {{pct}}% مقارنةً بـ {{weeks}} أسابيع مضت",
+      "bookingsDown": "الحجوزات انخفضت {{pct}}% مقارنةً بـ {{weeks}} أسابيع مضت",
+      "bookingsStable": "مستقر حول {{count}} حجز/أسبوع",
+      "ratingStable": "التقييم مستقر حول {{value}}",
+      "ratingImproving": "التقييم يتحسن، يصل الآن إلى {{value}}",
+      "ratingDeclining": "التقييم يتراجع نحو {{value}}",
+      "revenueUp": "الإيرادات ارتفعت {{pct}}% مقارنةً بـ {{weeks}} أسابيع مضت",
+      "revenueDown": "الإيرادات انخفضت {{pct}}% مقارنةً بـ {{weeks}} أسابيع مضت",
+      "revenueStable": "مستقر حول {{amount}} د.ك/أسبوع",
+      "topCategory": "{{name}} تمثّل {{pct}}% من الحجوزات",
+      "peakHour": "{{day}} {{startHour}}–{{endHour}}:00 هي أكثر أوقاتك ازدحاماً"
+    },
+    "days": {
+      "1": "الإثنين", "2": "الثلاثاء", "3": "الأربعاء", "4": "الخميس",
+      "5": "الجمعة", "6": "السبت", "7": "الأحد"
+    },
+    "daysFull": {
+      "1": "أيام الإثنين", "2": "أيام الثلاثاء", "3": "أيام الأربعاء", "4": "أيام الخميس",
+      "5": "أيام الجمعة", "6": "أيام السبت", "7": "أيام الأحد"
+    }
   }
 }

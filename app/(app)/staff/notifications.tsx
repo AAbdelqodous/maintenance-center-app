@@ -14,6 +14,7 @@ function StaffNotificationsScreen() {
   const { data: notificationsData, isLoading, refetch } = useGetNotificationsQuery({ page: 0, size: 100 });
   const [markAsRead] = useMarkNotificationAsReadMutation();
   const [markAllAsRead] = useMarkAllNotificationsAsReadMutation();
+
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = React.useCallback(async () => {
@@ -26,7 +27,9 @@ function StaffNotificationsScreen() {
     try {
       await markAllAsRead().unwrap();
       refetch();
-    } catch {}
+    } catch (error) {
+      console.error('Failed to mark all as read', error);
+    }
   };
 
   const handleNotificationPress = async (notification: any) => {
@@ -34,7 +37,9 @@ function StaffNotificationsScreen() {
       try {
         await markAsRead(notification.id).unwrap();
         refetch();
-      } catch {}
+      } catch (error) {
+        console.error('Failed to mark as read', error);
+      }
     }
     if (notification.actionUrl) {
       router.push(notification.actionUrl as any);
@@ -44,27 +49,43 @@ function StaffNotificationsScreen() {
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     const now = new Date();
-    const diffMins = Math.floor((now.getTime() - date.getTime()) / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
     if (diffMins < 1) return t('common.justNow');
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' });
+
+    return date.toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
   };
 
-  const getIcon = (type: string) => {
-    if (type.startsWith('BOOKING')) return 'calendar';
-    if (type === 'NEW_REVIEW') return 'star';
-    if (type === 'NEW_MESSAGE') return 'chatbubbles';
-    return 'notifications';
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'BOOKING_CREATED':
+      case 'BOOKING_UPDATED':
+      case 'BOOKING_CANCELLED':
+        return 'calendar';
+      case 'NEW_REVIEW':
+        return 'star';
+      case 'NEW_MESSAGE':
+        return 'chatbubbles';
+      case 'COMPLAINT_SUBMITTED':
+        return 'alert-circle';
+      default:
+        return 'notifications';
+    }
   };
 
   if (isLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2196F3" />
       </View>
     );
   }
@@ -73,41 +94,41 @@ function StaffNotificationsScreen() {
     <View style={styles.container}>
       <View style={[styles.header, isRTL && styles.headerRtl]}>
         <Text style={styles.headerTitle}>{t('notifications.title')}</Text>
-        {notificationsData?.content?.some((n) => !n.isRead) && (
+        {notificationsData?.content && notificationsData.content.some((n) => !n.isRead) && (
           <TouchableOpacity onPress={handleMarkAllAsRead}>
             <Text style={styles.markAllRead}>{t('notifications.markAllRead')}</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {notificationsData?.content?.length ? (
+      {notificationsData?.content && notificationsData.content.length > 0 ? (
         <FlatList
           data={notificationsData.content}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={[styles.item, !item.isRead && styles.unreadItem, isRTL && styles.itemRtl]}
+              style={[styles.notificationItem, !item.isRead && styles.unreadItem, isRTL && styles.itemRtl]}
               onPress={() => handleNotificationPress(item)}
             >
-              {!item.isRead && <View style={styles.unreadDot} />}
-              <View style={styles.iconWrap}>
-                <Ionicons name={getIcon(item.notificationType) as any} size={24} color="#4F46E5" />
+              {!item.isRead && <View style={styles.unreadIndicator} />}
+              <View style={styles.iconContainer}>
+                <Ionicons name={getNotificationIcon(item.notificationType) as any} size={24} color="#2196F3" />
               </View>
-              <View style={styles.body}>
-                <Text style={styles.itemTitle}>
+              <View style={styles.notificationContent}>
+                <Text style={styles.notificationTitle}>
                   {i18n.language === 'ar' ? item.titleAr : item.titleEn}
                 </Text>
-                <Text style={styles.itemBody}>
+                <Text style={styles.notificationBody}>
                   {i18n.language === 'ar' ? item.bodyAr : item.bodyEn}
                 </Text>
-                <Text style={styles.itemTime}>{formatDate(item.createdAt)}</Text>
+                <Text style={styles.notificationTime}>{formatDate(item.createdAt)}</Text>
               </View>
             </TouchableOpacity>
           )}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         />
       ) : (
-        <View style={styles.centered}>
+        <View style={styles.emptyContainer}>
           <Ionicons name="notifications-outline" size={64} color="#E0E0E0" />
           <Text style={styles.emptyText}>{t('notifications.noNotifications')}</Text>
         </View>
@@ -125,20 +146,91 @@ export default function StaffNotificationsWrapper() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF' },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#E0E0E0' },
-  headerRtl: { flexDirection: 'row-reverse' },
-  headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#333333' },
-  markAllRead: { fontSize: 14, color: '#4F46E5', fontWeight: '600' },
-  item: { flexDirection: 'row', padding: 16, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
-  itemRtl: { flexDirection: 'row-reverse' },
-  unreadItem: { backgroundColor: '#F5F3FF' },
-  unreadDot: { width: 4, backgroundColor: '#4F46E5', borderRadius: 2, marginRight: 12 },
-  iconWrap: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#EDE9FE', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-  body: { flex: 1 },
-  itemTitle: { fontSize: 16, fontWeight: '600', color: '#333333', marginBottom: 4 },
-  itemBody: { fontSize: 14, color: '#666666', marginBottom: 4 },
-  itemTime: { fontSize: 12, color: '#999999' },
-  emptyText: { fontSize: 16, color: '#999999', marginTop: 16, textAlign: 'center' },
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  headerRtl: {
+    flexDirection: 'row-reverse',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333333',
+  },
+  markAllRead: {
+    fontSize: 14,
+    color: '#2196F3',
+    fontWeight: '600',
+  },
+  notificationItem: {
+    flexDirection: 'row',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  itemRtl: {
+    flexDirection: 'row-reverse',
+  },
+  unreadItem: {
+    backgroundColor: '#F5F9FF',
+  },
+  unreadIndicator: {
+    width: 4,
+    backgroundColor: '#2196F3',
+    borderRadius: 2,
+    marginRight: 12,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E3F2FD',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  notificationContent: {
+    flex: 1,
+  },
+  notificationTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 4,
+  },
+  notificationBody: {
+    fontSize: 14,
+    color: '#666666',
+    marginBottom: 4,
+  },
+  notificationTime: {
+    fontSize: 12,
+    color: '#999999',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#999999',
+    marginTop: 16,
+    textAlign: 'center',
+  },
 });

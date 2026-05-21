@@ -8,6 +8,7 @@ import type {
   InviteStaffRequest,
 } from '@/types/staff';
 import type { ReviewsResponse } from './reviewsApi';
+import type { BookingsResponse } from './bookingsApi';
 
 interface PageResponse<T> {
   content: T[];
@@ -137,6 +138,24 @@ export const staffApi = createApi({
       providesTags: ['Staff'],
     }),
 
+    getMyAssignedBookings: builder.query<BookingsResponse, { page?: number; size?: number; status?: string }>({
+      query: ({ page = 0, size = 20, status } = {}) => {
+        const params = new URLSearchParams({ page: page.toString(), size: size.toString() });
+        if (status) params.append('status', status);
+        return `bookings/assigned?${params.toString()}`;
+      },
+      transformResponse: (raw: any): BookingsResponse => ({
+        content: raw.content ?? [],
+        totalElements: raw.page?.totalElements ?? raw.totalElements ?? 0,
+        totalPages: raw.page?.totalPages ?? raw.totalPages ?? 0,
+        number: raw.page?.number ?? raw.number ?? 0,
+        size: raw.page?.size ?? raw.size ?? 0,
+        first: raw.first ?? true,
+        last: raw.last ?? true,
+      }),
+      providesTags: ['Staff'],
+    }),
+
     getMyAssignedReviews: builder.query<ReviewsResponse, { page?: number; size?: number }>({
       query: (params) => ({ url: 'reviews/center', params }),
       transformResponse: (raw: any): ReviewsResponse => ({
@@ -167,5 +186,6 @@ export const {
   useResendInvitationMutation,
   useGetMyMembershipsQuery,
   useGetStaffDashboardQuery,
+  useGetMyAssignedBookingsQuery,
   useGetMyAssignedReviewsQuery,
 } = staffApi;

@@ -3,7 +3,7 @@ import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView,
   ActivityIndicator, Alert, Platform, Modal,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, router as globalRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -73,9 +73,22 @@ export default function StaffMemberDetailScreen() {
       try {
         await suspend(membership.id).unwrap();
       } catch (err: any) {
-        const msg = err?.data?.error ?? err?.data?.businessErrorDescription ?? t('common.error');
-        if (Platform.OS === 'web') window.alert(msg);
-        else Alert.alert(t('common.error'), msg);
+        if (err?.data?.error === 'STAFF_HAS_ACTIVE_ASSIGNMENTS') {
+          const msg = t('staff.member.hasActiveAssignments');
+          if (Platform.OS === 'web') {
+            window.alert(msg);
+            globalRouter.push('/(app)/(tabs)/bookings' as any);
+          } else {
+            Alert.alert(t('common.error'), msg, [
+              { text: t('common.cancel'), style: 'cancel' },
+              { text: t('staff.member.viewBookings'), onPress: () => globalRouter.push('/(app)/(tabs)/bookings' as any) },
+            ]);
+          }
+        } else {
+          const msg = err?.data?.businessErrorDescription ?? t('common.error');
+          if (Platform.OS === 'web') window.alert(msg);
+          else Alert.alert(t('common.error'), msg);
+        }
       }
     });
 
@@ -97,9 +110,22 @@ export default function StaffMemberDetailScreen() {
         await remove(membership.id).unwrap();
         router.back();
       } catch (err: any) {
-        const msg = err?.data?.error ?? err?.data?.businessErrorDescription ?? t('common.error');
-        if (Platform.OS === 'web') window.alert(msg);
-        else Alert.alert(t('common.error'), msg);
+        if (err?.data?.error === 'STAFF_HAS_ACTIVE_ASSIGNMENTS') {
+          const msg = t('staff.member.hasActiveAssignments');
+          if (Platform.OS === 'web') {
+            window.alert(msg);
+            globalRouter.push('/(app)/(tabs)/bookings' as any);
+          } else {
+            Alert.alert(t('common.error'), msg, [
+              { text: t('common.cancel'), style: 'cancel' },
+              { text: t('staff.member.viewBookings'), onPress: () => globalRouter.push('/(app)/(tabs)/bookings' as any) },
+            ]);
+          }
+        } else {
+          const msg = err?.data?.businessErrorDescription ?? t('common.error');
+          if (Platform.OS === 'web') window.alert(msg);
+          else Alert.alert(t('common.error'), msg);
+        }
       }
     });
 

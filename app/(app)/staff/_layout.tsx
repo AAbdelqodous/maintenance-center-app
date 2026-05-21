@@ -1,11 +1,27 @@
 import React from 'react';
-import { Tabs } from 'expo-router';
+import { Tabs, Redirect, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useGetNotificationsQuery } from '@/store/api/notificationsApi';
+import { useAppSelector } from '@/store';
 
 export default function StaffTabLayout() {
+  const session = useAppSelector((state) => state.auth.session);
+  const activePermissions = useAppSelector((state) => state.center.activePermissions);
+  const pathname = usePathname();
   const { data: notificationsData } = useGetNotificationsQuery({ page: 0, size: 100 });
   const unreadCount = notificationsData?.unreadCount ?? 0;
+
+  if (!session || session.userType !== 'STAFF') {
+    return <Redirect href="/(auth)/login" />;
+  }
+
+  if (pathname.startsWith('/staff/pricing') && !activePermissions.includes('MANAGE_PRICING')) {
+    return <Redirect href="/staff/dashboard" />;
+  }
+
+  if (pathname.startsWith('/staff/offers') && !activePermissions.includes('MANAGE_OFFERS')) {
+    return <Redirect href="/staff/dashboard" />;
+  }
 
   return (
     <Tabs

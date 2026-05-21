@@ -97,7 +97,42 @@
     "totalReviews": "Total Reviews",
     "averageRating": "Avg. Rating",
     "recentBookings": "Recent Bookings",
-    "quickActions": "Quick Actions"
+    "quickActions": "Quick Actions",
+    "pipeline": {
+      "title": "Live Pipeline",
+      "bottleneck": "Bottleneck: {{stage}}",
+      "stages": {
+        "RECEIVED": "Rcvd",
+        "DIAGNOSING": "Diag",
+        "QUOTE_READY": "Quote",
+        "IN_PROGRESS": "In Prg",
+        "QUALITY_CHECK": "QA",
+        "READY_FOR_PICKUP": "Ready"
+      },
+      "stagesLong": {
+        "RECEIVED": "Received",
+        "DIAGNOSING": "Diagnosing",
+        "QUOTE_READY": "Quote Ready",
+        "IN_PROGRESS": "In Progress",
+        "QUALITY_CHECK": "Quality Check",
+        "READY_FOR_PICKUP": "Ready for Pickup"
+      }
+    },
+    "kpi": {
+      "bookingsToday": "Bookings Today",
+      "bookingsTodayBaseline": "vs. same day last week",
+      "avgCompletionTime": "Avg Completion",
+      "avgCompletionTimeBaseline": "vs. 30-day avg",
+      "avgCompletionTimeUnit": "{{hours}}h",
+      "onTimeRate": "On-Time Rate",
+      "onTimeRateBaseline": "vs. prev 7 days",
+      "onTimeRateTarget": "Target: {{target}}%",
+      "revenueToday": "Revenue Today",
+      "revenueTodayBaseline": "vs. 30-day avg",
+      "revenueUnavailable": "Revenue tracking not available",
+      "notEnoughHistory": "Not enough history yet",
+      "noChange": "No change"
+    }
   },
   "bookings": {
     "title": "Bookings",
@@ -158,7 +193,14 @@
       "pending": "Pending",
       "paid": "Paid",
       "failed": "Failed"
-    }
+    },
+    "assignTechnician": "Assign Technician",
+    "assignedTo": "Assigned To",
+    "unassigned": "Unassigned",
+    "reassign": "Reassign",
+    "unassignConfirm": "Remove technician assignment?",
+    "assignSuccess": "Technician assigned successfully",
+    "crossBranchError": "This technician does not belong to this branch"
   },
   "chat": {
     "title": "Messages",
@@ -580,7 +622,9 @@
       "confirmRemove": "Are you sure you want to remove this staff member? This action cannot be undone.",
       "confirmSuspend": "Are you sure you want to suspend this staff member? They will lose access to the center.",
       "confirmLeave": "Are you sure you want to leave this center? This action cannot be undone.",
-      "selectRole": "Select new role"
+      "selectRole": "Select new role",
+      "hasActiveAssignments": "This staff member has active bookings. Reassign them first.",
+      "viewBookings": "View Bookings"
     },
     "invite_accept": {
       "title": "You've been invited",
@@ -666,6 +710,89 @@
       "expired": "Expired"
     }
   },
+  "attention": {
+    "title": "Attention Required",
+    "allClear": "All clear",
+    "allClearSubtitle": "Last checked {{time}}",
+    "retry": "Retry",
+    "errorMessage": "Could not load attention items",
+    "seeAll": "See all ({{count}})",
+    "unassigned": "Unassigned",
+    "categories": {
+      "OVERDUE_BOOKING": "Overdue Bookings",
+      "STALLED_BOOKING": "Stalled Bookings",
+      "UNASSIGNED_BOOKING": "Unassigned Bookings",
+      "LOW_RATED_REVIEW": "Low-Rated Reviews",
+      "UNANSWERED_CHAT": "Unanswered Chats"
+    },
+    "severity": {
+      "HIGH": "High",
+      "MEDIUM": "Medium"
+    },
+    "bookingTitle": "Booking #{{id}}",
+    "overdue": {
+      "subtitle": "{{duration}} overdue · {{assignedTo}}"
+    },
+    "stalled": {
+      "subtitle": "Stalled {{duration}} · {{assignedTo}}"
+    },
+    "unassignedBooking": {
+      "subtitle": "Starts in {{timeUntil}} · No technician assigned"
+    },
+    "review": {
+      "subtitle": "{{rating}}★ · {{time}} ago"
+    },
+    "chat": {
+      "subtitle": "{{time}} ago · {{count}} unread"
+    }
+  },
+  "performanceBoard": {
+    "title": "Team Performance",
+    "noStaff": "No active staff members",
+    "rebalanceBtn": "Rebalance",
+    "rebalance": {
+      "title": "Rebalance Workload",
+      "overloadedSection": "Overloaded Staff",
+      "selectBooking": "Select a booking to move",
+      "selectRecipient": "Move to",
+      "confirm": "Confirm Reassignment",
+      "cancel": "Cancel",
+      "success": "Booking reassigned successfully",
+      "error": "Reassignment failed. Please try again."
+    },
+    "status": {
+      "AVAILABLE": "Available",
+      "ON_TASK": "On Task",
+      "OVERLOADED": "Overloaded",
+      "OFFLINE": "Offline"
+    },
+    "tier": {
+      "TOP_PERFORMER": "Top Performer",
+      "STRONG": "Strong",
+      "ON_TRACK": "On Track",
+      "NEEDS_ATTENTION": "Needs Attention",
+      "NEW": "New"
+    },
+    "metrics": {
+      "activeBookings": "Active",
+      "avgRating": "Rating",
+      "completionTime": "Avg Time",
+      "onTimeRate": "On-Time",
+      "completed": "Completed",
+      "minutes": "{{min}} min"
+    },
+    "drilldown": {
+      "title": "{{name}}'s Performance",
+      "monthlyHistory": "Monthly History",
+      "recentBookings": "Recent Bookings",
+      "noHistory": "No history yet",
+      "month": "Month",
+      "completed": "Done",
+      "rating": "Rating",
+      "onTime": "On-Time",
+      "accessDenied": "You don't have permission to view this profile"
+    }
+  },
   "services": {
     "title": "My Services",
     "manageServices": "Manage Services",
@@ -703,5 +830,48 @@
     "service": "Service",
     "addingForCategory": "Adding service for: {{name}}",
     "noCategoriesError": "Your center has no registered categories. Please contact support."
+  },
+  "trends": {
+    "sectionTitle": "Historical Trends",
+    "period": {
+      "8weeks": "8 Weeks",
+      "12weeks": "12 Weeks",
+      "6months": "6 Months"
+    },
+    "charts": {
+      "bookings": "Bookings Volume",
+      "rating": "Avg. Rating",
+      "revenue": "Revenue (KD)",
+      "categoryMix": "Category Mix",
+      "peakHours": "Peak Hours"
+    },
+    "emptyState": "No data yet — check back after your first week",
+    "limitedData": "Showing {{actual}} of {{total}} weeks",
+    "export": {
+      "label": "Export Branch Report",
+      "comingSoon": "Coming Soon",
+      "comingSoonMessage": "PDF export will be available in an upcoming update."
+    },
+    "insight": {
+      "notEnoughData": "Not enough data yet",
+      "bookingsUp": "Bookings up {{pct}}% vs {{weeks}} weeks ago",
+      "bookingsDown": "Bookings down {{pct}}% vs {{weeks}} weeks ago",
+      "bookingsStable": "Stable around {{count}} bookings/week",
+      "ratingStable": "Rating stable around {{value}}",
+      "ratingImproving": "Rating improving, now at {{value}}",
+      "ratingDeclining": "Rating declining toward {{value}}",
+      "revenueUp": "Revenue up {{pct}}% vs {{weeks}} weeks ago",
+      "revenueDown": "Revenue down {{pct}}% vs {{weeks}} weeks ago",
+      "revenueStable": "Stable around {{amount}} KD/week",
+      "topCategory": "{{name}} represents {{pct}}% of bookings",
+      "peakHour": "{{day}} {{startHour}}–{{endHour}}:00 is your busiest slot"
+    },
+    "days": {
+      "1": "Mon", "2": "Tue", "3": "Wed", "4": "Thu", "5": "Fri", "6": "Sat", "7": "Sun"
+    },
+    "daysFull": {
+      "1": "Mondays", "2": "Tuesdays", "3": "Wednesdays", "4": "Thursdays",
+      "5": "Fridays", "6": "Saturdays", "7": "Sundays"
+    }
   }
 }

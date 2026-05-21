@@ -9,9 +9,10 @@ interface BookingCardProps {
   booking: Booking;
   onPress: () => void;
   isOverdue?: boolean;
+  showAssignedTo?: boolean;
 }
 
-export function BookingCard({ booking, onPress, isOverdue = false }: BookingCardProps) {
+export function BookingCard({ booking, onPress, isOverdue = false, showAssignedTo = false }: BookingCardProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
 
@@ -64,6 +65,15 @@ export function BookingCard({ booking, onPress, isOverdue = false }: BookingCard
         <View style={[styles.row, isRTL && styles.rowRtl]}>
           <Text style={styles.label}>{t('bookings.paymentMethod')}:</Text>
           <Text style={styles.value}>{getPaymentMethodTranslation(booking.paymentMethod)}</Text>
+        </View>
+      )}
+      {showAssignedTo && (
+        <View style={[styles.row, isRTL && styles.rowRtl]}>
+          <Ionicons name="person-outline" size={14} color="#666666" style={styles.assigneeIcon} />
+          <Text style={styles.label}>{t('bookings.assignedTo')}:</Text>
+          <Text style={booking.assignedStaffName ? styles.value : styles.unassigned}>
+            {booking.assignedStaffName ?? t('bookings.unassigned')}
+          </Text>
         </View>
       )}
       {booking.notes && (
@@ -141,5 +151,13 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '600',
+  },
+  assigneeIcon: {
+    marginRight: 4,
+  },
+  unassigned: {
+    fontSize: 14,
+    color: '#9E9E9E',
+    fontStyle: 'italic',
   },
 });

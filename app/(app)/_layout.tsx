@@ -90,6 +90,8 @@ export default function AppLayout() {
             const memberships: any[] = membershipsRes.ok ? await membershipsRes.json() : [];
 
             if (memberships.length === 0) {
+              await storage.clearActiveCenterId();
+              dispatch(clearActiveCenter());
               setNoAccessError(true);
               return;
             }

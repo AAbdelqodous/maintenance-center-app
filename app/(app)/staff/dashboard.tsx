@@ -8,17 +8,11 @@ import { storage } from '@/lib/storage';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { RoleBadge } from '@/components/staff/RoleBadge';
-import { useGetStaffDashboardQuery } from '@/store/api/staffApi';
+import { PipelineStrip } from '@/components/dashboard/PipelineStrip';
+import { KpiGrid } from '@/components/dashboard/KpiGrid';
+import { useDashboardSnapshot } from '@/hooks/useDashboardSnapshot';
+import type { PipelineWorkStage } from '@/types/dashboard';
 import type { CenterRole } from '@/types/staff';
-
-function StatCard({ label, value }: { label: string; value: string | number }) {
-  return (
-    <View style={styles.statCard}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
-    </View>
-  );
-}
 
 export default function StaffDashboardScreen() {
   const { t, i18n } = useTranslation();
@@ -31,7 +25,8 @@ export default function StaffDashboardScreen() {
   const canManagePricing = activePermissions.includes('MANAGE_PRICING');
   const canManageOffers  = activePermissions.includes('MANAGE_OFFERS');
 
-  const { data, isLoading } = useGetStaffDashboardQuery();
+  const { data, isLoading, isFetching } = useDashboardSnapshot();
+  const silentRefetch = isFetching && !isLoading;
 
   const doLogout = async () => {
     await storage.clearAll();
@@ -51,6 +46,10 @@ export default function StaffDashboardScreen() {
     }
   };
 
+  const handleStagePress = (stage: PipelineWorkStage) => {
+    router.push({ pathname: '/staff/bookings' as any, params: { workStage: stage } });
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={[styles.header, isRTL && styles.headerRtl]}>
@@ -68,16 +67,18 @@ export default function StaffDashboardScreen() {
       {isLoading ? (
         <ActivityIndicator size="large" color="#4F46E5" style={styles.loader} />
       ) : (
-        <View style={styles.statsGrid}>
-          <StatCard label={t('staff.dashboard.assignedTotal')} value={data?.assignedTotal ?? 0} />
-          <StatCard label={t('staff.dashboard.assignedActive')} value={data?.assignedActive ?? 0} />
-          <StatCard label={t('staff.dashboard.assignedCompleted')} value={data?.assignedCompleted ?? 0} />
-          <StatCard label={t('staff.dashboard.assignedThisWeek')} value={data?.assignedThisWeek ?? 0} />
-          <StatCard
-            label={t('staff.dashboard.avgRating')}
-            value={data?.avgRating ? data.avgRating.toFixed(1) : '—'}
+        <>
+          <PipelineStrip
+            stages={data?.pipeline ?? []}
+            isFetching={silentRefetch}
+            onStagePress={handleStagePress}
           />
-        </View>
+          <KpiGrid
+            kpis={data?.kpis}
+            isLoading={false}
+            isFetching={silentRefetch}
+          />
+        </>
       )}
 
       {(canManagePricing || canManageOffers) && (
@@ -112,29 +113,13 @@ export default function StaffDashboardScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F9FAFB' },
   content: { padding: 16 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
   headerRtl: { flexDirection: 'row-reverse' },
   headerLeft: { flex: 1 },
   logoutBtn: { padding: 8 },
   greeting: { fontSize: 20, fontWeight: '700', color: '#111827', marginBottom: 6 },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  statCard: {
-    flex: 1,
-    minWidth: '45%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statValue: { fontSize: 28, fontWeight: '700', color: '#4F46E5' },
-  statLabel: { fontSize: 13, color: '#6B7280', marginTop: 4, textAlign: 'center' },
   loader: { marginTop: 40 },
-  quickActions: { marginTop: 24 },
+  quickActions: { marginTop: 8 },
   sectionTitle: { fontSize: 15, fontWeight: '700', color: '#111827', marginBottom: 12 },
   rtl: { textAlign: 'right' },
   actionRow: { flexDirection: 'row', gap: 12 },

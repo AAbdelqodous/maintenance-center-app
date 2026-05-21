@@ -119,6 +119,7 @@ function BookingsScreen() {
               booking={item}
               isOverdue={isOverdue(item)}
               onPress={() => handleBookingPress(item.id)}
+              showAssignedTo
             />
           )}
           contentContainerStyle={styles.listContent}

@@ -36,6 +36,13 @@ const storage = {
     const raw = await SecureStore.getItemAsync(ACTIVE_CENTER_ID_KEY);
     return raw ? Number(raw) : null;
   },
+  clearActiveCenterId: async (): Promise<void> => {
+    if (Platform.OS === 'web') {
+      localStorage.removeItem(ACTIVE_CENTER_ID_KEY);
+    } else {
+      await SecureStore.deleteItemAsync(ACTIVE_CENTER_ID_KEY);
+    }
+  },
   clearAll: async (): Promise<void> => {
     if (Platform.OS === 'web') {
       localStorage.removeItem(SESSION_KEY);

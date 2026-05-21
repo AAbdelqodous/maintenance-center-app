@@ -10,6 +10,12 @@ import type {
   AnalyticsQueryArgs,
   PeakHoursResponse,
 } from '../../types/analytics';
+import type { TrendsResponse, TrendsQueryArgs } from '../../types/trends';
+import type { DashboardSnapshot } from '../../types/dashboard';
+import type {
+  StaffPerformanceBoardResponse,
+  StaffHistoryResponse,
+} from '../../types/staffPerformance';
 
 export const analyticsApi = createApi({
   reducerPath: 'analyticsApi',
@@ -21,7 +27,7 @@ export const analyticsApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Analytics'],
+  tagTypes: ['Analytics', 'StaffPerformance'],
   endpoints: (builder) => ({
     getAnalyticsSummary: builder.query<PerformanceSummary, AnalyticsQueryArgs>({
       query: ({ startDate, endDate }) => ({
@@ -58,6 +64,31 @@ export const analyticsApi = createApi({
       }),
       providesTags: ['Analytics'],
     }),
+    getDashboardSnapshot: builder.query<DashboardSnapshot, void>({
+      query: () => 'analytics/center/dashboard-snapshot',
+      providesTags: ['Analytics'],
+    }),
+    getStaffPerformanceBoard: builder.query<StaffPerformanceBoardResponse, void>({
+      query: () => 'analytics/center/staff-performance',
+      providesTags: ['StaffPerformance'],
+    }),
+    getStaffMonthlyHistory: builder.query<StaffHistoryResponse, { membershipId: number; months?: number }>({
+      query: ({ membershipId, months = 6 }) => ({
+        url: `analytics/center/staff/${membershipId}/history`,
+        params: { months },
+      }),
+      providesTags: (_result, _error, { membershipId }) => [
+        { type: 'StaffPerformance' as const, id: membershipId },
+      ],
+    }),
+    getTrends: builder.query<TrendsResponse, TrendsQueryArgs>({
+      query: ({ startDate, endDate }) => ({
+        url: 'analytics/center/trends',
+        params: { startDate, endDate },
+      }),
+      keepUnusedDataFor: 3600,
+      providesTags: ['Analytics'],
+    }),
   }),
 });
 
@@ -67,4 +98,8 @@ export const {
   useGetRevenueByCategoryQuery,
   useGetSatisfactionSummaryQuery,
   useGetPeakHoursQuery,
+  useGetDashboardSnapshotQuery,
+  useGetStaffPerformanceBoardQuery,
+  useGetStaffMonthlyHistoryQuery,
+  useGetTrendsQuery,
 } = analyticsApi;

@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useGetCenterBookingStatsQuery, useGetCenterBookingsQuery } from '@/store/api/bookingsApi';
 import { useGetMyCenterQuery } from '@/store/api/centerApi';
 import { useGetReviewsQuery } from '@/store/api/reviewsApi';
+import { useGetTrendsQuery } from '@/store/api/analyticsApi';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { clearSession } from '@/store/authSlice';
 import { clearActiveCenter } from '@/store/centerSlice';
@@ -13,6 +14,25 @@ import { storage } from '@/lib/storage';
 import { BookingCard } from '@/components/bookings/BookingCard';
 import { RatingStars } from '@/components/ui/RatingStars';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
+import { AttentionPanel } from '@/components/dashboard/AttentionPanel';
+import { PipelineStrip } from '@/components/dashboard/PipelineStrip';
+import { KpiGrid } from '@/components/dashboard/KpiGrid';
+import { StaffPerformanceBoard } from '@/components/dashboard/StaffPerformanceBoard';
+import { RebalanceModal } from '@/components/dashboard/RebalanceModal';
+import { TrendsSectionHeader } from '@/components/dashboard/trends/TrendsSectionHeader';
+import { BookingVolumeChart } from '@/components/dashboard/trends/BookingVolumeChart';
+import { RatingTrendChart } from '@/components/dashboard/trends/RatingTrendChart';
+import { RevenueTrendChart } from '@/components/dashboard/trends/RevenueTrendChart';
+import { CategoryMixChart } from '@/components/dashboard/trends/CategoryMixChart';
+import { PeakHoursHeatmap } from '@/components/dashboard/trends/PeakHoursHeatmap';
+import { ExportReportButton } from '@/components/dashboard/trends/ExportReportButton';
+import { useAttentionItems } from '@/hooks/useAttentionItems';
+import { useDashboardSnapshot } from '@/hooks/useDashboardSnapshot';
+import { useTrendInsights } from '@/hooks/useTrendInsights';
+import { trendPeriodToDateRange } from '@/types/trends';
+import type { PipelineWorkStage } from '@/types/dashboard';
+import type { RebalanceSuggestion, StaffPerformanceCard as StaffPerformanceCardType } from '@/types/staffPerformance';
+import type { TrendPeriod } from '@/types/trends';
 
 function DashboardScreen() {
   const { t, i18n } = useTranslation();
@@ -39,15 +59,26 @@ function DashboardScreen() {
   };
 
   const activeCenterId = useAppSelector((state) => state.center.activeCenterId);
+  const activePermissions = useAppSelector((state) => state.center.activePermissions);
+  const canViewStaffDrillDown = activePermissions.includes('MANAGE_NON_MANAGER_STAFF');
   const userType = useAppSelector((state) => state.auth.session?.userType);
   const isAdmin = userType === 'ADMIN';
   const isStaff = userType === 'STAFF';
+  const isOwner = userType === 'OWNER';
   const firstname = useAppSelector((state) => state.auth.session?.firstname ?? '');
 
-  // Only run owner-specific queries when userType is explicitly OWNER.
-  // Skipping on undefined guards against the hydration window where the token
-  // is in Redux but userType hasn't been resolved from /users/me yet.
-  const isOwner = userType === 'OWNER';
+  // Trends section state (session-level UI state)
+  const [trendsExpanded, setTrendsExpanded] = React.useState(false);
+  const [selectedPeriod, setSelectedPeriod] = React.useState<TrendPeriod>('8_WEEKS');
+  const { startDate, endDate } = trendPeriodToDateRange(selectedPeriod);
+
+  const { data: trendsData, isFetching: trendsFetching } = useGetTrendsQuery(
+    { startDate, endDate },
+    { skip: !trendsExpanded }
+  );
+
+  const insights = useTrendInsights(trendsData, selectedPeriod);
+
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetCenterBookingStatsQuery(undefined, { skip: !isOwner || !activeCenterId, refetchOnFocus: true });
   const { data: centerData, isLoading: centerLoading } = useGetMyCenterQuery(undefined, { skip: !isOwner });
   const { data: reviewsData } = useGetReviewsQuery({ size: 1 }, { skip: !isOwner });
@@ -56,13 +87,18 @@ function DashboardScreen() {
     { skip: !isOwner || !activeCenterId, refetchOnFocus: true }
   );
 
+  const attention = useAttentionItems();
+  const { data: snapshot, isFetching: snapshotFetching } = useDashboardSnapshot();
+
   const [refreshing, setRefreshing] = React.useState(false);
+  const [rebalanceSuggestion, setRebalanceSuggestion] = React.useState<RebalanceSuggestion | null>(null);
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     await Promise.all([refetchStats(), refetchBookings()]);
+    attention.refetch();
     setRefreshing(false);
-  }, [refetchStats, refetchBookings]);
+  }, [refetchStats, refetchBookings, attention.refetch]);
 
   if (isAdmin) return <Redirect href="/(tabs)/admin" />;
 
@@ -116,6 +152,49 @@ function DashboardScreen() {
         </View>
       </View>
 
+      {isOwner && (
+        <>
+          <PipelineStrip
+            stages={snapshot?.pipeline ?? []}
+            isFetching={snapshotFetching}
+            onStagePress={(stage: PipelineWorkStage) =>
+              router.push({ pathname: '/(tabs)/bookings/' as any, params: { workStage: stage } })
+            }
+          />
+          <KpiGrid
+            kpis={snapshot?.kpis}
+            isLoading={false}
+            isFetching={snapshotFetching}
+          />
+          <AttentionPanel
+            items={attention.items}
+            isLoading={attention.isLoading}
+            isError={attention.isError}
+            lastCheckedAt={attention.lastCheckedAt}
+            refetch={attention.refetch}
+          />
+          <StaffPerformanceBoard
+            onCardPress={
+              canViewStaffDrillDown
+                ? (card: StaffPerformanceCardType) =>
+                    router.push(`/(tabs)/staff/performance/${card.membershipId}` as any)
+                : undefined
+            }
+            onRebalancePress={(suggestion: RebalanceSuggestion) =>
+              setRebalanceSuggestion(suggestion)
+            }
+          />
+        </>
+      )}
+
+      {rebalanceSuggestion && (
+        <RebalanceModal
+          visible={true}
+          suggestion={rebalanceSuggestion}
+          onClose={() => setRebalanceSuggestion(null)}
+        />
+      )}
+
       <Text style={styles.sectionTitle}>{t('dashboard.recentBookings')}</Text>
 
       {bookingsLoading ? (
@@ -152,6 +231,49 @@ function DashboardScreen() {
           </TouchableOpacity>
         )}
       </View>
+
+      {/* ── Trends Section ── */}
+      {isOwner && <ExportReportButton />}
+
+      <TrendsSectionHeader
+        expanded={trendsExpanded}
+        onToggle={() => setTrendsExpanded((v) => !v)}
+        selectedPeriod={selectedPeriod}
+        onPeriodChange={setSelectedPeriod}
+      />
+
+      {trendsExpanded && (
+        <>
+          <BookingVolumeChart
+            data={trendsData?.bookingsByWeek ?? []}
+            insight={insights.bookings}
+            isLoading={trendsFetching}
+            period={selectedPeriod}
+          />
+          <RatingTrendChart
+            data={trendsData?.ratingsByWeek ?? []}
+            insight={insights.rating}
+            isLoading={trendsFetching}
+            period={selectedPeriod}
+          />
+          <RevenueTrendChart
+            data={trendsData?.revenueByWeek ?? []}
+            insight={insights.revenue}
+            isLoading={trendsFetching}
+            period={selectedPeriod}
+          />
+          <CategoryMixChart
+            data={trendsData?.categoryMix ?? []}
+            insight={insights.category}
+            isLoading={trendsFetching}
+          />
+          <PeakHoursHeatmap
+            data={trendsData?.peakHours ?? []}
+            insight={insights.peakHour}
+            isLoading={trendsFetching}
+          />
+        </>
+      )}
     </ScrollView>
   );
 }
@@ -250,6 +372,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 8,
+    marginBottom: 24,
   },
   rowRtl: {
     flexDirection: 'row-reverse',

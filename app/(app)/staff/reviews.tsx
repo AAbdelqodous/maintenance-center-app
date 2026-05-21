@@ -5,7 +5,6 @@ import { useGetMyAssignedReviewsQuery } from '@/store/api/staffApi';
 import { ReviewCard } from '@/components/reviews/ReviewCard';
 import { RatingStars } from '@/components/ui/RatingStars';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
-import { Ionicons } from '@expo/vector-icons';
 
 function StaffReviewsScreen() {
   const { t } = useTranslation();
@@ -23,10 +22,12 @@ function StaffReviewsScreen() {
     return reviewsData.content.reduce((sum, r) => sum + r.rating, 0) / reviewsData.content.length;
   }, [reviewsData]);
 
+  const totalReviews = reviewsData?.content?.length ?? 0;
+
   if (isLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2196F3" />
       </View>
     );
   }
@@ -34,27 +35,24 @@ function StaffReviewsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('staff.reviews.title')}</Text>
-        {(reviewsData?.content?.length ?? 0) > 0 && (
-          <View style={styles.ratingRow}>
-            <Text style={styles.avgRating}>{averageRating.toFixed(1)}</Text>
-            <RatingStars rating={averageRating} />
-          </View>
-        )}
+        <View style={styles.ratingContainer}>
+          <Text style={styles.averageRating}>{averageRating.toFixed(1)}</Text>
+          <RatingStars rating={averageRating} />
+          <Text style={styles.totalReviews}>{totalReviews} {t('reviews.title')}</Text>
+        </View>
       </View>
 
-      {reviewsData?.content?.length ? (
+      {reviewsData?.content && reviewsData.content.length > 0 ? (
         <FlatList
           data={reviewsData.content}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => <ReviewCard review={item} showReplyAction={false} />}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={styles.listContent}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         />
       ) : (
-        <View style={styles.centered}>
-          <Ionicons name="star-outline" size={64} color="#E0E0E0" />
-          <Text style={styles.emptyText}>{t('staff.reviews.empty')}</Text>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>{t('reviews.noReviews')}</Text>
         </View>
       )}
     </View>
@@ -70,12 +68,46 @@ export default function StaffReviewsScreenWrapper() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF' },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#E0E0E0' },
-  headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#333333', marginBottom: 8 },
-  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  avgRating: { fontSize: 18, fontWeight: '700', color: '#111827' },
-  list: { paddingVertical: 8 },
-  emptyText: { fontSize: 16, color: '#999999', marginTop: 16, textAlign: 'center' },
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    backgroundColor: '#FFFFFF',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  ratingContainer: {
+    alignItems: 'center',
+  },
+  averageRating: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#333333',
+  },
+  totalReviews: {
+    fontSize: 14,
+    color: '#666666',
+    marginTop: 4,
+  },
+  listContent: {
+    paddingVertical: 8,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#999999',
+    textAlign: 'center',
+  },
 });

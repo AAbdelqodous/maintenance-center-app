@@ -3,23 +3,18 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useGetBookingsQuery, BookingStatus } from '@/store/api/bookingsApi';
+import { useGetMyAssignedBookingsQuery } from '@/store/api/staffApi';
+import { useAppSelector } from '@/store';
 import { BookingCard } from '@/components/bookings/BookingCard';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
-import { Ionicons } from '@expo/vector-icons';
-
-const STATUSES: (BookingStatus | 'ALL')[] = [
-  'ALL',
-  BookingStatus.PENDING,
-  BookingStatus.CONFIRMED,
-  BookingStatus.IN_PROGRESS,
-  BookingStatus.COMPLETED,
-  BookingStatus.CANCELLED,
-];
 
 function StaffBookingsScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const isRTL = i18n.dir() === 'rtl';
+
+  const activeUserRole = useAppSelector((state) => state.center.activeUserRole);
+  const isTechnician = activeUserRole === 'TECHNICIAN';
 
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus | 'ALL'>('ALL');
   const [page, setPage] = useState(0);
@@ -30,12 +25,25 @@ function StaffBookingsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const statusParam = selectedStatus === 'ALL' ? undefined : selectedStatus;
-  const { data, isLoading, isFetching, refetch } = useGetBookingsQuery({ page, size: 20, status: statusParam });
+
+  // Technicians only see their assigned bookings; other roles see all branch bookings.
+  // Both hooks are always called (React rules of hooks); one is skipped via `skip`.
+  const allBookingsResult = useGetBookingsQuery(
+    { page, size: 20, status: statusParam },
+    { skip: isTechnician }
+  );
+  const assignedResult = useGetMyAssignedBookingsQuery(
+    { page, size: 20, status: statusParam },
+    { skip: !isTechnician }
+  );
+
+  const { data, isLoading, isFetching, refetch } = isTechnician ? assignedResult : allBookingsResult;
 
   React.useEffect(() => {
     setPage(0);
     setAllBookings([]);
     setHasMore(true);
+    setIsFetchingMore(false);
     isFetchingMoreRef.current = false;
   }, [selectedStatus]);
 
@@ -50,7 +58,7 @@ function StaffBookingsScreen() {
       setIsFetchingMore(false);
       isFetchingMoreRef.current = false;
     }
-  }, [data, page]);
+  }, [data]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -67,73 +75,69 @@ function StaffBookingsScreen() {
     }
   }, [hasMore, isFetching, isLoading]);
 
-  const isOverdue = (booking: any) => {
+  const isOverdue = useCallback((booking: any) => {
     if (booking.bookingStatus !== BookingStatus.PENDING) return false;
     return new Date(`${booking.bookingDate}T${booking.bookingTime}`) < new Date();
-  };
+  }, []);
 
-  const getStatusLabel = (status: BookingStatus | 'ALL') => {
-    if (status === 'ALL') return t('bookings.all');
-    return t(`bookings.status.${status.toLowerCase()}`) || status;
-  };
+  const statuses: (BookingStatus | 'ALL')[] = ['ALL', BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS, BookingStatus.COMPLETED, BookingStatus.CANCELLED];
 
-  if (isLoading && page === 0) {
+  const StatusTab = ({ status }: { status: BookingStatus | 'ALL' }) => {
+    const isSelected = selectedStatus === status;
+    const count = isSelected ? (data?.totalElements ?? allBookings.length) : null;
+
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#4F46E5" />
-      </View>
+      <TouchableOpacity
+        style={[styles.tab, isSelected && styles.selectedTab, isRTL && styles.tabRtl]}
+        onPress={() => setSelectedStatus(status)}
+      >
+        <Text style={[styles.tabText, isSelected && styles.selectedTabText]}>
+          {t(`bookings.${status.toLowerCase()}`)}
+          {count !== null ? ` (${count})` : ''}
+        </Text>
+      </TouchableOpacity>
     );
-  }
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('bookings.title')}</Text>
-      </View>
-
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.tabsContainer}
-        contentContainerStyle={styles.tabs}
+        contentContainerStyle={[styles.tabsContainer, isRTL && styles.tabsRtl]}
       >
-        {STATUSES.map((status) => (
-          <TouchableOpacity
-            key={status}
-            style={[styles.tab, selectedStatus === status && styles.tabActive]}
-            onPress={() => setSelectedStatus(status)}
-          >
-            <Text style={[styles.tabText, selectedStatus === status && styles.tabTextActive]}>
-              {getStatusLabel(status)}
-            </Text>
-          </TouchableOpacity>
+        {statuses.map((status) => (
+          <StatusTab key={status} status={status} />
         ))}
       </ScrollView>
 
-      <FlatList
-        data={allBookings}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <BookingCard
-            booking={item}
-            isOverdue={isOverdue(item)}
-            onPress={() => router.push(`/staff/bookings/${item.id}` as any)}
-          />
-        )}
-        contentContainerStyle={allBookings.length === 0 ? styles.emptyList : styles.list}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.5}
-        ListEmptyComponent={
-          <View style={styles.centered}>
-            <Ionicons name="calendar-outline" size={64} color="#E0E0E0" />
-            <Text style={styles.emptyText}>{t('staff.bookings.empty')}</Text>
-          </View>
-        }
-        ListFooterComponent={
-          isFetchingMore ? <ActivityIndicator size="small" color="#4F46E5" style={styles.footer} /> : null
-        }
-      />
+      {isLoading && page === 0 ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#2196F3" />
+        </View>
+      ) : allBookings.length > 0 ? (
+        <FlatList
+          data={allBookings}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <BookingCard
+              booking={item}
+              isOverdue={isOverdue(item)}
+              onPress={() => router.push(`/staff/bookings/${item.id}` as any)}
+              showAssignedTo={!isTechnician}
+            />
+          )}
+          contentContainerStyle={styles.listContent}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={isFetchingMore ? <ActivityIndicator style={{ padding: 16 }} color="#2196F3" /> : null}
+        />
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>{t('staff.bookings.empty')}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -147,23 +151,58 @@ export default function StaffBookingsScreenWrapper() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9FAFB' },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
-  header: { padding: 16, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E0E0E0' },
-  headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#333333' },
-  tabsContainer: { backgroundColor: '#FFFFFF', maxHeight: 52 },
-  tabs: { paddingHorizontal: 12, paddingVertical: 8, gap: 8 },
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  tabsContainer: {
+    padding: 12,
+    gap: 8,
+  },
+  tabsRtl: {
+    flexDirection: 'row-reverse',
+  },
   tab: {
     paddingHorizontal: 16,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
-  tabActive: { backgroundColor: '#4F46E5' },
-  tabText: { fontSize: 13, color: '#6B7280', fontWeight: '500' },
-  tabTextActive: { color: '#FFFFFF' },
-  list: { paddingVertical: 8 },
-  emptyList: { flexGrow: 1 },
-  emptyText: { fontSize: 16, color: '#9CA3AF', marginTop: 16, textAlign: 'center' },
-  footer: { paddingVertical: 16 },
+  tabRtl: {
+    marginLeft: 0,
+    marginRight: 8,
+  },
+  selectedTab: {
+    backgroundColor: '#2196F3',
+    borderColor: '#2196F3',
+  },
+  tabText: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  selectedTabText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  listContent: {
+    paddingVertical: 8,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#999999',
+    textAlign: 'center',
+  },
 });
