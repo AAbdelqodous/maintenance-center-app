@@ -131,7 +131,9 @@
       "PowerShell(cd \"c:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\"; $env:SPECIFY_FEATURE = \"021-self-claim-booking\"; .\\\\.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks 2>&1)",
       "PowerShell(Get-ChildItem \"c:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\life-experience-app\\\\service-center\\\\src\\\\main\\\\resources\" -Recurse | Select-Object -First 30 | ForEach-Object { $_.FullName })",
       "Bash(find \"c:/Users/ahmed.elsayed/MaintenanceCenters/life-experience-app/service-center/src/main/java/com/maintainance/service_center/\" -maxdepth 1 -type d 2>/dev/null | sort)",
-      "Read(//c/Users/ahmed.elsayed/MaintenanceCenters/life-experience-app/service-center/src/main/java/com/maintainance/service_center/**)"
+      "Read(//c/Users/ahmed.elsayed/MaintenanceCenters/life-experience-app/service-center/src/main/java/com/maintainance/service_center/**)",
+      "Bash(npx --version)",
+      "Bash(chmod +x /home/abdelqodous/MaintenanceCenter/maintenance-center-app/node_modules/.bin/expo)"
     ]
   }
 }
