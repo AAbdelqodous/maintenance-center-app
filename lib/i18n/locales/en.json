@@ -200,7 +200,27 @@
     "reassign": "Reassign",
     "unassignConfirm": "Remove technician assignment?",
     "assignSuccess": "Technician assigned successfully",
-    "crossBranchError": "This technician does not belong to this branch"
+    "crossBranchError": "This technician does not belong to this branch",
+    "claimBooking": "Claim Booking",
+    "claimSuccess": "Booking claimed successfully",
+    "claimConfirm": "Claim this booking? It will be assigned to you.",
+    "alreadyClaimed": "This booking was just claimed by another technician",
+    "notClaimable": "This booking can no longer be claimed",
+    "staffInactive": "Your account is no longer active at this center",
+    "wrongDepartment": "This booking is in a different department. Ask your manager to assign it if needed.",
+    "staffNotAtCenter": "This technician does not belong to this center",
+    "crossDeptNotAllowed": "This technician is from a different department",
+    "notAssignable": "This booking cannot be assigned",
+    "crossDeptConfirmTitle": "Cross-Department Assignment",
+    "crossDeptConfirmMessage": "This technician is from a different department. Assign anyway?",
+    "assignReason": "Reason (optional)",
+    "assignReasonPlaceholder": "Why this assignment? e.g. VIP customer, complex job",
+    "queue": {
+      "title": "Department Queue",
+      "subtitle": "Unassigned bookings in your department",
+      "empty": "No unassigned bookings in your department",
+      "noDepartment": "You are not assigned to any department. Contact your branch manager to be added."
+    }
   },
   "chat": {
     "title": "Messages",
@@ -873,5 +893,39 @@
       "1": "Mondays", "2": "Tuesdays", "3": "Wednesdays", "4": "Thursdays",
       "5": "Fridays", "6": "Saturdays", "7": "Sundays"
     }
+  },
+  "departments": {
+    "title": "Departments",
+    "add": "Add Department",
+    "edit": "Edit Department",
+    "nameAr": "Arabic Name",
+    "nameEn": "English Name",
+    "categories": "Service Categories",
+    "categoriesHint": "Bookings in these categories will route to this department",
+    "members": "Members",
+    "memberCount_one": "{{count}} technician",
+    "memberCount_other": "{{count}} technicians",
+    "noMembers": "No technicians assigned",
+    "deactivate": "Deactivate Department",
+    "deactivateConfirm": "Deactivate this department? It will no longer appear in routing or the technician queue.",
+    "deactivated": "Deactivated",
+    "empty": "No departments yet. Add your first department to start routing bookings.",
+    "addMember": "Add Technician",
+    "removeMember": "Remove from Department",
+    "removeMemberConfirm": "Remove this technician from the department?",
+    "errors": {
+      "duplicateNameAr": "A department with this Arabic name already exists.",
+      "duplicateNameEn": "A department with this English name already exists.",
+      "invalidCategory": "One or more selected categories are invalid.",
+      "hasOpenBookings": "This department has open bookings. Reassign or complete them before deactivating.",
+      "hasActiveMembers": "This department has active technicians. Remove them before deactivating.",
+      "lastActive": "You must have at least one active department.",
+      "memberNotTechnician": "Only technicians can be assigned to a department.",
+      "memberWrongCenter": "This staff member does not belong to your center."
+    },
+    "saved": "Department saved.",
+    "deactivateSuccess": "Department deactivated.",
+    "memberAdded": "Technician added to department.",
+    "memberRemoved": "Technician removed from department."
   }
 }

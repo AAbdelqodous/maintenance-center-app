@@ -24,6 +24,7 @@ export default function StaffDashboardScreen() {
 
   const canManagePricing = activePermissions.includes('MANAGE_PRICING');
   const canManageOffers  = activePermissions.includes('MANAGE_OFFERS');
+  const canClaimBookings = activePermissions.includes('CLAIM_BOOKING');
 
   const { data, isLoading, isFetching } = useDashboardSnapshot();
   const silentRefetch = isFetching && !isLoading;
@@ -81,10 +82,19 @@ export default function StaffDashboardScreen() {
         </>
       )}
 
-      {(canManagePricing || canManageOffers) && (
+      {(canManagePricing || canManageOffers || canClaimBookings) && (
         <View style={styles.quickActions}>
           <Text style={[styles.sectionTitle, isRTL && styles.rtl]}>{t('dashboard.quickActions')}</Text>
           <View style={[styles.actionRow, isRTL && styles.rowRtl]}>
+            {canClaimBookings && (
+              <TouchableOpacity
+                style={styles.actionBtn}
+                onPress={() => router.push('/staff/bookings/queue' as any)}
+              >
+                <Ionicons name="grid-outline" size={24} color="#059669" />
+                <Text style={styles.actionLabel}>{t('bookings.queue.title')}</Text>
+              </TouchableOpacity>
+            )}
             {canManagePricing && (
               <TouchableOpacity
                 style={styles.actionBtn}

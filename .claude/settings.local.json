@@ -117,7 +117,21 @@
       "PowerShell(& \".specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
       "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 \"Add a trends section to the branch manager dashboard showing 8 weeks of historical performance across bookings, ratings, revenue, demand mix, and peak hours.\" -Json -ShortName \"dashboard-trends\")",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:v for k,v in {**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}.items\\(\\) if any\\(x in k.lower\\(\\) for x in ['nativewind','tailwind','chart','gifted']\\)}, indent=2\\)\\)\")",
-      "Bash(node -e \"const p=require\\('./package.json'\\); const deps={...p.dependencies,...p.devDependencies}; const keys=Object.keys\\(deps\\).filter\\(k=>['nativewind','tailwind','chart','gifted','victory','react-native-svg'].some\\(x=>k.includes\\(x\\)\\)\\); const out={}; keys.forEach\\(k=>out[k]=deps[k]\\); console.log\\(JSON.stringify\\(out,null,2\\)\\)\")"
+      "Bash(node -e \"const p=require\\('./package.json'\\); const deps={...p.dependencies,...p.devDependencies}; const keys=Object.keys\\(deps\\).filter\\(k=>['nativewind','tailwind','chart','gifted','victory','react-native-svg'].some\\(x=>k.includes\\(x\\)\\)\\); const out={}; keys.forEach\\(k=>out[k]=deps[k]\\); console.log\\(JSON.stringify\\(out,null,2\\)\\)\")",
+      "PowerShell(& \"c:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\setup-plan.ps1\" -Json -FeatureArg \"020-center-departments\")",
+      "PowerShell($env:SPECIFY_FEATURE = \"020-center-departments\"; & \"c:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\setup-plan.ps1\" -Json)",
+      "PowerShell($env:SPECIFY_FEATURE = \"020-center-departments\"; & \"c:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\\\\.specify\\\\scripts\\\\powershell\\\\update-agent-context.ps1\" -AgentType claude)",
+      "PowerShell($env:SPECIFY_FEATURE = \"020-center-departments\"; & \".specify/scripts/powershell/check-prerequisites.ps1\" -Json)",
+      "PowerShell($env:SPECIFY_FEATURE = \"020-center-departments\"; & \".specify/scripts/powershell/check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
+      "Bash(.\\\\.specify\\\\scripts\\\\powershell\\\\setup-plan.ps1 -Json)",
+      "PowerShell(cd \"c:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\"; $env:SPECIFY_FEATURE = \"021-self-claim-booking\"; .\\\\.specify\\\\scripts\\\\powershell\\\\setup-plan.ps1 -Json 2>&1)",
+      "Bash(python -c ' *)",
+      "PowerShell(cd \"c:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\"; $env:SPECIFY_FEATURE = \"021-self-claim-booking\"; .\\\\.specify\\\\scripts\\\\powershell\\\\update-agent-context.ps1 -AgentType claude 2>&1)",
+      "PowerShell(cd \"c:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\"; $env:SPECIFY_FEATURE = \"021-self-claim-booking\"; .\\\\.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1 -Json 2>&1)",
+      "PowerShell(cd \"c:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\maintenance-center-app\"; $env:SPECIFY_FEATURE = \"021-self-claim-booking\"; .\\\\.specify\\\\scripts\\\\powershell\\\\check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks 2>&1)",
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\ahmed.elsayed\\\\MaintenanceCenters\\\\life-experience-app\\\\service-center\\\\src\\\\main\\\\resources\" -Recurse | Select-Object -First 30 | ForEach-Object { $_.FullName })",
+      "Bash(find \"c:/Users/ahmed.elsayed/MaintenanceCenters/life-experience-app/service-center/src/main/java/com/maintainance/service_center/\" -maxdepth 1 -type d 2>/dev/null | sort)",
+      "Read(//c/Users/ahmed.elsayed/MaintenanceCenters/life-experience-app/service-center/src/main/java/com/maintainance/service_center/**)"
     ]
   }
 }

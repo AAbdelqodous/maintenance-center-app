@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
-import { useAssignTechnicianMutation } from '@/store/api/bookingsApi';
+import { useAssignBookingManuallyMutation } from '@/store/api/bookingsApi';
 import { analyticsApi } from '@/store/api/analyticsApi';
 import type { RebalanceSuggestion, StaffPerformanceCard, ActiveBookingSummary } from '@/types/staffPerformance';
 import { AppDispatch } from '@/store';
@@ -28,7 +28,7 @@ type Step = 'SELECT_BOOKING' | 'SELECT_RECIPIENT';
 export function RebalanceModal({ visible, suggestion, onClose }: Props) {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
-  const [assignTechnician, { isLoading }] = useAssignTechnicianMutation();
+  const [assignBookingManually, { isLoading }] = useAssignBookingManuallyMutation();
 
   const [selectedStaff, setSelectedStaff] = useState<StaffPerformanceCard | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<ActiveBookingSummary | null>(null);
@@ -74,7 +74,7 @@ export function RebalanceModal({ visible, suggestion, onClose }: Props) {
       );
 
       try {
-        await assignTechnician({ bookingId, membershipId: toId }).unwrap();
+        await assignBookingManually({ bookingId, body: { staffId: toId } }).unwrap();
         handleClose();
       } catch {
         patch.undo();

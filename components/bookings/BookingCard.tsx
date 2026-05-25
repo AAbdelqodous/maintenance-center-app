@@ -10,9 +10,10 @@ interface BookingCardProps {
   onPress: () => void;
   isOverdue?: boolean;
   showAssignedTo?: boolean;
+  departmentLabel?: string;
 }
 
-export function BookingCard({ booking, onPress, isOverdue = false, showAssignedTo = false }: BookingCardProps) {
+export function BookingCard({ booking, onPress, isOverdue = false, showAssignedTo = false, departmentLabel }: BookingCardProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
 
@@ -80,6 +81,11 @@ export function BookingCard({ booking, onPress, isOverdue = false, showAssignedT
         <View style={[styles.row, isRTL && styles.rowRtl, styles.notesRow]}>
           <Text style={styles.label}>{t('bookings.notes')}:</Text>
           <Text style={styles.notes}>{booking.notes}</Text>
+        </View>
+      )}
+      {departmentLabel && (
+        <View style={[styles.deptChip, isRTL && styles.deptChipRtl]}>
+          <Text style={styles.deptChipText}>{departmentLabel}</Text>
         </View>
       )}
     </TouchableOpacity>
@@ -159,5 +165,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#9E9E9E',
     fontStyle: 'italic',
+  },
+  deptChip: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#EEF2FF',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    marginTop: 8,
+  },
+  deptChipRtl: {
+    alignSelf: 'flex-end',
+  },
+  deptChipText: {
+    fontSize: 11,
+    color: '#4F46E5',
+    fontWeight: '600',
   },
 });

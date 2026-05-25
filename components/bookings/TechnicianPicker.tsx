@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Modal, View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator,
+  Modal, View, Text, FlatList, TouchableOpacity, StyleSheet,
+  ActivityIndicator, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,74 +12,106 @@ import type { CenterMembership } from '@/types/staff';
 interface TechnicianPickerProps {
   visible: boolean;
   currentMembershipId: number | null;
-  onSelect: (membershipId: number | null) => void;
+  onSelect: (membershipId: number | null, reason?: string) => void;
   onClose: () => void;
 }
 
 export function TechnicianPicker({ visible, currentMembershipId, onSelect, onClose }: TechnicianPickerProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === 'rtl';
+  const [reason, setReason] = useState('');
 
   const { data, isLoading } = useGetCenterStaffQuery({ status: 'ACTIVE' });
   const technicians = (data?.content ?? []).filter((m: CenterMembership) => m.role === 'TECHNICIAN');
 
-  return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
-        <View style={styles.sheet}>
-          <View style={[styles.sheetHeader, isRTL && styles.rowRtl]}>
-            <Text style={styles.sheetTitle}>{t('bookings.assignTechnician')}</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={22} color="#6B7280" />
-            </TouchableOpacity>
-          </View>
+  const handleSelect = (membershipId: number | null) => {
+    onSelect(membershipId, reason.trim() || undefined);
+    setReason('');
+    onClose();
+  };
 
-          {isLoading ? (
-            <ActivityIndicator size="large" color="#2196F3" style={styles.loader} />
-          ) : (
-            <FlatList
-              data={technicians}
-              keyExtractor={(item) => String(item.id)}
-              ListHeaderComponent={
-                <TouchableOpacity
-                  style={[styles.row, currentMembershipId === null && styles.rowSelected, isRTL && styles.rowRtl]}
-                  onPress={() => { onSelect(null); onClose(); }}
-                >
-                  <Ionicons name="person-remove-outline" size={20} color="#9CA3AF" />
-                  <Text style={[styles.unassignText, isRTL && styles.textRtl]}>{t('bookings.unassigned')}</Text>
-                  {currentMembershipId === null && (
-                    <Ionicons name="checkmark" size={20} color="#2196F3" style={styles.checkmark} />
-                  )}
-                </TouchableOpacity>
-              }
-              renderItem={({ item }) => {
-                const isSelected = item.id === currentMembershipId;
-                return (
+  const handleClose = () => {
+    setReason('');
+    onClose();
+  };
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+      <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={handleClose}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kavWrapper}>
+          <TouchableOpacity activeOpacity={1} style={styles.sheet}>
+            <View style={[styles.sheetHeader, isRTL && styles.rowRtl]}>
+              <Text style={styles.sheetTitle}>{t('bookings.assignTechnician')}</Text>
+              <TouchableOpacity onPress={handleClose}>
+                <Ionicons name="close" size={22} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+
+            {isLoading ? (
+              <ActivityIndicator size="large" color="#2196F3" style={styles.loader} />
+            ) : (
+              <FlatList
+                data={technicians}
+                keyExtractor={(item) => String(item.id)}
+                keyboardShouldPersistTaps="handled"
+                ListHeaderComponent={
                   <TouchableOpacity
-                    style={[styles.row, isSelected && styles.rowSelected, isRTL && styles.rowRtl]}
-                    onPress={() => { onSelect(item.id); onClose(); }}
+                    style={[styles.row, currentMembershipId === null && styles.rowSelected, isRTL && styles.rowRtl]}
+                    onPress={() => handleSelect(null)}
                   >
-                    <View style={styles.avatar}>
-                      <Text style={styles.avatarText}>
-                        {item.userFirstname.charAt(0)}{item.userLastname.charAt(0)}
-                      </Text>
-                    </View>
-                    <Text style={[styles.nameText, isRTL && styles.textRtl]}>
-                      {item.userFirstname} {item.userLastname}
-                    </Text>
-                    <RoleBadge role={item.role} />
-                    {isSelected && (
+                    <Ionicons name="person-remove-outline" size={20} color="#9CA3AF" />
+                    <Text style={[styles.unassignText, isRTL && styles.textRtl]}>{t('bookings.unassigned')}</Text>
+                    {currentMembershipId === null && (
                       <Ionicons name="checkmark" size={20} color="#2196F3" style={styles.checkmark} />
                     )}
                   </TouchableOpacity>
-                );
-              }}
-              ListEmptyComponent={
-                <Text style={styles.emptyText}>{t('staff.emptyState')}</Text>
-              }
-            />
-          )}
-        </View>
+                }
+                renderItem={({ item }) => {
+                  const isSelected = item.id === currentMembershipId;
+                  return (
+                    <TouchableOpacity
+                      style={[styles.row, isSelected && styles.rowSelected, isRTL && styles.rowRtl]}
+                      onPress={() => handleSelect(item.id)}
+                    >
+                      <View style={styles.avatar}>
+                        <Text style={styles.avatarText}>
+                          {item.userFirstname.charAt(0)}{item.userLastname.charAt(0)}
+                        </Text>
+                      </View>
+                      <Text style={[styles.nameText, isRTL && styles.textRtl]}>
+                        {item.userFirstname} {item.userLastname}
+                      </Text>
+                      <RoleBadge role={item.role} />
+                      {isSelected && (
+                        <Ionicons name="checkmark" size={20} color="#2196F3" style={styles.checkmark} />
+                      )}
+                    </TouchableOpacity>
+                  );
+                }}
+                ListEmptyComponent={
+                  <Text style={styles.emptyText}>{t('staff.emptyState')}</Text>
+                }
+                ListFooterComponent={
+                  <View style={styles.reasonSection}>
+                    <Text style={[styles.reasonLabel, isRTL && styles.textRtl]}>
+                      {t('bookings.assignReason')}
+                    </Text>
+                    <TextInput
+                      style={[styles.reasonInput, isRTL && styles.textRtl]}
+                      value={reason}
+                      onChangeText={setReason}
+                      placeholder={t('bookings.assignReasonPlaceholder')}
+                      placeholderTextColor="#9CA3AF"
+                      multiline
+                      numberOfLines={2}
+                      textAlign={isRTL ? 'right' : 'left'}
+                    />
+                  </View>
+                }
+              />
+            )}
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
       </TouchableOpacity>
     </Modal>
   );
@@ -90,13 +123,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'flex-end',
   },
+  kavWrapper: {
+    justifyContent: 'flex-end',
+  },
   sheet: {
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingTop: 16,
     paddingBottom: 40,
-    maxHeight: '70%',
+    maxHeight: '75%',
   },
   sheetHeader: {
     flexDirection: 'row',
@@ -156,5 +192,28 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     textAlign: 'center',
     padding: 24,
+  },
+  reasonSection: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+  },
+  reasonLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#6B7280',
+    marginBottom: 8,
+  },
+  reasonInput: {
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#111827',
+    minHeight: 64,
+    textAlignVertical: 'top',
   },
 });

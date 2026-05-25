@@ -49,6 +49,9 @@ export interface Booking {
   workStage?: string;
   assignedMembershipId: number | null;
   assignedStaffName: string | null;
+  departmentId?: number;
+  departmentNameAr?: string;
+  departmentNameEn?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -61,6 +64,7 @@ export interface BookingsResponse {
   number: number;
   first: boolean;
   last: boolean;
+  noDepartmentMembership?: boolean;
 }
 
 export interface BookingsQueryParams {
@@ -82,6 +86,24 @@ export interface BookingCompletionRequest {
   completionNotes?: string;
   costNotes?: string;
   paymentStatus?: 'PAID' | 'PENDING';
+}
+
+export type ClaimBookingErrorCode =
+  | 'BOOKING_ALREADY_CLAIMED'
+  | 'BOOKING_NOT_CLAIMABLE'
+  | 'STAFF_INACTIVE'
+  | 'WRONG_DEPARTMENT';
+
+export type AssignBookingErrorCode =
+  | 'STAFF_NOT_AT_CENTER'
+  | 'CROSS_DEPARTMENT_NOT_ALLOWED'
+  | 'BOOKING_NOT_ASSIGNABLE'
+  | 'STAFF_INACTIVE';
+
+export interface AssignBookingRequest {
+  staffId: number;
+  reason?: string;
+  crossDepartmentOverride?: boolean;
 }
 
 export interface BookingStats {
@@ -108,6 +130,23 @@ export const bookingsApi = createApi({
   }),
   tagTypes: ['Booking'],
   endpoints: (builder) => ({
+    getBookingQueue: builder.query<BookingsResponse, { page?: number; size?: number }>({
+      query: ({ page = 0, size = 20 } = {}) => ({
+        url: 'bookings/queue',
+        params: { page, size },
+      }),
+      transformResponse: (raw: any): BookingsResponse => ({
+        content: raw.content ?? [],
+        totalElements: raw.page?.totalElements ?? raw.totalElements ?? 0,
+        totalPages: raw.page?.totalPages ?? raw.totalPages ?? 0,
+        number: raw.page?.number ?? raw.number ?? 0,
+        size: raw.page?.size ?? raw.size ?? 0,
+        first: raw.first ?? true,
+        last: raw.last ?? true,
+        noDepartmentMembership: raw.noDepartmentMembership ?? false,
+      }),
+      providesTags: ['Booking'],
+    }),
     getBookings: builder.query<BookingsResponse, BookingsQueryParams>({
       query: (params) => ({ url: 'bookings', params }),
       transformResponse: (raw: any): BookingsResponse => ({
@@ -165,11 +204,19 @@ export const bookingsApi = createApi({
       query: ({ id, reason }) => ({ url: `bookings/${id}/cancel`, method: 'POST', body: { reason } }),
       invalidatesTags: (_result, _error, { id }) => ['Booking', { type: 'Booking', id }],
     }),
-    assignTechnician: builder.mutation<Booking, { bookingId: number; membershipId: number | null }>({
-      query: ({ bookingId, membershipId }) => ({
+    claimBooking: builder.mutation<Booking, number>({
+      query: (id) => ({ url: `bookings/${id}/claim`, method: 'POST' }),
+      invalidatesTags: (_result, _error, id) => [
+        'Booking',
+        { type: 'Booking', id },
+        'StaffPerformance',
+      ],
+    }),
+    assignBookingManually: builder.mutation<Booking, { bookingId: number; body: AssignBookingRequest }>({
+      query: ({ bookingId, body }) => ({
         url: `bookings/${bookingId}/assign`,
         method: 'PUT',
-        body: { membershipId },
+        body,
       }),
       invalidatesTags: (_result, _error, { bookingId }) => [
         'Booking',
@@ -181,6 +228,7 @@ export const bookingsApi = createApi({
 });
 
 export const {
+  useGetBookingQueueQuery,
   useGetBookingsQuery,
   useGetCenterBookingsQuery,
   useGetBookingByIdQuery,
@@ -190,5 +238,6 @@ export const {
   useStartServiceMutation,
   useCompleteBookingMutation,
   useCancelBookingMutation,
-  useAssignTechnicianMutation,
+  useClaimBookingMutation,
+  useAssignBookingManuallyMutation,
 } = bookingsApi;

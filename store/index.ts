@@ -20,6 +20,7 @@ import { offersApi } from './api/offersApi';
 import { adminApi } from './api/adminApi';
 import { lookupsApi } from './api/lookupsApi';
 import { userApi } from './api/userApi';
+import { departmentsApi } from './api/departmentsApi';
 
 const unauthenticatedMiddleware: Middleware = ({ dispatch }) => (next) => (action) => {
   if (isRejectedWithValue(action) && (action.payload as any)?.status === 401) {
@@ -50,6 +51,7 @@ export const store = configureStore({
     [adminApi.reducerPath]: adminApi.reducer,
     [lookupsApi.reducerPath]: lookupsApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
+    [departmentsApi.reducerPath]: departmentsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -72,6 +74,7 @@ export const store = configureStore({
       adminApi.middleware,
       lookupsApi.middleware,
       userApi.middleware,
+      departmentsApi.middleware,
     ),
 });
 

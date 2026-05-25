@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { useGetBookingByIdQuery, useConfirmBookingMutation, useStartServiceMutation, useCompleteBookingMutation, useCancelBookingMutation, useAssignTechnicianMutation, BookingStatus, ServiceType } from '@/store/api/bookingsApi';
+import { useGetBookingByIdQuery, useConfirmBookingMutation, useStartServiceMutation, useCompleteBookingMutation, useCancelBookingMutation, useAssignBookingManuallyMutation, BookingStatus, ServiceType } from '@/store/api/bookingsApi';
 import { TechnicianPicker } from '@/components/bookings/TechnicianPicker';
 import { PermissionGate } from '@/components/staff/PermissionGate';
 import StageUpdateForm from '@/components/progress/StageUpdateForm';
@@ -36,7 +36,7 @@ export default function BookingDetailScreen() {
   const [startService, { isLoading: isStarting }] = useStartServiceMutation();
   const [completeBooking, { isLoading: isCompleting }] = useCompleteBookingMutation();
   const [cancelBooking, { isLoading: isCancelling }] = useCancelBookingMutation();
-  const [assignTechnician] = useAssignTechnicianMutation();
+  const [assignBookingManually] = useAssignBookingManuallyMutation();
   const isUpdating = isConfirming || isStarting || isCompleting || isCancelling;
   const { data: quotes } = useGetBookingQuotesQuery(Number(id), { skip: activeTab !== 'quotes' });
   const {
@@ -45,14 +45,39 @@ export default function BookingDetailScreen() {
     isLoading: isRejectionLoading,
   } = useLookup(LOOKUP_PARAMS.REJECTION_REASON);
 
-  const handleAssign = async (membershipId: number | null) => {
+  const handleAssign = async (staffId: number | null, reason?: string) => {
+    if (staffId === null) return;
+
+    const doAssign = async (crossDepartmentOverride = false) => {
+      try {
+        await assignBookingManually({
+          bookingId: Number(id),
+          body: { staffId, reason, crossDepartmentOverride: crossDepartmentOverride || undefined },
+        }).unwrap();
+        showFeedback('success', t('bookings.assignSuccess'));
+        refetch();
+      } catch (e: any) {
+        showFeedback('error', e?.data?.businessErrorDescription ?? t('common.error'));
+      }
+    };
+
     try {
-      await assignTechnician({ bookingId: Number(id), membershipId }).unwrap();
+      await assignBookingManually({ bookingId: Number(id), body: { staffId, reason } }).unwrap();
       showFeedback('success', t('bookings.assignSuccess'));
       refetch();
     } catch (err: any) {
-      const msg = err?.data?.businessErrorDescription ?? t('bookings.crossBranchError');
-      showFeedback('error', msg);
+      if (err?.data?.error === 'CROSS_DEPARTMENT_NOT_ALLOWED') {
+        if (Platform.OS === 'web') {
+          if (window.confirm(t('bookings.crossDeptConfirmMessage'))) doAssign(true);
+        } else {
+          Alert.alert(t('bookings.crossDeptConfirmTitle'), t('bookings.crossDeptConfirmMessage'), [
+            { text: t('common.cancel'), style: 'cancel' },
+            { text: t('common.confirm'), onPress: () => doAssign(true) },
+          ]);
+        }
+      } else {
+        showFeedback('error', err?.data?.businessErrorDescription ?? t('bookings.crossBranchError'));
+      }
     }
   };
 
@@ -301,7 +326,7 @@ export default function BookingDetailScreen() {
               {booking.notes && <DetailRow label={t('bookings.notes')} value={booking.notes} />}
             </View>
 
-            <PermissionGate permission="ASSIGN_TECHNICIAN">
+            <PermissionGate permission="ASSIGN_TECHNICIAN_MANUAL">
               <View style={styles.card}>
                 <View style={[styles.header, isRTL && styles.rowRtl]}>
                   <Text style={styles.detailLabel}>{t('bookings.assignedTo')}:</Text>
