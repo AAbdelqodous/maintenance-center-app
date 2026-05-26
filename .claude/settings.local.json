@@ -133,7 +133,21 @@
       "Bash(find \"c:/Users/ahmed.elsayed/MaintenanceCenters/life-experience-app/service-center/src/main/java/com/maintainance/service_center/\" -maxdepth 1 -type d 2>/dev/null | sort)",
       "Read(//c/Users/ahmed.elsayed/MaintenanceCenters/life-experience-app/service-center/src/main/java/com/maintainance/service_center/**)",
       "Bash(npx --version)",
-      "Bash(chmod +x /home/abdelqodous/MaintenanceCenter/maintenance-center-app/node_modules/.bin/expo)"
+      "Bash(chmod +x /home/abdelqodous/MaintenanceCenter/maintenance-center-app/node_modules/.bin/expo)",
+      "Bash(pwsh -NoProfile -File .specify/scripts/powershell/create-new-feature.ps1 -Json -ShortName \"department-routing\" \"Department-based Booking Routing and Auto-Assignment\")",
+      "Bash(grep -E '^\\\\*?\\\\s+0?\\\\d{3,}-')",
+      "Bash(mkdir -p specs/022-diagnostic-and-reroute)",
+      "Bash(cp .specify/templates/spec-template.md specs/022-diagnostic-and-reroute/spec.md)",
+      "Bash(mkdir -p specs/022-diagnostic-and-reroute/checklists)",
+      "Bash(awk '/^## Phase/ {phase=$0; count=0; next} /^- \\\\[ \\\\] T/ {count++} END {} {if \\(/^## Phase/\\) print phase; else print \"  count++\"}')",
+      "Bash(awk '/^## Phase/ {if \\(phase\\) print phase \": \" count \" tasks\"; phase=$0; count=0} /^- \\\\[ \\\\] T/ {count++} END {if \\(phase\\) print phase \": \" count \" tasks\"}' specs/022-diagnostic-and-reroute/tasks.md)",
+      "Bash(awk '{ if \\($0 !~ /\\(maintenance-center-app|service-center|specs\\\\/022|locales|\\\\.md|\\\\.json|\\\\.ts|\\\\.tsx|\\\\.java|\\\\.sql|Phase|spec\\)/\\) print \"MISSING_PATH: \" $0 }')",
+      "Bash(awk '{ if \\($0 !~ /\\(maintenance-center-app|maintenance-customer-app|service-center|specs\\\\/022|locales|\\\\.md|\\\\.json|\\\\.ts|\\\\.tsx|\\\\.java|\\\\.sql\\)/\\) print \"MISSING_PATH: \" $0 }')",
+      "Bash(awk '/^- \\\\[ \\\\]/ {incomplete++} /^- \\\\[[Xx]\\\\]/ {complete++} END {print \"Total: \" \\(incomplete+complete\\) \", Complete: \" complete \", Incomplete: \" incomplete}' specs/022-diagnostic-and-reroute/checklists/requirements.md)",
+      "Bash(command -v pwsh)",
+      "Bash(awk '/^- \\\\[ \\\\]/ {incomplete++} /^- \\\\[[Xx]\\\\]/ {complete++} END {print \"Checklist: Total=\" \\(incomplete+complete\\) \" Complete=\" complete \" Incomplete=\" incomplete}' specs/015-staff-management-foundation/checklists/requirements.md)",
+      "Bash(awk '/^## Phase/ {if \\(phase\\) print phase \": \" count \" tasks \\(done=\" done \"\\)\"; phase=$0; count=0; done=0} /^- \\\\[ \\\\] T/ {count++} /^- \\\\[[Xx]\\\\] T/ {count++; done++} END {if \\(phase\\) print phase \": \" count \" tasks \\(done=\" done \"\\)\"}' specs/015-staff-management-foundation/tasks.md)",
+      "Bash(grep -oE \"['\\\\`][^'\\\\`]*['\\\\`]\")"
     ]
   }
 }
