@@ -1,7 +1,7 @@
 # Feature Specification: Diagnostic Department & Booking Re-Route
 
 **Feature Branch:** `022-diagnostic-and-reroute`
-**Status:** Implemented
+**Status:** Frontend Implemented; Backend Pending
 **Created:** 2026-05-26
 **Phase:** specify (next: plan → tasks → implement)
 

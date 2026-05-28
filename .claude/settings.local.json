@@ -147,7 +147,8 @@
       "Bash(command -v pwsh)",
       "Bash(awk '/^- \\\\[ \\\\]/ {incomplete++} /^- \\\\[[Xx]\\\\]/ {complete++} END {print \"Checklist: Total=\" \\(incomplete+complete\\) \" Complete=\" complete \" Incomplete=\" incomplete}' specs/015-staff-management-foundation/checklists/requirements.md)",
       "Bash(awk '/^## Phase/ {if \\(phase\\) print phase \": \" count \" tasks \\(done=\" done \"\\)\"; phase=$0; count=0; done=0} /^- \\\\[ \\\\] T/ {count++} /^- \\\\[[Xx]\\\\] T/ {count++; done++} END {if \\(phase\\) print phase \": \" count \" tasks \\(done=\" done \"\\)\"}' specs/015-staff-management-foundation/tasks.md)",
-      "Bash(grep -oE \"['\\\\`][^'\\\\`]*['\\\\`]\")"
+      "Bash(grep -oE \"['\\\\`][^'\\\\`]*['\\\\`]\")",
+      "Bash(awk '/^- \\\\[ \\\\] T/ {open++} /^- \\\\[[Xx]\\\\] T/ {done++} END {print \"Done: \" done \" / Open: \" open \" / Total: \" \\(done+open\\)}' specs/022-diagnostic-and-reroute/tasks.md)"
     ]
   }
 }
