@@ -919,11 +919,60 @@
       "hasActiveMembers": "يوجد فنيون نشطون في هذا القسم. قم بإزالتهم قبل التعطيل.",
       "lastActive": "يجب أن يكون لديك قسم واحد نشط على الأقل.",
       "memberNotTechnician": "يمكن تعيين الفنيين فقط للأقسام.",
-      "memberWrongCenter": "هذا الموظف لا ينتمي إلى مركزك."
+      "memberWrongCenter": "هذا الموظف لا ينتمي إلى مركزك.",
+      "duplicateDiagnosticDepartment": "يوجد قسم تشخيص آخر فعّال في هذا المركز.",
+      "invalidDiagnosticFeeTarget": "حدّد القسم كقسم تشخيص قبل تعيين الرسوم.",
+      "diagnosticToggleBlockedByOpenBookings": "أكمل أو أعد توجيه الحجوزات المفتوحة لهذا القسم قبل تغيير حالة التشخيص."
+    },
+    "diagnostic": {
+      "toggle": "قسم التشخيص",
+      "feeLabel": "رسوم التشخيص (د.ك)",
+      "feeHelper": "تُحتسب عند توجيه أي حجز لهذا القسم للتشخيص."
     },
     "saved": "تم حفظ القسم.",
     "deactivateSuccess": "تم تعطيل القسم.",
     "memberAdded": "تم إضافة الفني إلى القسم.",
     "memberRemoved": "تم إزالة الفني من القسم."
+  },
+  "reroute": {
+    "action": "تحويل الحجز",
+    "targetDept": "إرسال إلى",
+    "notePlaceholder": "ملاحظة اختيارية (٥٠٠ حرف كحد أقصى)",
+    "submit": "تأكيد التحويل",
+    "reason": {
+      "label": "السبب",
+      "WRONG_DIAGNOSIS": "تشخيص أولي خاطئ",
+      "OUT_OF_SCOPE": "خارج نطاق عمل هذا الفريق",
+      "SPECIALIST_NEEDED": "يتطلب أخصائي",
+      "STAFF_UNAVAILABLE": "الفريق غير متاح",
+      "CUSTOMER_REQUEST": "بناءً على طلب العميل",
+      "OTHER": "أخرى"
+    },
+    "history": {
+      "title": "سجل التحويلات",
+      "entry": "{{from}} → {{to}} بواسطة {{user}}",
+      "diagnosticClassification": "تصنيف التشخيص"
+    },
+    "errors": {
+      "cannotIntoDiagnostic": "لا يمكن تحويل الحجز إلى قسم التشخيص.",
+      "noOp": "لا يمكن التحويل لنفس القسم.",
+      "terminalStatus": "لا يمكن تحويل هذا الحجز في وضعه الحالي.",
+      "conflict": "تم تطبيق تغيير آخر على هذا الحجز. حدث الصفحة وحاول مجددًا.",
+      "forbidden": "ليس لديك صلاحية تحويل هذا الحجز."
+    }
+  },
+  "diagnostic": {
+    "fee": {
+      "label": "رسوم التشخيص",
+      "tooltip": "تُحتسب مقابل وقت تشخيص العطل. مستحقة بغض النظر عن الموافقة على الإصلاح."
+    },
+    "errors": {
+      "feeLocked": "لا يمكن تعديل رسوم التشخيص أو حذفها."
+    }
+  },
+  "rerouteNotifications": {
+    "title": "تم تحديث الحجز",
+    "body": "قام فريقنا بتحديث حجزك. وقت البدء المتوقع: {{time}}.",
+    "reviseQuote": "سيتم إرسال عرض سعر مُحدث. يُرجى مراجعته قبل استكمال العمل."
   }
 }

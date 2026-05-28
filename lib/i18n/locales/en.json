@@ -921,11 +921,60 @@
       "hasActiveMembers": "This department has active technicians. Remove them before deactivating.",
       "lastActive": "You must have at least one active department.",
       "memberNotTechnician": "Only technicians can be assigned to a department.",
-      "memberWrongCenter": "This staff member does not belong to your center."
+      "memberWrongCenter": "This staff member does not belong to your center.",
+      "duplicateDiagnosticDepartment": "Another department at this center is already the diagnostic department.",
+      "invalidDiagnosticFeeTarget": "Set the department as diagnostic before assigning a fee.",
+      "diagnosticToggleBlockedByOpenBookings": "Complete or reassign this department's open bookings before changing its diagnostic flag."
+    },
+    "diagnostic": {
+      "toggle": "Diagnostic department",
+      "feeLabel": "Diagnostic fee (KD)",
+      "feeHelper": "Charged when a booking is routed here for diagnosis."
     },
     "saved": "Department saved.",
     "deactivateSuccess": "Department deactivated.",
     "memberAdded": "Technician added to department.",
     "memberRemoved": "Technician removed from department."
+  },
+  "reroute": {
+    "action": "Re-route booking",
+    "targetDept": "Send to",
+    "notePlaceholder": "Optional note (max 500 chars)",
+    "submit": "Confirm re-route",
+    "reason": {
+      "label": "Reason",
+      "WRONG_DIAGNOSIS": "Wrong initial diagnosis",
+      "OUT_OF_SCOPE": "Out of this team's scope",
+      "SPECIALIST_NEEDED": "Specialist needed",
+      "STAFF_UNAVAILABLE": "Staff unavailable",
+      "CUSTOMER_REQUEST": "Customer request",
+      "OTHER": "Other"
+    },
+    "history": {
+      "title": "Re-route history",
+      "entry": "{{from}} → {{to}} by {{user}}",
+      "diagnosticClassification": "Diagnostic classification"
+    },
+    "errors": {
+      "cannotIntoDiagnostic": "Bookings cannot be re-routed into the diagnostic department.",
+      "noOp": "Cannot re-route to the same department.",
+      "terminalStatus": "This booking cannot be re-routed in its current status.",
+      "conflict": "Another change was applied to this booking. Refresh and try again.",
+      "forbidden": "You don't have permission to re-route this booking."
+    }
+  },
+  "diagnostic": {
+    "fee": {
+      "label": "Diagnostic Fee",
+      "tooltip": "Charged for the time spent diagnosing the issue. Owed regardless of repair approval."
+    },
+    "errors": {
+      "feeLocked": "The diagnostic fee cannot be edited or removed."
+    }
+  },
+  "rerouteNotifications": {
+    "title": "Booking updated",
+    "body": "Our team has updated your booking. Estimated start time: {{time}}.",
+    "reviseQuote": "A revised quote will be sent to you. Please review it before work continues."
   }
 }

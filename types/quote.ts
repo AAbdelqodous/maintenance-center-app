@@ -1,8 +1,23 @@
+/**
+ * Spec 022 line-item discriminator. `STANDARD` is the historic shape (parts + labor);
+ * `DIAGNOSTIC_FEE` is the read-only fee row auto-injected on quotes for bookings whose
+ * `passedThroughDiagnostic` is true. Backend prepends it; frontend must NOT edit/delete it.
+ */
+export type QuoteLineItemKind = 'STANDARD' | 'DIAGNOSTIC_FEE';
+
 export interface QuoteLineItem {
   description: string;
   descriptionAr?: string;
   partsCost: number;
   laborCost: number;
+  /** Defaults to STANDARD on legacy rows; backend sets DIAGNOSTIC_FEE on the locked row. */
+  kind?: QuoteLineItemKind;
+  /** i18n key used when the row's label is localized server-side (e.g. diagnostic fee). */
+  descriptionKey?: string;
+  /** When false, the frontend MUST NOT render edit affordances for this line. */
+  editable?: boolean;
+  /** When false, the frontend MUST NOT render delete affordances for this line. */
+  removable?: boolean;
 }
 
 export interface CreateQuoteRequest {

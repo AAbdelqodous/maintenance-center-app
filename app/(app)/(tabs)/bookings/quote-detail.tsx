@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useGetBookingQuotesQuery, useSendQuoteMutation } from '@/store/api/quotesApi';
 import type { BookingQuote } from '@/types/quote';
 import { formatKD } from '@/lib/utils/pricing';
+import DiagnosticFeeLineItem from '@/components/quotes/DiagnosticFeeLineItem';
 
 export default function QuoteDetailScreen() {
   const { t } = useTranslation();
@@ -139,17 +140,25 @@ export default function QuoteDetailScreen() {
 
         <View style={styles.lineItemsCard}>
           <Text style={styles.cardTitle}>{t('quote.lineItems')}</Text>
-          {quote.lineItems.map((item, index) => (
-            <View key={index} style={styles.lineItemRow}>
-              <View style={styles.lineItemInfo}>
-                <Text style={styles.lineItemDescription}>{item.description}</Text>
-                <Text style={styles.lineItemDetails}>
-                  {t('quote.partsCost')}: {formatKD(item.partsCost)} | {t('quote.laborCost')}: {formatKD(item.laborCost)}
-                </Text>
+          {/* Spec 022 — diagnostic fee renders in its own locked section above the editable rows. */}
+          {quote.lineItems
+            .filter((item) => item.kind === 'DIAGNOSTIC_FEE')
+            .map((item, index) => (
+              <DiagnosticFeeLineItem key={`dx-${index}`} item={item} />
+            ))}
+          {quote.lineItems
+            .filter((item) => item.kind !== 'DIAGNOSTIC_FEE')
+            .map((item, index) => (
+              <View key={index} style={styles.lineItemRow}>
+                <View style={styles.lineItemInfo}>
+                  <Text style={styles.lineItemDescription}>{item.description}</Text>
+                  <Text style={styles.lineItemDetails}>
+                    {t('quote.partsCost')}: {formatKD(item.partsCost)} | {t('quote.laborCost')}: {formatKD(item.laborCost)}
+                  </Text>
+                </View>
+                <Text style={styles.lineItemTotal}>{formatKD(item.partsCost + item.laborCost)}</Text>
               </View>
-              <Text style={styles.lineItemTotal}>{formatKD(item.partsCost + item.laborCost)}</Text>
-            </View>
-          ))}
+            ))}
         </View>
 
         <View style={styles.totalsCard}>

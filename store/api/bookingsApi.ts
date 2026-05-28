@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_BASE_URL } from '../../lib/constants/config';
 import { RootState } from '../index';
+import type { RerouteRequest, RerouteResponse, RerouteAudit } from '@/types/reroute';
 
 export enum BookingStatus {
   PENDING = 'PENDING',
@@ -52,6 +53,12 @@ export interface Booking {
   departmentId?: number;
   departmentNameAr?: string;
   departmentNameEn?: string;
+  // Spec 022 — true when the booking was originally routed to the diagnostic department
+  // (created with no categoryId). Drives the auto-injected diagnostic-fee line item.
+  passedThroughDiagnostic: boolean;
+  // Snapshot of the diagnostic fee at claim time; null until a tech claims a diagnostic
+  // booking, then frozen even if the owner later changes the dept's fee.
+  diagnosticFeeRateAtClaim: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -128,7 +135,7 @@ export const bookingsApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Booking'],
+  tagTypes: ['Booking', 'RerouteHistory', 'StaffPerformance'],
   endpoints: (builder) => ({
     getBookingQueue: builder.query<BookingsResponse, { page?: number; size?: number }>({
       query: ({ page = 0, size = 20 } = {}) => ({
@@ -224,6 +231,24 @@ export const bookingsApi = createApi({
         'StaffPerformance',
       ],
     }),
+    // Spec 022 — re-route. Invalidates booking detail + this booking's reroute-history.
+    // (Queue invalidation is implicit via the 'Booking' tag for now.)
+    rerouteBooking: builder.mutation<RerouteResponse, { id: number; body: RerouteRequest }>({
+      query: ({ id, body }) => ({
+        url: `bookings/${id}/reroute`,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        'Booking',
+        { type: 'Booking', id },
+        { type: 'RerouteHistory', id },
+      ],
+    }),
+    getBookingRerouteHistory: builder.query<RerouteAudit[], number>({
+      query: (id) => `bookings/${id}/reroute-history`,
+      providesTags: (_result, _error, id) => [{ type: 'RerouteHistory', id }],
+    }),
   }),
 });
 
@@ -240,4 +265,6 @@ export const {
   useCancelBookingMutation,
   useClaimBookingMutation,
   useAssignBookingManuallyMutation,
+  useRerouteBookingMutation,
+  useGetBookingRerouteHistoryQuery,
 } = bookingsApi;

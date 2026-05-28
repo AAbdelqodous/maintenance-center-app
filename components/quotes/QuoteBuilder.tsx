@@ -54,7 +54,7 @@ export default function QuoteBuilder({ onSubmit, isLoading, defaultValues }: Pro
           <Controller
             control={control}
             name={`lineItems.${index}.description` as const}
-            render={({ field: { onChange, onBlur, value }, fieldState: { error }) => (
+            render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
               <View style={styles.fieldContainer}>
                 <Text style={styles.label}>{t('quote.description')}</Text>
                 <Text style={styles.input}>{value}</Text>
@@ -79,7 +79,7 @@ export default function QuoteBuilder({ onSubmit, isLoading, defaultValues }: Pro
               <Controller
                 control={control}
                 name={`lineItems.${index}.partsCost` as const}
-                render={({ field: { value }, fieldState: { error }) => (
+                render={({ field: { value }, fieldState: { error } }) => (
                   <View>
                     <Text style={styles.label}>{t('quote.partsCost')}</Text>
                     <Text style={styles.input}>{formatKD(value)}</Text>
@@ -93,7 +93,7 @@ export default function QuoteBuilder({ onSubmit, isLoading, defaultValues }: Pro
               <Controller
                 control={control}
                 name={`lineItems.${index}.laborCost` as const}
-                render={({ field: { value }, fieldState: { error }) => (
+                render={({ field: { value }, fieldState: { error } }) => (
                   <View>
                     <Text style={styles.label}>{t('quote.laborCost')}</Text>
                     <Text style={styles.input}>{formatKD(value)}</Text>

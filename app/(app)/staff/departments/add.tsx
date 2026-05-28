@@ -19,6 +19,10 @@ const DEPT_ERROR_MAP: Record<string, string | undefined> = {
   DEPT_MEMBER_NOT_TECHNICIAN: 'departments.errors.memberNotTechnician',
   DEPT_MEMBER_ALREADY_ASSIGNED: undefined,
   DEPT_MEMBER_WRONG_CENTER: 'departments.errors.memberWrongCenter',
+  // Spec 022 — diagnostic dept errors.
+  DUPLICATE_DIAGNOSTIC_DEPARTMENT: 'departments.errors.duplicateDiagnosticDepartment',
+  INVALID_DIAGNOSTIC_FEE_TARGET: 'departments.errors.invalidDiagnosticFeeTarget',
+  DIAGNOSTIC_TOGGLE_BLOCKED_BY_OPEN_BOOKINGS: 'departments.errors.diagnosticToggleBlockedByOpenBookings',
 };
 
 export { DEPT_ERROR_MAP };

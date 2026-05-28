@@ -3,13 +3,21 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { useGetBookingByIdQuery, useConfirmBookingMutation, useStartServiceMutation, useCompleteBookingMutation, useCancelBookingMutation, useAssignBookingManuallyMutation, BookingStatus, ServiceType } from '@/store/api/bookingsApi';
+import {
+  useGetBookingByIdQuery, useConfirmBookingMutation, useStartServiceMutation,
+  useCompleteBookingMutation, useCancelBookingMutation, useAssignBookingManuallyMutation,
+  useGetBookingRerouteHistoryQuery, BookingStatus, ServiceType,
+} from '@/store/api/bookingsApi';
 import { TechnicianPicker } from '@/components/bookings/TechnicianPicker';
+import { RerouteForm } from '@/components/bookings/RerouteForm';
+import RerouteHistoryList from '@/components/bookings/RerouteHistoryList';
 import { PermissionGate } from '@/components/staff/PermissionGate';
 import StageUpdateForm from '@/components/progress/StageUpdateForm';
 import ProgressTimeline from '@/components/progress/ProgressTimeline';
 import QuoteCard from '@/components/quotes/QuoteCard';
 import { useGetBookingQuotesQuery } from '@/store/api/quotesApi';
+import { useGetMyMembershipsQuery } from '@/store/api/staffApi';
+import { useAppSelector } from '@/store';
 import type { WorkStage } from '@/types/workProgress';
 import { useLookup } from '@/lib/hooks/useLookup';
 import { LOOKUP_PARAMS, OTHER_SHORT_NAME } from '@/types/lookup';
@@ -30,8 +38,26 @@ export default function BookingDetailScreen() {
   const [completionNotes, setCompletionNotes] = useState('');
   const [actionMessage, setActionMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [showTechnicianPicker, setShowTechnicianPicker] = useState(false);
+  const [showRerouteForm, setShowRerouteForm] = useState(false);
 
   const { data: booking, isLoading, refetch } = useGetBookingByIdQuery(Number(id));
+  // Spec 022 — history list lives on the detail screen below progress timeline.
+  const { data: rerouteHistory } = useGetBookingRerouteHistoryQuery(Number(id));
+
+  // Resolve the current user's membership at the active center so we can answer
+  // "is the caller the assigned technician?" — required for the canReroute gate per the
+  // visual smoke test (hide button for non-assigned techs).
+  const activeCenterId = useAppSelector((s) => s.center.activeCenterId);
+  const activeUserRole = useAppSelector((s) => s.center.activeUserRole);
+  const { data: myMemberships } = useGetMyMembershipsQuery();
+  const myMembershipAtActiveCenter = myMemberships?.find((m) => m.centerId === activeCenterId);
+
+  const isAssignedTech =
+    activeUserRole === 'TECHNICIAN'
+    && myMembershipAtActiveCenter?.id != null
+    && booking?.assignedMembershipId === myMembershipAtActiveCenter.id;
+  const canReroute =
+    activeUserRole === 'OWNER' || activeUserRole === 'BRANCH_MANAGER' || isAssignedTech;
   const [confirmBooking, { isLoading: isConfirming }] = useConfirmBookingMutation();
   const [startService, { isLoading: isStarting }] = useStartServiceMutation();
   const [completeBooking, { isLoading: isCompleting }] = useCompleteBookingMutation();
@@ -346,8 +372,23 @@ export default function BookingDetailScreen() {
               </View>
             </PermissionGate>
 
-            {(canConfirm || canStart || canComplete || canCancel) && (
+            {/* Spec 022 — re-route history shown above the action area on the details tab. */}
+            <RerouteHistoryList entries={rerouteHistory} />
+
+            {(canConfirm || canStart || canComplete || canCancel || canReroute) && (
               <View style={styles.actionsContainer}>
+                {canReroute && booking.bookingStatus !== BookingStatus.COMPLETED
+                  && booking.bookingStatus !== BookingStatus.CANCELLED
+                  && booking.bookingStatus !== BookingStatus.NO_SHOW && (
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.rerouteButton]}
+                    onPress={() => setShowRerouteForm(true)}
+                    disabled={isUpdating}
+                  >
+                    <Ionicons name="git-branch-outline" size={20} color="#FFFFFF" />
+                    <Text style={styles.actionButtonText}>{t('reroute.action')}</Text>
+                  </TouchableOpacity>
+                )}
                 {canConfirm && (
                   <>
                     <TouchableOpacity
@@ -455,6 +496,17 @@ export default function BookingDetailScreen() {
         currentMembershipId={booking?.assignedMembershipId ?? null}
         onSelect={handleAssign}
         onClose={() => setShowTechnicianPicker(false)}
+      />
+
+      <RerouteForm
+        visible={showRerouteForm}
+        bookingId={Number(id)}
+        currentDepartmentId={booking?.departmentId}
+        onClose={() => setShowRerouteForm(false)}
+        onSuccess={() => {
+          showFeedback('success', t('bookings.statusUpdated'));
+          refetch();
+        }}
       />
 
       <Modal
@@ -696,6 +748,9 @@ const styles = StyleSheet.create({
   },
   rejectButton: {
     backgroundColor: '#FF9800',
+  },
+  rerouteButton: {
+    backgroundColor: '#6366F1',
   },
   addUpdateButton: {
     flexDirection: 'row',
