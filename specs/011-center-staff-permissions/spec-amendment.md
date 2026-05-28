@@ -97,6 +97,8 @@ The following permissions are referenced in §B but were not defined in the orig
 | `ASSIGN_TECHNICIAN_MANUAL` | Owner or Branch Manager can explicitly assign (or reassign) any booking to any technician, including cross-department with an override flag. | All roles except OWNER, BRANCH_MANAGER |
 | `MANAGE_ALL_STAFF` | Owner can invite, suspend, remove, or change the role of any staff member at the center, including Branch Managers and Accountants. | All roles except OWNER |
 | `VIEW_PRICE_LIST` | Read-only access to the center's published service price ranges (CenterServicePricing). Does not include booking-specific quotes, invoice amounts, or payment totals. | (All roles have this or MANAGE_PRICING, which is a superset) |
+| `REROUTE_BOOKING_ASSIGNED` | Technician may re-route a booking they are currently assigned to, from its current department to another active, non-diagnostic department at the same center (spec 022 FR-DR-030). Constrained to bookings whose `assignedMembershipId` matches the caller's membership. | All roles except TECHNICIAN |
+| `REROUTE_BOOKING_ANY` | Owner or Branch Manager may re-route any non-terminal booking at their center to another active, non-diagnostic department (spec 022 FR-DR-031). Used by the manager override path; mirrors the OWNER/BRANCH_MANAGER side of `ASSIGN_TECHNICIAN_MANUAL`. | All roles except OWNER, BRANCH_MANAGER |
 
 > **Rename from original spec 011:** `ASSIGN_TECHNICIAN` is renamed to
 > `ASSIGN_TECHNICIAN_MANUAL` across the entire spec, all contracts, and all frontend code.
