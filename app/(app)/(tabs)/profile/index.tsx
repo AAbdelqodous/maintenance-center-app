@@ -22,6 +22,8 @@ function ProfileScreen() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const isRTL = i18n.dir() === 'rtl';
+  const activePermissions = useAppSelector((state) => state.center.activePermissions);
+  const canRespondToQuotes = activePermissions.includes('RESPOND_TO_QUOTES');
 
   const { data: center, isLoading, refetch, error: centerError } = useGetMyCenterQuery();
   const { data: centerServices } = useGetMyCenterServicesQuery();
@@ -409,6 +411,17 @@ function ProfileScreen() {
       </TouchableOpacity>
 
       <View style={styles.section}>
+        {canRespondToQuotes && (
+          <TouchableOpacity
+            style={[styles.menuRow, isRTL && styles.rowRtl]}
+            onPress={() => router.push('/(app)/quote-requests' as any)}
+          >
+            <Ionicons name="pricetags-outline" size={20} color="#2196F3" />
+            <Text style={styles.menuRowText}>{t('quoteRequests.entry')}</Text>
+            <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity
           style={[styles.menuRow, isRTL && styles.rowRtl]}
           onPress={() => router.push('/(app)/(tabs)/profile/services' as any)}

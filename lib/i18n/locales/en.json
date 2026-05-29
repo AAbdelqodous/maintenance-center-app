@@ -976,5 +976,71 @@
     "title": "Booking updated",
     "body": "Our team has updated your booking. Estimated start time: {{time}}.",
     "reviseQuote": "A revised quote will be sent to you. Please review it before work continues."
+  },
+  "quoteRequests": {
+    "entry": "Quote Requests",
+    "entrySubtitle": "Customer requests matching your services",
+    "inbox": {
+      "title": "Quote Requests",
+      "empty": "No matching requests right now.",
+      "noAccess": "You don't have access to quote requests.",
+      "received": "Received {{when}}",
+      "expiresIn": "Expires {{when}}",
+      "responded": "Quoted",
+      "notResponded": "New",
+      "distance": "{{km}} km away"
+    },
+    "detail": {
+      "title": "Request",
+      "vehicle": "Vehicle / appliance",
+      "area": "Area",
+      "fulfillment": "Preferred service",
+      "respond": "Send quote",
+      "edit": "Edit quote",
+      "withdraw": "Withdraw quote",
+      "yourQuote": "Your quote",
+      "won": "You won this job",
+      "notSelected": "Customer chose another center",
+      "closed": "This request is closed"
+    },
+    "form": {
+      "title": "Your quote",
+      "fixed": "Fixed price",
+      "range": "Price range",
+      "priceMin": "Price (KD)",
+      "priceMax": "Max price (KD)",
+      "duration": "Estimated duration (min)",
+      "inclusions": "What's included",
+      "inclusionsPlaceholder": "e.g. Gas refill + leak check",
+      "note": "Message to customer (optional)",
+      "submit": "Send quote",
+      "update": "Update quote",
+      "priceError": "Enter a valid price",
+      "rangeError": "Max price must be ≥ price"
+    },
+    "fulfillmentHint": {
+      "DROP_OFF": "Drop-off",
+      "PICKUP_DELIVERY": "Pickup & delivery",
+      "AT_HOME": "At-home"
+    },
+    "preferences": {
+      "title": "Lead Preferences",
+      "optIn": "Receive quote requests",
+      "optInHint": "Get matching customer requests in your inbox",
+      "areas": "Service areas",
+      "areasHint": "Governorates you cover, comma-separated",
+      "quietHours": "Quiet hours",
+      "from": "From",
+      "to": "To",
+      "save": "Save preferences"
+    },
+    "metrics": {
+      "title": "Your lead performance",
+      "received": "Received",
+      "responded": "Responded",
+      "won": "Won",
+      "winRate": "Win rate",
+      "avgResponse": "Avg. response"
+    }
   }
 }

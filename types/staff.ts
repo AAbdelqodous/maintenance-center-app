@@ -37,7 +37,10 @@ export type CenterPermission =
   // Spec 022 — re-route. ANY is held by OWNER/BRANCH_MANAGER (re-route any booking at
   // the center); ASSIGNED is held by TECHNICIAN (re-route only bookings assigned to them).
   | 'REROUTE_BOOKING_ANY'
-  | 'REROUTE_BOOKING_ASSIGNED';
+  | 'REROUTE_BOOKING_ASSIGNED'
+  // Spec 024 — respond to customer quote requests (view inbox, submit/edit/withdraw the
+  // center's quote). Held by front-of-house roles.
+  | 'RESPOND_TO_QUOTES';
 
 export interface CenterMembership {
   id: number;
@@ -95,15 +98,16 @@ export const ROLE_PERMISSIONS: Record<CenterRole, CenterPermission[]> = {
     'MANAGE_NON_MANAGER_STAFF', 'MANAGE_ALL_STAFF',
     'VIEW_REVENUE', 'VIEW_PRICE_LIST', 'MANAGE_PRICING', 'MANAGE_OFFERS',
     'VIEW_REPORTS', 'GENERATE_REPORTS', 'VIEW_CALENDAR', 'REROUTE_BOOKING_ANY',
+    'RESPOND_TO_QUOTES',
   ],
   BRANCH_MANAGER: [
     'MANAGE_BOOKINGS', 'ASSIGN_TECHNICIAN_MANUAL', 'MANAGE_CHAT', 'RESPOND_REVIEWS',
     'EDIT_CENTER_PROFILE', 'MANAGE_NON_MANAGER_STAFF', 'VIEW_REVENUE', 'VIEW_REPORTS',
-    'MANAGE_PRICING', 'MANAGE_OFFERS', 'REROUTE_BOOKING_ANY',
+    'MANAGE_PRICING', 'MANAGE_OFFERS', 'REROUTE_BOOKING_ANY', 'RESPOND_TO_QUOTES',
   ],
   RECEPTIONIST: [
     'MANAGE_BOOKINGS', 'MANAGE_CHAT', 'VIEW_CALENDAR', 'VIEW_BOOKING_BASIC', 'VIEW_PRICE_LIST',
-    'MANAGE_PRICING', 'MANAGE_OFFERS',
+    'MANAGE_PRICING', 'MANAGE_OFFERS', 'RESPOND_TO_QUOTES',
   ],
   TECHNICIAN: [
     'CLAIM_BOOKING', 'VIEW_ASSIGNED_BOOKINGS', 'UPDATE_WORK_STAGE', 'UPLOAD_PROGRESS_MEDIA',
