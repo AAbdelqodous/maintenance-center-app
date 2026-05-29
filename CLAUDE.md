@@ -18,6 +18,32 @@ development — core screens working.
 - [ ] Quote creation and sending
 - [ ] Trust badges display
 
+### 🆕 Competitive Roadmap — New Specs (added 2026-05-29)
+
+Three owner-side specs to win and retain centers by attacking money flow, lead
+generation, and daily operations. All three now carry the **full Spec Kit artifact
+set** (`spec.md` + `plan.md` + `research.md` + `data-model.md` + `quickstart.md` +
+`contracts/` + `tasks.md`) — `specify`/`plan`/`tasks` complete, ready to `implement`.
+Each mirrors a customer-app spec. Tasks are two-repo (`[Frontend]` + `[Backend]`).
+
+| Spec | Folder | Artifacts | Why it matters | Customer-side mirror |
+|------|--------|-----------|----------------|----------------------|
+| **Payments, Earnings & Payouts** | `specs/023-payments-earnings-payouts` | full + 39 tasks | Owners see held/available/paid-out funds net of commission, mark work complete to release escrow, configure deposits (cut no-shows), and request bank payouts. Finances are why a business stays on a tool. | customer `007-payments-wallet-escrow` |
+| **Quote Requests Inbox & Bidding** | `specs/024-quote-requests-inbox` | full + 33 tasks | A free qualified-lead inbox: matching customer requests arrive, the center quotes, accepted quotes become bookings. The strongest acquisition + engagement hook for owners. | customer `009-get-quotes-marketplace` |
+| **Inventory & Parts Management** | `specs/025-inventory-parts-management` | full + 33 tasks | Parts catalog with live stock, parts-on-quote with stock decrement, low-stock alerts. Turns the app into the shop's daily ops tool → stickiness + accurate invoices/margins. | (owner-internal; feeds `009-work-progress-quotes` lines) |
+
+**Integrations the plans introduce into existing center systems (read before implementing):**
+- **Permissions** (`types/staff.ts` `CenterPermission` + `ROLE_PERMISSIONS`): `023` adds **`MANAGE_PAYOUTS`** (reuses `VIEW_REVENUE`/`MANAGE_PRICING`/`GENERATE_REPORTS`); `024` adds **`RESPOND_TO_QUOTES`**; `025` adds **`MANAGE_INVENTORY`** + **`CONSUME_PARTS`**.
+- **Attention panel** (`types/attention.ts` `AttentionCategory` + `ATTENTION_CATEGORY_ORDER`): `024` adds **`NEW_QUOTE_REQUEST`**, `025` adds **`LOW_STOCK`**.
+- **Quote object** (`types/quote.ts` `QuoteLineItem`): `025` extends it with `partId?`/`quantity?`/`adHoc?` so catalogued parts price onto the existing `009` quote and decrement stock on commit.
+- **Shared/snapshot/atomic rules**: `023` snapshots the commission rate at capture (no retroactive change) and reuses work-progress completion as the escrow-release trigger; `024` enforces **one sealed quote per center** (unique `(request, center)`); `025` consumes stock **atomically** (no double-spend) with reversal on quote cancel. Money reuses `lib/utils/pricing.ts → formatKD`; everything is center-scoped via `activeCenterId`. Owner config screens live under `profile/…` (not new tabs).
+
+> **Backend gap note:** the backend has only `booking.PaymentMethod` / `PaymentStatus`
+> enum stubs — no real payment, escrow, payout, quote-request, or inventory domain
+> exists yet. These specs assume new backend packages (`payment`, `payout`,
+> `quoterequest`, `inventory`) designed in each spec's `plan.md`. `payment`+`payout`
+> are **shared with** customer `007`; `quoterequest` is **shared with** customer `009`.
+
 ---
 
 ## 🏗️ Architecture
