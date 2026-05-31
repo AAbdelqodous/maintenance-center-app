@@ -977,6 +977,106 @@
     "body": "Our team has updated your booking. Estimated start time: {{time}}.",
     "reviseQuote": "A revised quote will be sent to you. Please review it before work continues."
   },
+  "earnings": {
+    "entry": "Earnings & Payouts",
+    "title": "Earnings",
+    "noAccess": "You don't have permission to view earnings.",
+    "available": "Available",
+    "held": "In escrow",
+    "paidOut": "Paid out",
+    "lifetimeTitle": "Lifetime",
+    "lifetimeGross": "Gross collected",
+    "lifetimeCommission": "Platform commission",
+    "lifetimeNet": "Net earnings",
+    "commissionNote": "All amounts are shown net of the platform commission.",
+    "paymentStatus": {
+      "PENDING": "Pending",
+      "HELD": "In escrow",
+      "RELEASED": "Released",
+      "PAID": "Paid",
+      "REFUNDED": "Refunded",
+      "FAILED": "Failed"
+    },
+    "payouts": {
+      "title": "Payouts",
+      "entry": "Request a payout",
+      "entrySub": "Transfer your available balance to your bank",
+      "viewOnly": "View payout history",
+      "account": "Bank account",
+      "noAccount": "No payout account yet. Add one to request payouts.",
+      "holderName": "Account holder name",
+      "iban": "IBAN",
+      "addAccount": "Add account",
+      "updateAccount": "Update account",
+      "accountSaved": "Bank account saved.",
+      "requestTitle": "Request a payout",
+      "minNote": "Minimum payout is {{min}} KD.",
+      "request": "Request",
+      "requested": "Payout requested. You'll be notified when it's paid.",
+      "invalidAmount": "Enter a valid amount.",
+      "withdrawAll": "Withdraw all available",
+      "history": "Payout history",
+      "noHistory": "No payouts yet.",
+      "status": {
+        "REQUESTED": "Requested",
+        "PROCESSING": "Processing",
+        "PAID": "Paid",
+        "FAILED": "Failed",
+        "UNVERIFIED": "Unverified",
+        "VERIFIED": "Verified",
+        "REJECTED": "Rejected"
+      }
+    },
+    "deposit": {
+      "title": "Deposits",
+      "entry": "Deposit settings",
+      "entrySub": "Require a deposit to cut no-shows",
+      "intro": "Require customers to pay a deposit when booking. It's applied to the final invoice.",
+      "mode": "Deposit type",
+      "modes": {
+        "NONE": "No deposit",
+        "FLAT": "Fixed amount",
+        "PERCENT": "Percentage"
+      },
+      "modesSub": {
+        "NONE": "Customers pay nothing upfront",
+        "FLAT": "A fixed KD amount per booking",
+        "PERCENT": "A percentage of the estimated total"
+      },
+      "flatAmount": "Deposit amount (KD)",
+      "percent": "Deposit percentage (%)",
+      "invalidFlat": "Enter a valid deposit amount.",
+      "invalidPercent": "Enter a percentage between 1 and 100.",
+      "saved": "Deposit settings saved.",
+      "cancellationPolicy": "On cancellation",
+      "policies": {
+        "REFUND": "Refund the deposit",
+        "RETAIN": "Keep the deposit"
+      },
+      "policiesSub": {
+        "REFUND": "Customers get their deposit back if they cancel",
+        "RETAIN": "The deposit covers your no-show cost"
+      },
+      "readOnly": "You don't have permission to edit deposit settings."
+    },
+    "settlement": {
+      "title": "Settlement",
+      "entry": "Payment settlement",
+      "bookingNo": "Booking #{{id}}",
+      "gross": "Gross",
+      "commission": "Commission ({{rate}}%)",
+      "net": "Your net",
+      "refundedLabel": "Refunded",
+      "issueRefund": "Issue a refund",
+      "refundNote": "Refunds are returned to the customer's wallet.",
+      "reason": "Reason (optional)",
+      "confirmRefund": "Confirm refund",
+      "refunded": "Refund issued.",
+      "invalidAmount": "Enter a valid amount.",
+      "notFound": "No settlement for this booking yet.",
+      "disputed": "This payment is under dispute. Refunds are paused."
+    }
+  },
   "quoteRequests": {
     "entry": "Quote Requests",
     "entrySubtitle": "Customer requests matching your services",

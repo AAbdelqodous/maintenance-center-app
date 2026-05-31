@@ -61,6 +61,7 @@ function DashboardScreen() {
   const activeCenterId = useAppSelector((state) => state.center.activeCenterId);
   const activePermissions = useAppSelector((state) => state.center.activePermissions);
   const canViewStaffDrillDown = activePermissions.includes('MANAGE_NON_MANAGER_STAFF');
+  const canViewRevenue = activePermissions.includes('VIEW_REVENUE');
   const userType = useAppSelector((state) => state.auth.session?.userType);
   const isAdmin = userType === 'ADMIN';
   const isStaff = userType === 'STAFF';
@@ -224,6 +225,12 @@ function DashboardScreen() {
           <Ionicons name="star" size={24} color="#2196F3" />
           <Text style={styles.actionText}>{t('reviews.title')}</Text>
         </TouchableOpacity>
+        {canViewRevenue && (
+          <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/(app)/earnings' as any)}>
+            <Ionicons name="cash-outline" size={24} color="#2E7D32" />
+            <Text style={styles.actionText}>{t('earnings.title')}</Text>
+          </TouchableOpacity>
+        )}
         {!isStaff && (
           <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/(tabs)/profile/' as any)}>
             <Ionicons name="business" size={24} color="#2196F3" />

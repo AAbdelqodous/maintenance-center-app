@@ -24,6 +24,7 @@ function ProfileScreen() {
   const isRTL = i18n.dir() === 'rtl';
   const activePermissions = useAppSelector((state) => state.center.activePermissions);
   const canRespondToQuotes = activePermissions.includes('RESPOND_TO_QUOTES');
+  const canViewRevenue = activePermissions.includes('VIEW_REVENUE');
 
   const { data: center, isLoading, refetch, error: centerError } = useGetMyCenterQuery();
   const { data: centerServices } = useGetMyCenterServicesQuery();
@@ -418,6 +419,17 @@ function ProfileScreen() {
           >
             <Ionicons name="pricetags-outline" size={20} color="#2196F3" />
             <Text style={styles.menuRowText}>{t('quoteRequests.entry')}</Text>
+            <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
+          </TouchableOpacity>
+        )}
+
+        {canViewRevenue && (
+          <TouchableOpacity
+            style={[styles.menuRow, isRTL && styles.rowRtl]}
+            onPress={() => router.push('/(app)/earnings' as any)}
+          >
+            <Ionicons name="cash-outline" size={20} color="#2E7D32" />
+            <Text style={styles.menuRowText}>{t('earnings.entry')}</Text>
             <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
           </TouchableOpacity>
         )}

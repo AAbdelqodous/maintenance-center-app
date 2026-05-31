@@ -40,7 +40,10 @@ export type CenterPermission =
   | 'REROUTE_BOOKING_ASSIGNED'
   // Spec 024 — respond to customer quote requests (view inbox, submit/edit/withdraw the
   // center's quote). Held by front-of-house roles.
-  | 'RESPOND_TO_QUOTES';
+  | 'RESPOND_TO_QUOTES'
+  // Spec 023 — request bank payouts of the center's available balance (and manage the payout
+  // bank account). Held by money-handling roles. Earnings/settlement viewing reuses VIEW_REVENUE.
+  | 'MANAGE_PAYOUTS';
 
 export interface CenterMembership {
   id: number;
@@ -98,12 +101,13 @@ export const ROLE_PERMISSIONS: Record<CenterRole, CenterPermission[]> = {
     'MANAGE_NON_MANAGER_STAFF', 'MANAGE_ALL_STAFF',
     'VIEW_REVENUE', 'VIEW_PRICE_LIST', 'MANAGE_PRICING', 'MANAGE_OFFERS',
     'VIEW_REPORTS', 'GENERATE_REPORTS', 'VIEW_CALENDAR', 'REROUTE_BOOKING_ANY',
-    'RESPOND_TO_QUOTES',
+    'RESPOND_TO_QUOTES', 'MANAGE_PAYOUTS',
   ],
   BRANCH_MANAGER: [
     'MANAGE_BOOKINGS', 'ASSIGN_TECHNICIAN_MANUAL', 'MANAGE_CHAT', 'RESPOND_REVIEWS',
     'EDIT_CENTER_PROFILE', 'MANAGE_NON_MANAGER_STAFF', 'VIEW_REVENUE', 'VIEW_REPORTS',
     'MANAGE_PRICING', 'MANAGE_OFFERS', 'REROUTE_BOOKING_ANY', 'RESPOND_TO_QUOTES',
+    'MANAGE_PAYOUTS',
   ],
   RECEPTIONIST: [
     'MANAGE_BOOKINGS', 'MANAGE_CHAT', 'VIEW_CALENDAR', 'VIEW_BOOKING_BASIC', 'VIEW_PRICE_LIST',
@@ -114,6 +118,6 @@ export const ROLE_PERMISSIONS: Record<CenterRole, CenterPermission[]> = {
     'REROUTE_BOOKING_ASSIGNED',
   ],
   ACCOUNTANT: [
-    'VIEW_REVENUE', 'VIEW_BOOKINGS_READONLY', 'GENERATE_REPORTS',
+    'VIEW_REVENUE', 'VIEW_BOOKINGS_READONLY', 'GENERATE_REPORTS', 'MANAGE_PAYOUTS',
   ],
 };

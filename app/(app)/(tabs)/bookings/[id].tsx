@@ -15,6 +15,7 @@ import { PermissionGate } from '@/components/staff/PermissionGate';
 import StageUpdateForm from '@/components/progress/StageUpdateForm';
 import ProgressTimeline from '@/components/progress/ProgressTimeline';
 import QuoteCard from '@/components/quotes/QuoteCard';
+import { SettlementSummaryCard } from '@/components/payments/SettlementSummaryCard';
 import { useGetBookingQuotesQuery } from '@/store/api/quotesApi';
 import { useGetMyMembershipsQuery } from '@/store/api/staffApi';
 import { useAppSelector } from '@/store';
@@ -352,6 +353,26 @@ export default function BookingDetailScreen() {
               {booking.notes && <DetailRow label={t('bookings.notes')} value={booking.notes} />}
             </View>
 
+            {/* Spec 023 — payment settlement (gross − commission = net) + refund. Completed bookings
+                show the full summary widget; earlier states show a lightweight link. */}
+            <PermissionGate permission="VIEW_REVENUE">
+              {booking.bookingStatus === BookingStatus.COMPLETED ? (
+                <SettlementSummaryCard
+                  bookingId={booking.id}
+                  onPress={() => router.push(`/(app)/earnings/settlement/${booking.id}` as any)}
+                />
+              ) : (
+                <TouchableOpacity
+                  style={[styles.card, styles.settlementRow, isRTL && styles.rowRtl]}
+                  onPress={() => router.push(`/(app)/earnings/settlement/${booking.id}` as any)}
+                >
+                  <Ionicons name="cash-outline" size={20} color="#2E7D32" />
+                  <Text style={styles.settlementText}>{t('earnings.settlement.entry')}</Text>
+                  <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
+                </TouchableOpacity>
+              )}
+            </PermissionGate>
+
             <PermissionGate permission="ASSIGN_TECHNICIAN_MANUAL">
               <View style={styles.card}>
                 <View style={[styles.header, isRTL && styles.rowRtl]}>
@@ -679,6 +700,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  settlementRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  settlementText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1A1A2E',
   },
   header: {
     flexDirection: 'row',
