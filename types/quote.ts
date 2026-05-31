@@ -18,6 +18,12 @@ export interface QuoteLineItem {
   editable?: boolean;
   /** When false, the frontend MUST NOT render delete affordances for this line. */
   removable?: boolean;
+  /** Spec 025 — catalogued part ref; backend snapshots salePrice×quantity into partsCost. */
+  partId?: number;
+  /** Spec 025 — units of the catalogued part (defaults to 1). */
+  quantity?: number;
+  /** Spec 025 — one-off part not in the catalog (priced on the quote, no stock effect). */
+  adHoc?: boolean;
 }
 
 export interface CreateQuoteRequest {

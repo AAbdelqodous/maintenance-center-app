@@ -5,6 +5,10 @@ const lineItemSchema = z.object({
   descriptionAr: z.string().optional(),
   partsCost: z.number({ invalid_type_error: 'Parts cost required' }).min(0),
   laborCost: z.number({ invalid_type_error: 'Labor cost required' }).min(0),
+  // Spec 025 — catalogued part line (backend snapshots salePrice×quantity into partsCost on commit).
+  partId: z.number().optional(),
+  quantity: z.number().int().min(1).optional(),
+  adHoc: z.boolean().optional(),
 });
 
 export const quoteSchema = z.object({

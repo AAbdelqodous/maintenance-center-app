@@ -16,6 +16,8 @@ const CATEGORY_NAV_TARGETS: Record<AttentionCategory, string> = {
   LOW_RATED_REVIEW: '/(tabs)/reviews/',
   UNANSWERED_CHAT: '/(tabs)/chat/',
   PENDING_QUOTE: '/(tabs)/bookings/',
+  NEW_QUOTE_REQUEST: '/(app)/quote-requests',
+  LOW_STOCK: '/(app)/(tabs)/profile/inventory',
 };
 
 interface Props {

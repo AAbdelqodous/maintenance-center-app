@@ -977,6 +977,76 @@
     "body": "Our team has updated your booking. Estimated start time: {{time}}.",
     "reviseQuote": "A revised quote will be sent to you. Please review it before work continues."
   },
+  "inventory": {
+    "entry": "Inventory & Parts",
+    "catalog": {
+      "title": "Parts Catalog",
+      "search": "Search by name or SKU",
+      "empty": "No parts yet. Add your first part.",
+      "noLow": "No low-stock items.",
+      "noAccess": "You don't have access to inventory.",
+      "lowStockFilter": "Low stock",
+      "low": "Low",
+      "inactive": "Inactive",
+      "onHandShort": "{{n}} in stock"
+    },
+    "units": { "PIECE": "Piece", "LITRE": "Litre", "SET": "Set", "METER": "Meter", "PAIR": "Pair" },
+    "form": {
+      "addTitle": "Add Part",
+      "nameEn": "Name (English)",
+      "nameAr": "Name (Arabic)",
+      "sku": "SKU / Part number",
+      "category": "Category (optional)",
+      "unit": "Unit",
+      "costPrice": "Cost price (KD)",
+      "salePrice": "Sale price (KD)",
+      "supplier": "Supplier (optional)",
+      "reorderThreshold": "Reorder threshold",
+      "active": "Active",
+      "invalid": "Please fill all required fields with valid values.",
+      "save": "Save"
+    },
+    "detail": {
+      "title": "Part",
+      "notFound": "Part not found.",
+      "onHand": "on hand",
+      "lowWarning": "At or below the reorder threshold ({{threshold}}).",
+      "receive": "Receive",
+      "adjust": "Adjust",
+      "edit": "Edit",
+      "quantity": "Quantity received",
+      "unitCost": "Unit cost (KD, optional)",
+      "newOnHand": "New on-hand count",
+      "reason": "Reason",
+      "received": "Stock received.",
+      "adjusted": "Stock adjusted.",
+      "saved": "Part updated.",
+      "invalidQty": "Enter a valid quantity.",
+      "invalidAdjust": "Enter a count and a reason.",
+      "deactivate": "Deactivate part",
+      "deactivateConfirm": "Deactivate this part? It will be hidden from new quotes."
+    },
+    "movements": {
+      "history": "Stock movements",
+      "empty": "No movements yet.",
+      "RECEIVE": "Received",
+      "ADJUST": "Adjusted",
+      "CONSUME": "Used on a job",
+      "CONSUME_REVERSAL": "Returned"
+    },
+    "lowStock": { "title": "Reorder list", "suggested": "Order {{n}}" },
+    "reports": {
+      "title": "Inventory Report",
+      "noAccess": "You don't have access to reports.",
+      "range": "{{from}} → {{to}}",
+      "stockValue": "Stock value (at cost)",
+      "margin": "Parts margin",
+      "usage": "Usage",
+      "noUsage": "No parts used in this range.",
+      "noReorder": "Nothing to reorder."
+    },
+    "quote": { "addFromCatalog": "Add part from catalog" }
+  },
   "earnings": {
     "entry": "Earnings & Payouts",
     "title": "Earnings",

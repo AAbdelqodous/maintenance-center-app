@@ -23,6 +23,7 @@ import { userApi } from './api/userApi';
 import { departmentsApi } from './api/departmentsApi';
 import { quoteRequestsApi } from './api/quoteRequestsApi';
 import { centerPaymentsApi } from './api/centerPaymentsApi';
+import { inventoryApi } from './api/inventoryApi';
 
 const unauthenticatedMiddleware: Middleware = ({ dispatch }) => (next) => (action) => {
   if (isRejectedWithValue(action) && (action.payload as any)?.status === 401) {
@@ -56,6 +57,7 @@ export const store = configureStore({
     [departmentsApi.reducerPath]: departmentsApi.reducer,
     [quoteRequestsApi.reducerPath]: quoteRequestsApi.reducer,
     [centerPaymentsApi.reducerPath]: centerPaymentsApi.reducer,
+    [inventoryApi.reducerPath]: inventoryApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -81,6 +83,7 @@ export const store = configureStore({
       departmentsApi.middleware,
       quoteRequestsApi.middleware,
       centerPaymentsApi.middleware,
+      inventoryApi.middleware,
     ),
 });
 

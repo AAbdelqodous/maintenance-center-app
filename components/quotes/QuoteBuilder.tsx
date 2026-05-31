@@ -1,10 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { quoteSchema, QuoteFormValues } from './quoteSchema';
 import { formatKD } from '@/lib/utils/pricing';
+import { PartPicker } from '@/components/inventory/PartPicker';
+import { useAppSelector } from '@/store';
+import type { Part } from '@/types/inventory';
 
 interface Props {
   onSubmit: (values: QuoteFormValues) => Promise<void>;
@@ -28,6 +31,22 @@ export default function QuoteBuilder({ onSubmit, isLoading, defaultValues }: Pro
 
   const watchedItems = watch('lineItems');
   const watchedDiscount = watch('discountAmount') ?? 0;
+
+  // Spec 025 — add a catalogued part as a line item (CONSUME_PARTS); backend re-snapshots the price.
+  const canConsumeParts = useAppSelector((s) => s.center.activePermissions).includes('CONSUME_PARTS');
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const addCatalogPart = (part: Part, quantity: number) => {
+    setPickerOpen(false);
+    append({
+      description: part.nameEn,
+      descriptionAr: part.nameAr,
+      partsCost: Math.round(part.salePrice * quantity * 1000) / 1000,
+      laborCost: 0,
+      partId: part.id,
+      quantity,
+      adHoc: false,
+    });
+  };
 
   const subtotal = useMemo(() =>
     (watchedItems ?? []).reduce((sum, item) => sum + (item.partsCost || 0) + (item.laborCost || 0), 0),
@@ -112,6 +131,14 @@ export default function QuoteBuilder({ onSubmit, isLoading, defaultValues }: Pro
       >
         <Text style={styles.addLineButtonText}>{t('quote.addLineItem')}</Text>
       </TouchableOpacity>
+
+      {canConsumeParts && (
+        <TouchableOpacity style={styles.addPartButton} onPress={() => setPickerOpen(true)}>
+          <Text style={styles.addPartButtonText}>{t('inventory.quote.addFromCatalog')}</Text>
+        </TouchableOpacity>
+      )}
+
+      <PartPicker visible={pickerOpen} onClose={() => setPickerOpen(false)} onSelect={addCatalogPart} />
 
       <View style={styles.totalsCard}>
         <View style={[styles.totalRow, isRTL && styles.rowRtl]}>
@@ -225,6 +252,19 @@ const styles = StyleSheet.create({
   addLineButtonText: {
     color: '#2196F3',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  addPartButton: {
+    backgroundColor: '#F3E5F5',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 16,
+    marginTop: -8,
+  },
+  addPartButtonText: {
+    color: '#7B1FA2',
+    fontSize: 15,
     fontWeight: '600',
   },
   totalsCard: {

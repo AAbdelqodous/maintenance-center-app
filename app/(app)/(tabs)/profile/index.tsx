@@ -25,6 +25,7 @@ function ProfileScreen() {
   const activePermissions = useAppSelector((state) => state.center.activePermissions);
   const canRespondToQuotes = activePermissions.includes('RESPOND_TO_QUOTES');
   const canViewRevenue = activePermissions.includes('VIEW_REVENUE');
+  const canViewInventory = activePermissions.includes('CONSUME_PARTS') || activePermissions.includes('MANAGE_INVENTORY');
 
   const { data: center, isLoading, refetch, error: centerError } = useGetMyCenterQuery();
   const { data: centerServices } = useGetMyCenterServicesQuery();
@@ -430,6 +431,17 @@ function ProfileScreen() {
           >
             <Ionicons name="cash-outline" size={20} color="#2E7D32" />
             <Text style={styles.menuRowText}>{t('earnings.entry')}</Text>
+            <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
+          </TouchableOpacity>
+        )}
+
+        {canViewInventory && (
+          <TouchableOpacity
+            style={[styles.menuRow, isRTL && styles.rowRtl]}
+            onPress={() => router.push('/(app)/(tabs)/profile/inventory' as any)}
+          >
+            <Ionicons name="cube-outline" size={20} color="#7B1FA2" />
+            <Text style={styles.menuRowText}>{t('inventory.entry')}</Text>
             <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
           </TouchableOpacity>
         )}

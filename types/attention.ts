@@ -5,7 +5,9 @@ export type AttentionCategory =
   | 'PENDING_QUOTE'
   | 'NEW_QUOTE_REQUEST'
   | 'LOW_RATED_REVIEW'
-  | 'UNANSWERED_CHAT';
+  | 'UNANSWERED_CHAT'
+  // Spec 025 — a catalogued part at/below its reorder threshold.
+  | 'LOW_STOCK';
 
 export type AttentionSeverity = 'HIGH' | 'MEDIUM';
 
@@ -25,6 +27,7 @@ export const ATTENTION_CATEGORY_ORDER: AttentionCategory[] = [
   'STALLED_BOOKING',
   'UNASSIGNED_BOOKING',
   'NEW_QUOTE_REQUEST',
+  'LOW_STOCK',
   'LOW_RATED_REVIEW',
   'UNANSWERED_CHAT',
 ];
