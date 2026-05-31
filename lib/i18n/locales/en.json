@@ -1,4 +1,45 @@
 {
+  "fulfillment": {
+    "logisticsTitle": "Fulfillment & logistics",
+    "advance": "Advance to: {{next}}",
+    "atFinalLeg": "Final leg reached",
+    "declined": "The customer declined this option",
+    "advanceError": "Couldn't advance the logistics leg",
+    "capabilityTitle": "Fulfillment options",
+    "capabilityIntro": "Choose how customers can receive your service and set the fees. Drop-off at the center is always available.",
+    "capabilitySaved": "Fulfillment options saved",
+    "alwaysAvailable": "Always available",
+    "free": "Free",
+    "pickupSub": "You collect and return the item",
+    "atHomeSub": "A technician goes to the customer",
+    "pickupBase": "Base fee (KD)",
+    "pickupPerKm": "Per km (KD)",
+    "atHomeFlat": "Flat fee (KD)",
+    "serviceArea": "Service area (governorates)",
+    "addGovernorate": "Add a governorate",
+    "noAreas": "No service areas added yet.",
+    "feeRequiredPickup": "Enter a valid base and per-km fee for pickup.",
+    "feeRequiredAtHome": "Enter a valid flat fee for at-home service.",
+    "mode": {
+      "DROP_OFF": "Drop-off",
+      "PICKUP_DELIVERY": "Pickup & delivery",
+      "AT_HOME": "At-home service"
+    },
+    "logistics": {
+      "PICKUP_SCHEDULED": "Pickup scheduled",
+      "DRIVER_EN_ROUTE_PICKUP": "Driver en route to customer",
+      "PICKED_UP": "Collected",
+      "AT_CENTER": "At the center",
+      "READY_FOR_RETURN": "Ready for return",
+      "OUT_FOR_DELIVERY": "Out for delivery",
+      "DELIVERED": "Delivered",
+      "TECH_ASSIGNED": "Technician assigned",
+      "TECH_EN_ROUTE": "Technician en route",
+      "TECH_ARRIVED": "Arrived",
+      "SERVICE_IN_PROGRESS": "Work in progress",
+      "SERVICE_COMPLETED": "Completed"
+    }
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",

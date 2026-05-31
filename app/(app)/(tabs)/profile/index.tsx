@@ -26,6 +26,7 @@ function ProfileScreen() {
   const canRespondToQuotes = activePermissions.includes('RESPOND_TO_QUOTES');
   const canViewRevenue = activePermissions.includes('VIEW_REVENUE');
   const canViewInventory = activePermissions.includes('CONSUME_PARTS') || activePermissions.includes('MANAGE_INVENTORY');
+  const canManageFulfillment = activePermissions.includes('MANAGE_PRICING');
 
   const { data: center, isLoading, refetch, error: centerError } = useGetMyCenterQuery();
   const { data: centerServices } = useGetMyCenterServicesQuery();
@@ -454,6 +455,17 @@ function ProfileScreen() {
           <Text style={styles.menuRowText}>{t('services.manageServices')}</Text>
           <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
         </TouchableOpacity>
+
+        {canManageFulfillment && (
+          <TouchableOpacity
+            style={[styles.menuRow, isRTL && styles.rowRtl]}
+            onPress={() => router.push('/(app)/(tabs)/profile/fulfillment' as any)}
+          >
+            <Ionicons name="navigate-outline" size={20} color="#1565C0" />
+            <Text style={styles.menuRowText}>{t('fulfillment.capabilityTitle')}</Text>
+            <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity
           style={[styles.menuRow, isRTL && styles.rowRtl]}

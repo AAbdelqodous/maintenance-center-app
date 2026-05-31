@@ -16,6 +16,7 @@ import StageUpdateForm from '@/components/progress/StageUpdateForm';
 import ProgressTimeline from '@/components/progress/ProgressTimeline';
 import QuoteCard from '@/components/quotes/QuoteCard';
 import { SettlementSummaryCard } from '@/components/payments/SettlementSummaryCard';
+import { LogisticsCard } from '@/components/bookings/LogisticsCard';
 import { useGetBookingQuotesQuery } from '@/store/api/quotesApi';
 import { useGetMyMembershipsQuery } from '@/store/api/staffApi';
 import { useAppSelector } from '@/store';
@@ -371,6 +372,16 @@ export default function BookingDetailScreen() {
                   <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color="#9E9E9E" />
                 </TouchableOpacity>
               )}
+            </PermissionGate>
+
+            {/* Spec 008 — pickup / at-home logistics. Renders nothing for drop-off bookings. */}
+            <PermissionGate permission="UPDATE_WORK_STAGE">
+              <LogisticsCard
+                bookingId={booking.id}
+                mode={booking.fulfillmentMode}
+                initialState={booking.logisticsState}
+                onAdvanced={() => refetch()}
+              />
             </PermissionGate>
 
             <PermissionGate permission="ASSIGN_TECHNICIAN_MANUAL">

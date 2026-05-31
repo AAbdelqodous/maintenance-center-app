@@ -1,4 +1,45 @@
 {
+  "fulfillment": {
+    "logisticsTitle": "التنفيذ والخدمات اللوجستية",
+    "advance": "الانتقال إلى: {{next}}",
+    "atFinalLeg": "تم الوصول إلى المرحلة الأخيرة",
+    "declined": "رفض العميل هذا الخيار",
+    "advanceError": "تعذّر الانتقال إلى المرحلة التالية",
+    "capabilityTitle": "خيارات التنفيذ",
+    "capabilityIntro": "اختر كيف يمكن للعملاء استلام خدمتك وحدّد الرسوم. التسليم في المركز متاح دائمًا.",
+    "capabilitySaved": "تم حفظ خيارات التنفيذ",
+    "alwaysAvailable": "متاح دائمًا",
+    "free": "مجاني",
+    "pickupSub": "أنت تستلم الغرض وتعيده",
+    "atHomeSub": "يذهب الفني إلى العميل",
+    "pickupBase": "الرسوم الأساسية (د.ك)",
+    "pickupPerKm": "لكل كم (د.ك)",
+    "atHomeFlat": "رسوم ثابتة (د.ك)",
+    "serviceArea": "منطقة الخدمة (المحافظات)",
+    "addGovernorate": "إضافة محافظة",
+    "noAreas": "لم تتم إضافة مناطق خدمة بعد.",
+    "feeRequiredPickup": "أدخل رسومًا أساسية ورسومًا لكل كم صحيحة للاستلام.",
+    "feeRequiredAtHome": "أدخل رسومًا ثابتة صحيحة للخدمة المنزلية.",
+    "mode": {
+      "DROP_OFF": "التسليم في المركز",
+      "PICKUP_DELIVERY": "الاستلام والتوصيل",
+      "AT_HOME": "خدمة منزلية"
+    },
+    "logistics": {
+      "PICKUP_SCHEDULED": "تم جدولة الاستلام",
+      "DRIVER_EN_ROUTE_PICKUP": "السائق في الطريق إلى العميل",
+      "PICKED_UP": "تم الاستلام",
+      "AT_CENTER": "في المركز",
+      "READY_FOR_RETURN": "جاهز للإرجاع",
+      "OUT_FOR_DELIVERY": "في طريق التسليم",
+      "DELIVERED": "تم التسليم",
+      "TECH_ASSIGNED": "تم تعيين فني",
+      "TECH_EN_ROUTE": "الفني في الطريق",
+      "TECH_ARRIVED": "وصل",
+      "SERVICE_IN_PROGRESS": "جاري العمل",
+      "SERVICE_COMPLETED": "اكتمل"
+    }
+  },
   "common": {
     "loading": "جاري التحميل...",
     "error": "خطأ",

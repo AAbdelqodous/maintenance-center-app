@@ -59,6 +59,11 @@ export interface Booking {
   // Snapshot of the diagnostic fee at claim time; null until a tech claims a diagnostic
   // booking, then frozen even if the owner later changes the dept's fee.
   diagnosticFeeRateAtClaim: number | null;
+  // Spec 008 — fulfillment: how the service is delivered + the current center-driven logistics leg.
+  // Null/DROP_OFF means no logistics (the booking is handled at the center).
+  fulfillmentMode?: 'DROP_OFF' | 'PICKUP_DELIVERY' | 'AT_HOME' | null;
+  fulfillmentFee?: number | null;
+  logisticsState?: string | null;
   createdAt: string;
   updatedAt: string;
 }
