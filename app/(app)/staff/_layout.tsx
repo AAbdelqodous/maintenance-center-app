@@ -68,8 +68,9 @@ export default function StaffTabLayout() {
         }}
       />
       {/* Hidden screens — navigated to from dashboard quick actions */}
-      <Tabs.Screen name="pricing" options={{ href: null }} />
-      <Tabs.Screen name="offers"  options={{ href: null }} />
+      <Tabs.Screen name="pricing"     options={{ href: null }} />
+      <Tabs.Screen name="offers"      options={{ href: null }} />
+      <Tabs.Screen name="departments" options={{ href: null }} />
     </Tabs>
   );
 }

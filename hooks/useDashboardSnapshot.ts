@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import { useIsFocused } from '@react-navigation/native';
+import { skipToken } from '@reduxjs/toolkit/query/react';
 import { useGetDashboardSnapshotQuery } from '@/store/api/analyticsApi';
 import type { DashboardSnapshot } from '@/types/dashboard';
 
@@ -10,19 +12,28 @@ export interface DashboardSnapshotResult {
   refetch: () => void;
 }
 
-/**
- * Wraps getDashboardSnapshot with focus-aware 60 s polling.
- * pollingInterval is set to 0 when the screen loses focus to prevent
- * background network requests and conserve battery/data.
- * refetchOnFocus triggers an immediate refresh when the screen re-enters focus.
- */
+// Module-level flag: once the endpoint 404s, skip for the rest of the session.
+// Resets on full page reload, which is fine — the backend may eventually ship the endpoint.
+let snapshotEndpointUnavailable = false;
+
 export function useDashboardSnapshot(): DashboardSnapshotResult {
   const isFocused = useIsFocused();
+  const [skip, setSkip] = useState(snapshotEndpointUnavailable);
 
-  const result = useGetDashboardSnapshotQuery(undefined, {
-    pollingInterval: isFocused ? 60_000 : 0,
-    refetchOnFocus: true,
-  });
+  const result = useGetDashboardSnapshotQuery(
+    skip ? skipToken : undefined,
+    {
+      pollingInterval: isFocused && !skip ? 60_000 : 0,
+      refetchOnFocus: !skip,
+    }
+  );
+
+  useEffect(() => {
+    if (result.isError) {
+      snapshotEndpointUnavailable = true;
+      setSkip(true);
+    }
+  }, [result.isError]);
 
   return {
     data: result.data,
